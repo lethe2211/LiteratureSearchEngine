@@ -1,0 +1,33 @@
+#search_results {
+    width: 630px;
+    z-index: 1;			/* 背面に表示 */
+}
+
+#searched_query {
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 0px;
+    margin-bottom: 16px;
+}
+
+.search_result {
+    position: relative;
+    margin-top: 30px;
+}
+
+.search_result_title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+
+.search_result_summary {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.search_result_url {
+    font-size: 14px;
+    color: #008000;
+}

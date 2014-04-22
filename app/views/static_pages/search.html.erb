@@ -1,2 +1,7 @@
-<h1>StaticPages#search</h1>
-<p>Find me in app/views/static_pages/search.html.erb</p>
+<%= form_tag static_pages_result_path do %>
+<%= text_field_tag :search_string %>
+<%= submit_tag "検索" %>
+<% end %>
+
+
+

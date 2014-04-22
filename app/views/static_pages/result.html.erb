@@ -1,2 +1,18 @@
-<h1>StaticPages#result</h1>
-<p>Find me in app/views/static_pages/result.html.erb</p>
+<%= form_tag static_pages_result_path do %>
+<%= text_field_tag :search_string %>
+<%= submit_tag "検索" %>
+<% end %>
+
+<%= params[:search_string] %>
+<div id="search_results" >
+<% @articles.each do |article| %>
+  <div class="search_result">
+  <div class="search_result_title" ><a><%= "#{article["title"][0]}" %></a></div>
+  <div class="search_result_url" ><%= "#{article["url"][0]}" %></div>
+  <div class="search_result_summary" ><%= "#{article["snippet"][0]}" %></div>
+<% end %>
+</div>
+
+
+
+
