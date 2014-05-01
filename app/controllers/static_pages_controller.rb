@@ -7,7 +7,7 @@ class StaticPagesController < ApplicationController
   end
 
   def result
-    command = "/Users/lethe/Dropbox/source/python/google_scholar_crawler.py"
+    command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py"
     query = params[:search_string]
     command += " " + query
     out, err, status = Open3.capture3(command)
