@@ -1,0 +1,1 @@
+Search::Application.config.secret_key_base = 'a40bd69df74b21e34ee852ae906fabef5b564c5c944cf0f0a8ddac6d8be4cd6c88f15cd14fd2759c4783030efcfa363eb93a8b431dfae89646555bb3cf19475b'
