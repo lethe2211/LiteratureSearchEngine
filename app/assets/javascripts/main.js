@@ -74,50 +74,74 @@
         // no-nonsense drag and drop (thanks springy.js)
         var dragged = null;
 
+
+	  var hovered = null;
+	  var handler = {
+
+	      hovered:function(e) {
+		  //alert('hoge');
+		  var pos = $(canvas).offset();
+		  var _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top);
+		  hovered = particleSystem.nearest(_mouseP);
+		  
+		  console.log('x: ' + hovered.point.x);
+		  console.log('y: ' + hovered.point.y);
+		  console.log('distance: ' + hovered.distance);
+		  if(hovered.distance < 50) {
+		      ctx.fillRect(hovered.point.x, hovered.point.y, 1, 1);
+		  }
+		  return false;
+	      }
+
+	  }
+
+	  $(canvas).mousemove(handler.hovered);
+
         // set up a handler object that will initially listen for mousedowns then
         // for moves and mouseups while dragging
-        var handler = {
-          clicked:function(e){
-            var pos = $(canvas).offset();
-            _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
-            dragged = particleSystem.nearest(_mouseP);
 
-            if (dragged && dragged.node !== null){
-              // while we're dragging, don't let physics move the node
-              dragged.node.fixed = true
-            }
+        // var handler = {
+        //   clicked:function(e){
+        //     var pos = $(canvas).offset();
+        //     _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+        //     dragged = particleSystem.nearest(_mouseP);
 
-            $(canvas).bind('mousemove', handler.dragged)
-            $(window).bind('mouseup', handler.dropped)
+        //     if (dragged && dragged.node !== null){
+        //       // while we're dragging, don't let physics move the node
+        //       dragged.node.fixed = true
+        //     }
 
-            return false
-          },
-          dragged:function(e){
-            var pos = $(canvas).offset();
-            var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+        //     $(canvas).bind('mousemove', handler.dragged)
+        //     $(window).bind('mouseup', handler.dropped)
 
-            if (dragged && dragged.node !== null){
-              var p = particleSystem.fromScreen(s)
-              dragged.node.p = p
-            }
+        //     return false
+        //   },
+        //   dragged:function(e){
+        //     var pos = $(canvas).offset();
+        //     var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
 
-            return false
-          },
+        //     if (dragged && dragged.node !== null){
+        //       var p = particleSystem.fromScreen(s)
+        //       dragged.node.p = p
+        //     }
 
-          dropped:function(e){
-            if (dragged===null || dragged.node===undefined) return
-            if (dragged.node !== null) dragged.node.fixed = false
-            dragged.node.tempMass = 1000
-            dragged = null
-            $(canvas).unbind('mousemove', handler.dragged)
-            $(window).unbind('mouseup', handler.dropped)
-            _mouseP = null
-            return false
-          }
-        }
+        //     return false
+        //   },
+
+        //   dropped:function(e){
+        //     if (dragged===null || dragged.node===undefined) return
+        //     if (dragged.node !== null) dragged.node.fixed = false
+        //     dragged.node.tempMass = 1000
+        //     dragged = null
+        //     $(canvas).unbind('mousemove', handler.dragged)
+        //     $(window).unbind('mouseup', handler.dropped)
+        //     _mouseP = null
+        //     return false
+        //   }
+        // }
         
-        // start listening
-        $(canvas).mousedown(handler.clicked);
+        // // start listening
+        // $(canvas).mousedown(handler.clicked);
 
       },
       
