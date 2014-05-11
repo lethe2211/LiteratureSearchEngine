@@ -176,12 +176,24 @@
     sys.parameters({gravity:true}) // use center-gravity to make the graph settle nicely (ymmv)
     sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 
+      var data = {
+	  nodes:{
+	      animals:{'color':'red','shape':'dot','label':'Animals'},
+	      dog:{'color':'green','shape':'dot','label':'dog'},
+	      cat:{'color':'blue','shape':'dot','label':'cat'}
+	  },
+	  edges:{
+	      animals:{ dog:{}, cat:{} }
+	  }
+      };
+      sys.graft(data);
+
     // add some nodes to the graph and watch it go...
-    sys.addEdge('a','b')
-    sys.addEdge('a','c')
-    sys.addEdge('a','d')
-    sys.addEdge('a','e')
-    sys.addNode('f', {alone:true, mass:.25})
+    // sys.addEdge('a','b')
+    // sys.addEdge('a','c')
+    // sys.addEdge('a','d')
+    // sys.addEdge('a','e')
+    // sys.addNode('f', {alone:true, mass:.25})
 
     // or, equivalently:
     //
