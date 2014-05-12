@@ -74,7 +74,7 @@
 		    ctx.fillStyle = (node.data.alone) ? "orange" : "black"
 		    //ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w)
 		    ctx.beginPath();
-		    ctx.arc(pt.x, pt.y, 3, 0, 2 * Math.PI, false);
+		    ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI, false);
 		    ctx.fill();
 		    if(hovered != null && hovered.node.name == node.name){
 			ctx.fillStyle = "black";
@@ -214,18 +214,23 @@
 	// 	      cat:{'color':'blue','shape':'dot','label':'cat'}
 	// 	  },
 	// 	  edges:{
-	// 	      animals:{ dog:{}, cat:{} }
+	// 	      animals:{ dog:{directed: true, weight: 3}, cat:{} }
 	// 	  }
 	// };
-	// sys.graft(data);
-	// sys.addEdge('cat', 'dog', {directed: true, weight: 3});
+
+	var data = $.getJSON('get_citation',function(data){
+	    sys.graft({nodes:data.nodes, edges:data.edges})
+	})
+	console.log(data)
+	sys.graft(data);
+	sys.addEdge('cat', 'dog', {directed: true, weight: 3});
 
 	// add some nodes to the graph and watch it go...
-	sys.addEdge('a','b')
-	sys.addEdge('a','c')
-	sys.addEdge('a','d')
-	sys.addEdge('a','e', {directed: true, weight: 3})
-	sys.addNode('f', {alone:true, mass:.25})
+	// sys.addEdge('a','b')
+	// sys.addEdge('a','c')
+	// sys.addEdge('a','d')
+	// sys.addEdge('a','e', {directed: true, weight: 3})
+	// sys.addNode('f', {alone:true, mass:.25})
 	
 	// or, equivalently:
 	//
