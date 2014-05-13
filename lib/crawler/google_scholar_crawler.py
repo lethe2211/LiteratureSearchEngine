@@ -4,6 +4,7 @@
 import sys
 import commands
 import json
+
 from scholarpy.scholar import *
 
 
@@ -231,6 +232,7 @@ def put_json(querier):
         if art_json["url_pdf"][0] != None:
             cmd = "echo \"" + art_json["url_pdf"][0] + "\" | " + os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh "
             xml = commands.getoutput(cmd)
+            
             if xml != '':
                 art_json["citation"][0] = xml
 

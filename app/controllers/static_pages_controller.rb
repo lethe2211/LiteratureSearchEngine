@@ -9,9 +9,13 @@ class StaticPagesController < ApplicationController
   def result
     command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py"
     query = params[:search_string]
+    if query.strip! == ""
+      return
+    end
+    query = query.gsub(/(\s|　)+/, "+")
+
     command += " " + query
     out, err, status = Open3.capture3(command)
-    p out 
     logger.debug(out)
     json = JSON.parser.new(out)
     @articles = json.parse()
@@ -20,6 +24,9 @@ class StaticPagesController < ApplicationController
         p "#{key}: #{article[key][0]}"
       end
     end
+
+    @text_field_val = params[:search_string] if params[:search_string]
+
   end
 
   def get_citation
