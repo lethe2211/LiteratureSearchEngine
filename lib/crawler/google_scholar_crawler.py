@@ -4,6 +4,7 @@
 import sys
 import commands
 import json
+from bs4 import BeautifulSoup
 
 from scholarpy.scholar import *
 
@@ -232,9 +233,22 @@ def put_json(querier):
         if art_json["url_pdf"][0] != None:
             cmd = "echo \"" + art_json["url_pdf"][0] + "\" | " + os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh "
             xml = commands.getoutput(cmd)
-            
-            if xml != '':
-                art_json["citation"][0] = xml
+            soup = BeautifulSoup(xml, "html.parser")
+            citations = []
+            for rank, citation_soup in enumerate(soup.find_all("citation")):
+                citation = {'num': rank + 1,
+                            'authors': [], 
+                            'title': '', 
+                            'date': '', 
+                            'booktitle': ''}
+                for author_soup in citation_soup.find_all("author"):
+                    citation["authors"].append(author_soup.string)
+                citation["title"] = citation_soup.title.string if citation_soup.title else ''
+                citation["date"] = citation_soup.date.string if citation_soup.date else ''
+                citation["booktitle"] = citation_soup.booktitle.string if citation_soup.booktitle else ''
+                citations.append(citation)
+            if xml != []:
+                art_json["citation"][0] = citations
 
         articles_json.append(art_json)
         

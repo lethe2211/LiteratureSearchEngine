@@ -1,0 +1,8 @@
+{"nodes":{
+    "animals":{"color":"red","shape":"dot","label":"Animals"},
+    "dog":{"color":"green","shape":"dot","label":"dog"},
+    "cat":{"color":"blue","shape":"dot","label":"cat"}
+},
+"edges":{
+    "animals":{ "dog":{"directed": true, "weight": 3}, "cat":{} }
+}}
