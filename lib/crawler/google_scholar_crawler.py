@@ -24,7 +24,8 @@ class ScholarArticleWithSnippets(ScholarArticle):
             'url_citations': [None, 'Citations list', 7], # 被引用論文のリストへのリンク
             'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
             'url_citation':  [None, 'Citation link',  9], # よくわからない...
-            'snippet':       [None, 'Snippet',       10] # スニペット(新たに追加)
+            'snippet':       [None, 'Snippet',       10], # スニペット(新たに追加)
+            'citation':      [None, 'Citation',      11]
         }
 
         # The citation data in one of the standard export formats,
@@ -228,11 +229,10 @@ def put_json(querier):
         art_json = art.as_json()
 
         if art_json["url_pdf"][0] != None:
-            cmd = "echo \"" + art_json["url_pdf"][0] + "\" | " + os.getcwd() + "/extract_citations.sh "
+            cmd = "echo \"" + art_json["url_pdf"][0] + "\" | " + os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh "
             xml = commands.getoutput(cmd)
-            art_json["citation"] = [xml, "Citation", 11]
-        else:
-            art_json["citation"] = [None, "Citation", 11]
+            if xml != '':
+                art_json["citation"][0] = xml
 
         articles_json.append(art_json)
         
