@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import commands
 import json
 from scholarpy.scholar import *
 
@@ -19,7 +20,7 @@ class ScholarArticleWithSnippets(ScholarArticle):
             'num_citations': [0,    'Citations',      3], # 被引用数
             'num_versions':  [0,    'Versions',       4], # 同一判定された論文のバージョン数
             'cluster_id':    [None, 'Cluster ID',     5], # クラスタID
-            'url_pdf':       [None, 'PDF link',       6], # 論文PDFへのリンク
+            'url_pdf':       [None, 'PDF link',       6], # 論文PDFへのリンク(SERPからの直接リンクでなければ取得できない)
             'url_citations': [None, 'Citations list', 7], # 被引用論文のリストへのリンク
             'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
             'url_citation':  [None, 'Citation link',  9], # よくわからない...
@@ -224,15 +225,28 @@ def put_json(querier):
     articles_json = []
     articles = querier.articles
     for art in articles:
-        articles_json.append(art.as_json())
+        art_json = art.as_json()
+
+        if art_json["url_pdf"][0] != None:
+            cmd = "echo \"" + art_json["url_pdf"][0] + "\" | " + os.getcwd() + "/extract_citations.sh "
+            xml = commands.getoutput(cmd)
+            art_json["citation"] = [xml, "Citation", 11]
+        else:
+            art_json["citation"] = [None, "Citation", 11]
+
+        articles_json.append(art_json)
+        
     return json.dumps(articles_json)
+
+def crawl(input_query):
+    querier = ScholarQuerierWithSnippets()
+    settings = ScholarSettings()
+    querier.apply_settings(settings)
+    query = SearchScholarQuery()
+    query.set_words(input_query)
+    querier.send_query(query)
+    print put_json(querier)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] != '':
-        querier = ScholarQuerierWithSnippets()
-        settings = ScholarSettings()
-        querier.apply_settings(settings)
-        query = SearchScholarQuery()
-        query.set_words(sys.argv[1].strip())
-        querier.send_query(query)
-        print put_json(querier)
+        crawl(sys.argv[1].strip())
