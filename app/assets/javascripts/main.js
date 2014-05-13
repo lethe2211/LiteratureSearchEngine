@@ -13,7 +13,7 @@
 	var gfx = arbor.Graphics(canvas);
 	var particleSystem;
 
-	var hovered = null;
+	var hovered = null;	// 現在マウスホバーされているノードを表す
 	
 	var that = {
 	    init:function(system){
@@ -31,10 +31,12 @@
 		particleSystem.screenSize(canvas.width, canvas.height)
 		particleSystem.screenPadding(80) // leave an extra 80px of whitespace per side
 		
+		// マウスハンドラの初期化
 		// set up some event handlers to allow for node-dragging
 		that.initMouseHandling()
 	    },
 	    
+	    // ノードの位置が変わるごとに呼ばれる(ほぼ毎フレームと思ってよい？)
 	    redraw:function(e){
 		//
 		// redraw will be called repeatedly during the run whenever the node positions
@@ -48,18 +50,14 @@
 		ctx.fillStyle = "white"
 		ctx.fillRect(0,0, canvas.width, canvas.height)
 		
-		var nodeBoxes = {}
-		
-		if(hovered != null) {
-		    ctx.fillStyle = "black";
-		    ctx.fillText(hovered.node.name, hovered.point.x, hovered.point.y);
-		    
-		}
+		var nodeBoxes = {} // 矢印の描画に必要
 
+		// すべてのノードについて
 		particleSystem.eachNode(function(node, pt){
 		    // node: {mass:#, p:{x,y}, name:"", data:{}}
 		    // pt:   {x:#, y:#}  node position in screen coords
 		    
+		    // 幅wの時の
 		    var w = 10;
 		    
 		    if (node.data.shape=='dot'){
@@ -71,24 +69,31 @@
 		    }
 		    
 		    // draw a rectangle centered at pt
-		    ctx.fillStyle = (node.data.alone) ? "orange" : "black"
-		    //ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w)
+		    //ctx.fillStyle = (node.data.alone) ? "orange" : "black"
+
+		    ctx.fillStyle = "black"
+
+		    // ノードの円を描画
 		    ctx.beginPath();
 		    ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI, false);
 		    ctx.fill();
+
+		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
 		    if(hovered != null && hovered.node.name == node.name){
 			ctx.fillStyle = "black";
 			ctx.fillText(hovered.node.name, pt.x+10, pt.y-10);
 		    }
+
 		})
-		
+
+		// すべてのエッジについて
 		particleSystem.eachEdge(function(edge, pt1, pt2){
 		    // edge: {source:Node, target:Node, length:#, data:{}}
 		    // pt1:  {x:#, y:#}  source position in screen coords
 		    // pt2:  {x:#, y:#}  target position in screen coords
 		    
-		    var weight = edge.data.weight
-		    var color = edge.data.color
+		    var weight = edge.data.weight // エッジの重み
+		    var color = edge.data.color	  // エッジの色
 		    
 		    if (!color || (""+color).match(/^[ \t]*$/)) color = null
 		    
@@ -97,6 +102,7 @@
 		    var tail = intersect_line_box(pt1, pt2, nodeBoxes[edge.source.name])
 		    var head = intersect_line_box(tail, pt2, nodeBoxes[edge.target.name])
 		    
+		    // エッジに線を引く
 		    // draw a line from pt1 to pt2
 		    ctx.strokeStyle = "rgba(0,0,0, .333)"
 		    ctx.lineWidth = 1
@@ -105,6 +111,7 @@
 		    ctx.lineTo(pt2.x, pt2.y)
 		    ctx.stroke()
 		    
+		    // そのエッジが有向である場合，矢印の頭を書く
 		    // draw an arrowhead if this is a -> style edge
 		    if (edge.data.directed){
 	    		ctx.save()
@@ -113,7 +120,7 @@
 	    		var arrowLength = 6 + wt
 	    		var arrowWidth = 2 + wt
 	    		ctx.fillStyle = (color) ? color : "#cccccc"
-	    		ctx.translate(head.x, head.y);
+	    		ctx.translate(head.x, head.y); // 座標変換？
 	    		ctx.rotate(Math.atan2(head.y - tail.y, head.x - tail.x));
 			
 			// delete some of the edge that's already there (so the point isn't hidden)
@@ -136,49 +143,59 @@
 	    
 	    initMouseHandling:function(){
 		// no-nonsense drag and drop (thanks springy.js)
-		var dragged = null;
+		var dragged = null; // ドラッグされているかどうか
 		
 		var handler = {
 		    
+		    // マウスホバー
 		    hovered:function(e) {
 
-			var pos = $(canvas).offset();
-			var _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top);
+			var pos = $(canvas).offset(); // canvasの左上の位置
+			var _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top); // 現在のマウスの相対位置
+			// マウス位置から最も近いノードまでの距離が一定以下なら，そのノードをホバーしていることとする
+			var dist = 20;
 			hovered = particleSystem.nearest(_mouseP);
-			
-			hovered = (hovered.distance < 20)? hovered : null;
+			hovered = (hovered.distance < dist)? hovered : null;
 
 			return false;
 		    },
 
+		    // mousedown
 		    clicked:function(e){
 			var pos = $(canvas).offset();
 			_mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+
+			// マウス位置から最も近いノードをドラッグする
 			dragged = particleSystem.nearest(_mouseP);
 			
 			if (dragged && dragged.node !== null){
+			    // ドラッグ中は物理演算をしない
 			    // while we're dragging, don't let physics move the node
 			    dragged.node.fixed = true
 			}
 			
+			// ドラッグ中はmousemoveとmouseupに対してハンドラを設定
 			$(canvas).bind('mousemove', handler.dragged)
 			$(window).bind('mouseup', handler.dropped)
 
 			return false
 		    },
 
+		    // ドラッグ
 		    dragged:function(e){
 			var pos = $(canvas).offset();
 			var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
 			
+			// あるノードがドラッグされているとき，そのノードはマウスを追う
 			if (dragged && dragged.node !== null){
-			    var p = particleSystem.fromScreen(s)
+			    var p = particleSystem.fromScreen(s) // 画面左上からの距離
 			    dragged.node.p = p
 			}
 			
 			return false
 		    },
 		    
+		    // mouseup
 		    dropped:function(e){
 			if (dragged===null || dragged.node===undefined) return
 			if (dragged.node !== null) dragged.node.fixed = false
@@ -204,7 +221,7 @@
     
     $(document).ready(function(){
 	var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
-	sys.parameters({gravity:true}) // use center-gravity to make the graph settle nicely (ymmv)
+	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
 	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 
 	// var data = {
@@ -218,12 +235,11 @@
 	// 	  }
 	// };
 
+	// JSONの読み込み(static_pages/get_citationを呼び出すことで，コールバックにJSONが返ってくる)
 	var data = $.getJSON('get_citation',function(data){
 	    sys.graft({nodes:data.nodes, edges:data.edges})
 	})
-	console.log(data)
 	sys.graft(data);
-	sys.addEdge('cat', 'dog', {directed: true, weight: 3});
 
 	// add some nodes to the graph and watch it go...
 	// sys.addEdge('a','b')
@@ -249,6 +265,7 @@
 
     })
     
+    // 矢印の描画に必要
     // helpers for figuring out where to draw arrows (thanks springy.js)
     var intersect_line_line = function(p1, p2, p3, p4)
     {

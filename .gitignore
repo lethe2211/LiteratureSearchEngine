@@ -46,3 +46,8 @@ config/secrets.yml
 # Python
 
 *.py[cod]
+
+# others
+*.body
+*.cite
+*.pdf

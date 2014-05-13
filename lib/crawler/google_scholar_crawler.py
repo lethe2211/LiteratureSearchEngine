@@ -27,7 +27,7 @@ class ScholarArticleWithSnippets(ScholarArticle):
             'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
             'url_citation':  [None, 'Citation link',  9], # よくわからない...
             'snippet':       [None, 'Snippet',       10], # スニペット(新たに追加)
-            'citation':      [None, 'Citation',      11]
+            'citation':      [[], 'Citation',      11]
         }
 
         # The citation data in one of the standard export formats,
