@@ -220,8 +220,8 @@
     }
     
     $(document).ready(function(){
-	var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
-	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
+	var sys = arbor.ParticleSystem(5000, 500, 0) // create the system with sensible repulsion/stiffness/friction
+	sys.parameters({gravity:true}) // use center-gravity to make the graph settle nicely (ymmv)
 	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 
 	// var data = {
