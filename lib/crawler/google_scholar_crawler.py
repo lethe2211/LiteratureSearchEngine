@@ -1,4 +1,4 @@
-#! /Users/lethe/.pythonz/pythons/CPython-2.7.6/bin/python
+#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys

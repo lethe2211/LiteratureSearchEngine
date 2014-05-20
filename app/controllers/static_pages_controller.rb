@@ -44,7 +44,7 @@ class StaticPagesController < ApplicationController
   end
 
   def get_citation
-    render :text => @@graph.to_json
+    render :json => @@graph
     # content = open(Rails.root.to_s + "/lib/crawler/citations/data.json").read
     # @json = JSON.parse(content)
     # logger.debug(@json)
