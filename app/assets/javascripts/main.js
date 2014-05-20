@@ -141,8 +141,9 @@
 		
 	    },
 	    
+	    // マウスハンドラの初期化
 	    initMouseHandling:function(){
-		// no-nonsense drag and drop (thanks springy.js)
+
 		var dragged = null; // ドラッグされているかどうか
 		
 		var handler = {
@@ -220,20 +221,10 @@
     }
     
     $(document).ready(function(){
+	// Arbor.jsの初期化
 	var sys = arbor.ParticleSystem(5000, 500, 0) // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:true}) // use center-gravity to make the graph settle nicely (ymmv)
 	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
-
-	// var data = {
-	// 	  nodes:{
-	// 	      animals:{'color':'red','shape':'dot','label':'Animals'},
-	// 	      dog:{'color':'green','shape':'dot','label':'dog'},
-	// 	      cat:{'color':'blue','shape':'dot','label':'cat'}
-	// 	  },
-	// 	  edges:{
-	// 	      animals:{ dog:{directed: true, weight: 3}, cat:{} }
-	// 	  }
-	// };
 
 	// JSONの読み込み(static_pages/get_citationを呼び出すことで，コールバックにJSONが返ってくる)
 	var data = $.getJSON('get_citation',function(data){
