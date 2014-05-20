@@ -26,23 +26,30 @@ class StaticPagesController < ApplicationController
     logger.debug(out)
     @articles = JSON.parse(out)
 
-    @@graph = {nodes: {}, edges: {}}
-    @articles.each do |article|
-      cid = article["cluster_id"][0].to_s
-      @@graph[:nodes][cid] = {}
-
-      @@graph[:edges][cid] = {}
-      citation = article["citation"][0]
-      logger.debug(citation)
-      citation.each do |cit|
-        @@graph[:edges][cid][cid + "_" + cit["num"].to_s] = {directed: true, weight: 3}
-      end
-    end
+    shape_graph(@articles)
 
   end
 
+  # グラフを記述したJSONをJavaScript側に送る
   def get_citation
     render :json => @@graph
+  end
+
+  private
+  def shape_graph(articles)
+    @@graph = {nodes: {}, edges: {}}
+    articles.each do |article|
+      cid = article["cluster_id"][0].to_s
+      @@graph[:nodes][cid] = {weight: article["num_citations"][0]}
+
+      @@graph[:edges][cid] = {}
+      citation = article["citation"][0]
+      citation.each do |cit|
+        @@graph[:edges][cid][cid + "_" + cit["num"].to_s] = {directed: true, weight: 3}
+      end
+    end 
+    
+    logger.debug(@@graph)
   end
 end
 
