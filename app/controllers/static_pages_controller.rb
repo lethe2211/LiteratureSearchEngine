@@ -7,26 +7,24 @@ class StaticPagesController < ApplicationController
   end
 
   def result
-    command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py"
-    query = params[:search_string]
+    @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
+
+    # クエリの正規化
+    query = params[:search_string] # クエリ
     if query.strip! == ""
       return
     end
     query = query.gsub(/(\s|　)+/, "+")
+    
 
-    @text_field_val = params[:search_string] if params[:search_string]
+    # google_scholar_crawler.pyを呼び出す
+    command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py " # コマンド
+    command += query
+    out, err, status = Open3.capture3(command) # 実行(outが結果の標準出力)
 
-    # command += " " + query + " | tee  " + Rails.root.to_s + "/lib/crawler/citations/" + query + ".json"
-    command += " " + query
-    out, err, status = Open3.capture3(command)
+    # JSONの処理とグラフへの整形
     logger.debug(out)
-    json = JSON.parser.new(out)
-    @articles = json.parse()
-    # @articles.each do |article|
-    #   article.each_key do |key|
-    #     p "#{key}: #{article[key][0]}"
-    #   end
-    # end
+    @articles = JSON.parse(out)
 
     @@graph = {nodes: {}, edges: {}}
     @articles.each do |article|
@@ -45,10 +43,6 @@ class StaticPagesController < ApplicationController
 
   def get_citation
     render :json => @@graph
-    # content = open(Rails.root.to_s + "/lib/crawler/citations/data.json").read
-    # @json = JSON.parse(content)
-    # logger.debug(@json)
-    # render :text => @json.to_json
   end
 end
 
