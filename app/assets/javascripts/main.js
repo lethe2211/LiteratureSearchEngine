@@ -79,8 +79,7 @@
 		    if(hovered != null && hovered.node.name == node.name) {
 			ctx.fillStyle = "black";
 			ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
-			ctx.fillText(hovered.node.data.date, pt.x+10, pt.y);
-			ctx.fillText(hovered.node.data.booktitle, pt.x+10, pt.y+10);
+			ctx.fillText(hovered.node.data.year, pt.x+10, pt.y);
 		    }
 
 		})

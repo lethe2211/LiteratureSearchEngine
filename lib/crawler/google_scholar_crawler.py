@@ -11,7 +11,7 @@ from scholarpy.scholar import *
 
 class ScholarArticleWithSnippets(ScholarArticle):
     '''
-    スニペットを追加
+    著者・スニペットを追加
     JSONを出力できるように変更
     '''
     def __init__(self):
@@ -27,7 +27,8 @@ class ScholarArticleWithSnippets(ScholarArticle):
             'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
             'url_citation':  [None, 'Citation link',  9], # よくわからない...
             'snippet':       [None, 'Snippet',       10], # スニペット(新たに追加)
-            'citation':      [[], 'Citation',      11]
+            'authors':       [[],   'Authors',       11], # 著者(新たに追加)
+            'citation':      [[],   'Citation',      12]
         }
 
         # The citation data in one of the standard export formats,
@@ -57,7 +58,7 @@ class ScholarArticle(object):
 
 class ScholarArticleParser120726WithSnippets(ScholarArticleParser120726):
     '''
-    スニペット追加に対応した変更
+    著者・スニペット追加に対応した変更
     被引用数・バージョン数の日本語対応
     "gs_r"クラスのdivタグの内部の要素がそれぞれの検索結果
     '''
@@ -108,11 +109,18 @@ class ScholarArticleParser120726WithSnippets(ScholarArticleParser120726):
                         span.clear()
                     self.article['title'] = ''.join(tag.h3.findAll(text=True))
 
+
                 # スニペットを追加
                 if tag.find('div', {'class': 'gs_rs'}):
                     self.article['snippet'] = tag.find('div', {'class': 'gs_rs'}).get_text()
 
                 if tag.find('div', {'class': 'gs_a'}):
+                    # 著者を追加
+                    authors = []
+                    for a in tag.find('div', {'class': 'gs_a'}).get_text().split('-')[0].split(','):
+                        authors.append(a.strip())
+                    self.article['authors'] = authors
+
                     year = self.year_re.findall(tag.find('div', {'class': 'gs_a'}).text)
                     self.article['year'] = year[0] if len(year) > 0 else None
 
@@ -211,7 +219,7 @@ class SearchScholarQuery(SearchScholarQuery):
 
 class ScholarQuerierWithSnippets(ScholarQuerier):
     '''
-    スニペット追加に対応した変更
+    著者・スニペット追加に対応した変更
     '''
     class Parser(ScholarArticleParser120726WithSnippets):
         def __init__(self, querier):
@@ -234,21 +242,30 @@ def put_json(querier):
             cmd = os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh " + art_json["url_pdf"][0]
             xml = commands.getoutput(cmd)
             soup = BeautifulSoup(xml, "html.parser")
+
             citations = []
-            for rank, citation_soup in enumerate(soup.find_all("citation")):
-                citation = {'num': rank + 1,
-                            'authors': [], 
-                            'title': '', 
-                            'date': '', 
-                            'booktitle': ''}
-                for author_soup in citation_soup.find_all("author"):
-                    citation["authors"].append(author_soup.string)
-                citation["title"] = citation_soup.title.string if citation_soup.title else ''
-                citation["date"] = citation_soup.date.string if citation_soup.date else ''
-                citation["booktitle"] = citation_soup.booktitle.string if citation_soup.booktitle else ''
-                citations.append(citation)
-            if xml != []:
-                art_json["citation"][0] = citations
+            if len(soup.find_all("citation")) > 0:
+                for rank, citation_soup in enumerate(soup.find_all("citation")):
+                    citation = {'rank': rank + 1,
+                                'citation_cluster_id': '',
+                                'authors': [],
+                                'title': '',
+                                'year': ''}
+                    citation_title = citation_soup.title.string if citation_soup.title else ''
+                    citation_cmd = os.path.dirname(sys.argv[0]) + "/scholarpy/scholar.py -c 1 -t --csv --phrase "
+                    citation_cmd += '"' + citation_title + '"' 
+                    csv = commands.getoutput(citation_cmd)
+
+                    citation_cluster_id = csv.split('|')[5] if len(csv.split('|')) >= 6 else ''
+                    citation['citation_cluster_id'] = citation_cluster_id
+                    for author_soup in citation_soup.find_all("author"):
+                        citation["authors"].append(author_soup.string)
+                    citation["title"] = citation_title
+                    citation["year"] = citation_soup.date.string if citation_soup.date else ''
+
+                    citations.append(citation)
+
+            art_json["citation"][0] = citations
 
         articles_json.append(art_json)
         

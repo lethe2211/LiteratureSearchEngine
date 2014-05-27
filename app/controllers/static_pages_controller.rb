@@ -48,8 +48,9 @@ class StaticPagesController < ApplicationController
         # command = Rails.root.to_s + "/lib/crawler/scholarpy/scholar.py -c 1 "
         # command += cit["title"]
         #out, err, status = Open3.capture3(command)
-        @@graph[:nodes][cid + "_" + cit["num"].to_s] = {weight: 10, title: cit["title"], date: cit["date"]}
-        @@graph[:edges][cid][cid + "_" + cit["num"].to_s] = {directed: true, weight: 10, color: "#cccccc"}
+
+        @@graph[:nodes][cit["citation_cluster_id"]] = {weight: 10, title: cit["title"], year: cit["year"]}
+        @@graph[:edges][cid][cit["citation_cluster_id"]] = {directed: true, weight: 10, color: "#cccccc"}
       end
     end 
     

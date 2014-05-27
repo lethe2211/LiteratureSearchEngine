@@ -48,6 +48,7 @@ config/secrets.yml
 *.py[cod]
 
 # others
+.DS_Store
 *.body
 *.cite
 *.pdf
