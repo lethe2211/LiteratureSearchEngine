@@ -231,7 +231,7 @@ def put_json(querier):
         art_json = art.as_json()
 
         if art_json["url_pdf"][0] != None:
-            cmd = "echo \"" + art_json["url_pdf"][0] + "\" | " + os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh "
+            cmd = os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh " + art_json["url_pdf"][0]
             xml = commands.getoutput(cmd)
             soup = BeautifulSoup(xml, "html.parser")
             citations = []

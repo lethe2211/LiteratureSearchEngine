@@ -10,7 +10,7 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-~/parscit/bin/citeExtract.pl ./tmp.cite
+~/ParsCit/bin/citeExtract.pl ./tmp.cite
 if [ $? -gt 0 ]; then
     # rm ./tmp.cite
     # rm ./tmp.body

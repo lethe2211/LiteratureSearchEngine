@@ -67,9 +67,6 @@
 			//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
 			nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
 		    }
-		    
-		    // draw a rectangle centered at pt
-		    //ctx.fillStyle = (node.data.alone) ? "orange" : "black"
 
 		    ctx.fillStyle = "black"
 
@@ -79,9 +76,11 @@
 		    ctx.fill();
 
 		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
-		    if(hovered != null && hovered.node.name == node.name){
+		    if(hovered != null && hovered.node.name == node.name) {
 			ctx.fillStyle = "black";
-			ctx.fillText(hovered.node.name, pt.x+10, pt.y-10);
+			ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
+			ctx.fillText(hovered.node.data.date, pt.x+10, pt.y);
+			ctx.fillText(hovered.node.data.booktitle, pt.x+10, pt.y+10);
 		    }
 
 		})

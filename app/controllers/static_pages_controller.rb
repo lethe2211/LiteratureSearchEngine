@@ -40,12 +40,16 @@ class StaticPagesController < ApplicationController
     @@graph = {nodes: {}, edges: {}}
     articles.each do |article|
       cid = article["cluster_id"][0].to_s
-      @@graph[:nodes][cid] = {weight: article["num_citations"][0]}
+      @@graph[:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0]}
 
       @@graph[:edges][cid] = {}
       citation = article["citation"][0]
       citation.each do |cit|
-        @@graph[:edges][cid][cid + "_" + cit["num"].to_s] = {directed: true, weight: 3}
+        # command = Rails.root.to_s + "/lib/crawler/scholarpy/scholar.py -c 1 "
+        # command += cit["title"]
+        #out, err, status = Open3.capture3(command)
+        @@graph[:nodes][cid + "_" + cit["num"].to_s] = {weight: 10, title: cit["title"], date: cit["date"]}
+        @@graph[:edges][cid][cid + "_" + cit["num"].to_s] = {directed: true, weight: 10, color: "#cccccc"}
       end
     end 
     
