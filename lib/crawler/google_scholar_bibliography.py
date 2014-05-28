@@ -2,33 +2,28 @@
 # -*- coding: utf-8 -*-
 
 import json
-
 from google_scholar_base import *
-
 
 def put_json(querier):
     '''
     JSONを出力
     '''
-    articles_json = []
-    articles = querier.articles
-    for art in articles:
-        art_json = art.as_json()
+    articles = querier.articles[0].as_json()
 
+    return articles
 
-        articles_json.append(art_json)
-        
-    return articles_json
-
-def crawl(input_query):
+def get_bibliography(cluster_id):
+    '''
+    Cluster_idを受け取り，書誌情報を返す
+    '''
     querier = ScholarQuerierWithSnippets()
     settings = ScholarSettings()
     querier.apply_settings(settings)
-    query = SearchScholarQuery()
-    query.set_words(input_query)
+    query = ClusterScholarQuery(cluster=cluster_id)
+    query.set_num_page_results(1) # 返す検索結果は1件
     querier.send_query(query)
     return put_json(querier)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] != '':
-        print json.dumps(crawl(sys.argv[1].strip()))
+        print json.dumps(get_bibliography(sys.argv[1].strip()))
