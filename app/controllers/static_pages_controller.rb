@@ -17,10 +17,7 @@ class StaticPagesController < ApplicationController
     query = query.gsub(/(\s|　)+/, "+")
     
 
-    # google_scholar_crawler.pyを呼び出す
-    command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py " # コマンド
-    command += query
-    out, err, status = Open3.capture3(command) # 実行(outが結果の標準出力)
+    out = crawl(query)
 
     # JSONの処理とグラフへの整形
     logger.debug(out)
@@ -31,11 +28,38 @@ class StaticPagesController < ApplicationController
   end
 
   # グラフを記述したJSONをJavaScript側に送る
-  def get_citation
+  def send_graph
     render :json => @@graph
   end
 
   private
+  # クエリを受け取り，google_scholar_crawler.pyを呼び出す
+  def crawl(query)
+    command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py " # コマンド
+    command += query
+    out, err, status = Open3.capture3(command) # 実行(outが結果の標準出力)
+
+    return out
+  end
+
+  # Cluster_idを受け取り，google_scholar_citation.pyを呼び出して引用論文のcluster_idを返す  
+  def get_citation(cluster_id)
+    command = Rails.root.to_s + "/lib/crawler/google_scholar_citation.py " 
+    command += cluster_id.to_s
+    out, err, status = Open3.capture3(command)
+
+    return out
+  end
+
+  # Cluster_idを受け取り，google_scholar_bibliography.pyを呼び出して書誌情報を返す  
+  def get_bibliography(cluster_id)
+    command = Rails.root.to_s + "/lib/crawler/google_scholar_bibliography.py " 
+    command += cluster_id.to_s
+    out, err, status = Open3.capture3(command)
+
+    return out
+  end
+
   def shape_graph(articles)
     @@graph = {nodes: {}, edges: {}}
     articles.each do |article|
@@ -43,14 +67,11 @@ class StaticPagesController < ApplicationController
       @@graph[:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0]}
 
       @@graph[:edges][cid] = {}
-      citation = article["citation"][0]
-      citation.each do |cit|
-        # command = Rails.root.to_s + "/lib/crawler/scholarpy/scholar.py -c 1 "
-        # command += cit["title"]
-        #out, err, status = Open3.capture3(command)
-
-        @@graph[:nodes][cit["citation_cluster_id"]] = {weight: 10, title: cit["title"], year: cit["year"]}
-        @@graph[:edges][cid][cit["citation_cluster_id"]] = {directed: true, weight: 10, color: "#cccccc"}
+      citations = JSON.parse(get_citation(cid.to_i))
+      citations.each do |cit|
+        bib = JSON.parse(get_bibliography(cit.to_i))
+        @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+        @@graph[:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
       end
     end 
     

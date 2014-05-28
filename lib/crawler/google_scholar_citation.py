@@ -10,8 +10,8 @@ def get_citation(cluster_id):
     Cluster_idを受け取り，その論文が引用している論文のcluster_idを返す
     '''
     art = get_bibliography(cluster_id) # 書誌情報を返す
- 
-    citations = [] # 引用論文のcluter_id
+
+    citations = [] # 引用論文のcluster_id
     if art["url_pdf"][0] != None:
         # ParsCitによる引用情報の取得
         cmd = os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh " + art["url_pdf"][0]
@@ -26,9 +26,9 @@ def get_citation(cluster_id):
                 citation_cmd += '"' + citation_title + '"' 
                 csv = commands.getoutput(citation_cmd)
 
-                citation_cluster_id = csv.split('|')[5] if len(csv.split('|')) >= 6 else None  # 6番目がcluster_id
-                if citation_cluster_id is not None:
-                    citations.append(citation_cluster_id)
+                citation_cid = csv.split('|')[5] if len(csv.split('|')) >= 6 else None  # 6番目がcluster_id
+                if citation_cid is not None:
+                    citations.append(citation_cid)
     
     return citations
 
