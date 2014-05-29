@@ -51,6 +51,15 @@ class StaticPagesController < ApplicationController
     return out
   end
 
+  # Cluster_idを受け取り，google_scholar_citedby.pyを呼び出して被引用論文のcluster_idを返す  
+  def get_citedby(cluster_id)
+    command = Rails.root.to_s + "/lib/crawler/google_scholar_citedby.py " 
+    command += cluster_id.to_s
+    out, err, status = Open3.capture3(command)
+
+    return out
+  end
+
   # Cluster_idを受け取り，google_scholar_bibliography.pyを呼び出して書誌情報を返す  
   def get_bibliography(cluster_id)
     command = Rails.root.to_s + "/lib/crawler/google_scholar_bibliography.py " 
@@ -67,11 +76,22 @@ class StaticPagesController < ApplicationController
       @@graph[:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0]}
 
       @@graph[:edges][cid] = {}
+
       citations = JSON.parse(get_citation(cid.to_i))
       citations.each do |cit|
         bib = JSON.parse(get_bibliography(cit.to_i))
         @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
         @@graph[:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+      end
+
+      citedbyes = JSON.parse(get_citedby(cid.to_i))
+      citedbyes.each do |cit|
+        bib = JSON.parse(get_bibliography(cit.to_i))
+        @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+        if @@graph[:edges].has_key?(cit) == false
+           @@graph[:edges][cit] = {}
+        end 
+        @@graph[:edges][cit][cid] = {directed: true, weight: 10, color: "#cccccc"}
       end
     end 
     

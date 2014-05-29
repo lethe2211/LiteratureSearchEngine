@@ -13,6 +13,7 @@ def get_citedby(cluster_id):
 
     FIXME:
     書誌情報そのものが取ってこれなかったり，被引用論文のタイトル検索がうまく行かなかったりするみたい
+    ネットワーク関係の何か？(API制限とか)
     printを挟んで処理を遅延させるとうまくいく(？)
     '''
     art = get_bibliography(cluster_id) # 書誌情報を返す
@@ -20,17 +21,17 @@ def get_citedby(cluster_id):
     citedbyes = [] # 被引用論文のcluster_id
     if art["url_citations"][0] is not None:
         html = requests.get(art["url_citations"][0]).text
-        print html
+        #print html
         soup = BeautifulSoup(html)
         soup_titles = soup.find_all("h3", "gs_rt")
         for soup_title in soup_titles:
             # 各被引用論文について，タイトルで検索した時の上位1件のcluster_idを取得
             citedby_title = soup_title.a.get_text() if soup_title.a else ''
-            print citedby_title
+            #print citedby_title
             citedby_cmd = os.path.dirname(sys.argv[0]) + "/scholarpy/scholar.py -c 1 -t --csv --phrase " # CSV形式で検索
             citedby_cmd += '"' + citedby_title + '"' 
             csv = commands.getoutput(citedby_cmd)
-            print csv
+            #print csv
             citedby_cid = csv.split('|')[5] if len(csv.split('|')) >= 6 else None  # 6番目がcluster_id
             if citedby_cid is not None:
                 citedbyes.append(citedby_cid)
