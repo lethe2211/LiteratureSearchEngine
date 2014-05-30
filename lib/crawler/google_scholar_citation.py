@@ -17,7 +17,7 @@ def get_citation(cluster_id):
         cmd = os.path.dirname(os.path.abspath(sys.argv[0])) + "/../extract_citations.sh " + art["url_pdf"][0]
         xml = commands.getoutput(cmd)
         soup = BeautifulSoup(xml, "html.parser")
-
+        
         if len(soup.find_all("citation")) > 0:
             for citation_soup in soup.find_all("citation"):
                 # 各引用論文について，タイトルで検索した時の上位1件のcluster_idを取得

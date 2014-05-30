@@ -1,0 +1,92 @@
+(dp1
+S'url_citation'
+p2
+(lp3
+NaS'Citation link'
+p4
+aI9
+asS'url_versions'
+p5
+(lp6
+NaS'Versions list'
+p7
+aI8
+asS'authors'
+p8
+(lp9
+(lp10
+VP Almeida
+p11
+aaS'Authors'
+p12
+aI11
+asS'num_citations'
+p13
+(lp14
+I849
+aS'Citations'
+p15
+aI3
+asS'cluster_id'
+p16
+(lp17
+V12225326321597210281
+p18
+aS'Cluster ID'
+p19
+aI5
+asS'year'
+p20
+(lp21
+V1996
+p22
+aS'Year'
+p23
+aI2
+asS'url_citations'
+p24
+(lp25
+Vhttp://scholar.google.com/scholar?cites=12225326321597210281&as_sdt=2005&sciodt=0,5&hl=ja
+p26
+aS'Citations list'
+p27
+aI7
+asS'num_versions'
+p28
+(lp29
+I0
+aS'Versions'
+p30
+aI4
+asS'title'
+p31
+(lp32
+VKnowledge sourcing by foreign multinationals: patent citation analysis in the US semiconductor industry
+p33
+aS'Title'
+p34
+aI0
+asS'url'
+p35
+(lp36
+Vhttp://teaching.ust.hk/~mgto650p/meyer/readings/2/Almeida.pdf
+p37
+aS'URL'
+p38
+aI1
+asS'url_pdf'
+p39
+(lp40
+g37
+aS'PDF link'
+p41
+aI6
+asS'snippet'
+p42
+(lp43
+VDo multinational firms go abroad to acquire technological knowledge? Do they also contribute to local technological progress? The answer to these questions, central to the theory of foreign direct investment (FDI), depends in part on the geographic patterns of  ...
+p44
+aS'Snippet'
+p45
+aI10
+as.

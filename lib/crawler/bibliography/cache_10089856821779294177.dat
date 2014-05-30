@@ -1,0 +1,97 @@
+(dp1
+S'url_citation'
+p2
+(lp3
+NaS'Citation link'
+p4
+aI9
+asS'url_versions'
+p5
+(lp6
+NaS'Versions list'
+p7
+aI8
+asS'authors'
+p8
+(lp9
+(lp10
+VJ Weng
+p11
+aVEP Lim
+p12
+aVJ Jiang
+p13
+aVQ He
+p14
+aaS'Authors'
+p15
+aI11
+asS'num_citations'
+p16
+(lp17
+I701
+aS'Citations'
+p18
+aI3
+asS'cluster_id'
+p19
+(lp20
+V10089856821779294177
+p21
+aS'Cluster ID'
+p22
+aI5
+asS'year'
+p23
+(lp24
+V2010
+p25
+aS'Year'
+p26
+aI2
+asS'url_citations'
+p27
+(lp28
+Vhttp://scholar.google.com/scholar?cites=10089856821779294177&as_sdt=2005&sciodt=0,5&hl=ja
+p29
+aS'Citations list'
+p30
+aI7
+asS'num_versions'
+p31
+(lp32
+I0
+aS'Versions'
+p33
+aI4
+asS'title'
+p34
+(lp35
+VTwitterrank: finding topic-sensitive influential twitterers
+p36
+aS'Title'
+p37
+aI0
+asS'url'
+p38
+(lp39
+Vhttp://dl.acm.org/citation.cfm?id=1718520
+p40
+aS'URL'
+p41
+aI1
+asS'url_pdf'
+p42
+(lp43
+NaS'PDF link'
+p44
+aI6
+asS'snippet'
+p45
+(lp46
+VAbstract This paper focuses on the problem of identifying influential users of micro-blogging services. Twitter, one of the most notable micro-blogging services, employs a social-networking model called" following", in which each user can choose who she wants to"  ...
+p47
+aS'Snippet'
+p48
+aI10
+as.

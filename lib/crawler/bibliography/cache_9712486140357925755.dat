@@ -1,0 +1,96 @@
+(dp1
+S'url_citation'
+p2
+(lp3
+NaS'Citation link'
+p4
+aI9
+asS'url_versions'
+p5
+(lp6
+NaS'Versions list'
+p7
+aI8
+asS'authors'
+p8
+(lp9
+(lp10
+VA Java
+p11
+aVP Kolari
+p12
+aVT Finin
+p13
+aVT Oates
+p14
+aaS'Authors'
+p15
+aI11
+asS'num_citations'
+p16
+(lp17
+I110
+aS'Citations'
+p18
+aI3
+asS'cluster_id'
+p19
+(lp20
+V9712486140357925755
+p21
+aS'Cluster ID'
+p22
+aI5
+asS'year'
+p23
+(lp24
+NaS'Year'
+p25
+aI2
+asS'url_citations'
+p26
+(lp27
+Vhttp://scholar.google.com/scholar?cites=9712486140357925755&as_sdt=2005&sciodt=0,5&hl=ja
+p28
+aS'Citations list'
+p29
+aI7
+asS'num_versions'
+p30
+(lp31
+I0
+aS'Versions'
+p32
+aI4
+asS'title'
+p33
+(lp34
+VModeling the spread of influence on the blogosphere
+p35
+aS'Title'
+p36
+aI0
+asS'url'
+p37
+(lp38
+Vhttp://ebiquity.umbc.edu/get/a/publication/262.pdf
+p39
+aS'URL'
+p40
+aI1
+asS'url_pdf'
+p41
+(lp42
+g39
+aS'PDF link'
+p43
+aI6
+asS'snippet'
+p44
+(lp45
+VABSTRACT Blogs have become a means by which new ideas and information spreads rapidly on the web. They often discuss the latest trends and echo with reactions to different events in the world. The collective wisdom present on the blogosphere is invaluable for  ...
+p46
+aS'Snippet'
+p47
+aI10
+as.

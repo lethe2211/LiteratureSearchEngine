@@ -1,0 +1,90 @@
+(dp1
+S'url_citation'
+p2
+(lp3
+NaS'Citation link'
+p4
+aI9
+asS'url_versions'
+p5
+(lp6
+NaS'Versions list'
+p7
+aI8
+asS'authors'
+p8
+(lp9
+(lp10
+VE Garfield
+p11
+aaS'Authors'
+p12
+aI11
+asS'num_citations'
+p13
+(lp14
+I1917
+aS'Citations'
+p15
+aI3
+asS'cluster_id'
+p16
+(lp17
+V259550372739807069
+p18
+aS'Cluster ID'
+p19
+aI5
+asS'year'
+p20
+(lp21
+NaS'Year'
+p22
+aI2
+asS'url_citations'
+p23
+(lp24
+Vhttp://scholar.google.com/scholar?cites=259550372739807069&as_sdt=2005&sciodt=0,5&hl=ja
+p25
+aS'Citations list'
+p26
+aI7
+asS'num_versions'
+p27
+(lp28
+I0
+aS'Versions'
+p29
+aI4
+asS'title'
+p30
+(lp31
+VCitation analysis as a tool in journal evaluation
+p32
+aS'Title'
+p33
+aI0
+asS'url'
+p34
+(lp35
+Vhttp://www.elshami.com/Terms/I/impact%20factor-Garfield.pdf
+p36
+aS'URL'
+p37
+aI1
+asS'url_pdf'
+p38
+(lp39
+g36
+aS'PDF link'
+p40
+aI6
+asS'snippet'
+p41
+(lp42
+VSocie/y, pieces of the network have been illuminated by the work of Bradford (2), Allen(3), Gross and Woodford(4), Hooker (5), Henkle (6), Fussier (7), Brown(8), and others (9). Nevertheless, there isstill no map of the journal network as a whok. To date, studies of the  ...
+p43
+aS'Snippet'
+p44
+aI10
+as.
