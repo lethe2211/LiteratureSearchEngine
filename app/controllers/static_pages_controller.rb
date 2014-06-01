@@ -77,21 +77,26 @@ class StaticPagesController < ApplicationController
 
       @@graph[:edges][cid] = {}
 
-      citations = JSON.parse(get_citation(cid.to_i))
-      citations.each do |cit|
-        bib = JSON.parse(get_bibliography(cit.to_i))
-        @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
-        @@graph[:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
-      end
+      # logger.debug(cid)
+      # logger.debug(get_citation(cid.to_i))
+      # citations = JSON.parse(get_citation(cid.to_i))
+      # citations.each do |cit|
+      #   bib = JSON.parse(get_bibliography(cit.to_i))
+      #   @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+      #   @@graph[:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+      # end
 
+      logger.debug(cid)
+      logger.debug(get_citedby(cid.to_i))
       citedbyes = JSON.parse(get_citedby(cid.to_i))
       citedbyes.each do |cit|
         bib = JSON.parse(get_bibliography(cit.to_i))
+        logger.debug(bib)
         @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
         if @@graph[:edges].has_key?(cit) == false
            @@graph[:edges][cit] = {}
         end 
-        @@graph[:edges][cit][cid] = {directed: true, weight: 10, color: "#cccccc"}
+        @@graph[:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
       end
     end 
     

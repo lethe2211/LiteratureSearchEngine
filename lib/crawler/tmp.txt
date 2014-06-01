@@ -1,0 +1,65 @@
+Outtweeting the Twitterers - Predicting Information Cascades in Microblogs
+Wojciech Galuba, Karl Aberer
+EPFL, Switzerland
+
+Dipanjan Chakraborty
+IBM Research, India
+
+Abstract
+Microblogging sites are a unique and dynamic Web 2.0 communica-
+
+Zoran Despotovic, Wolfgang Kellerer
+DOCOMO Euro-Labs, Munich, Germany
+
+component size
+#components
+
+2
+513
+
+3
+31
+
+4
+6
+
+5
+2
+
+6
+1
+
+2483290
+1
+
+Table 1: The size distribution of the strongly connected components
+
+Figure 3: User activity. The user activity measured by how many
+tweets or unique URLs the user posted. For both metrics, the user
+activity is power-law distributed (dotted line: / x−1.25 ).
+
+Figure 4: URL popularity. URL popularity measured by the number of tweets and number of unique users that mentioned the URL. In
+both cases we obtain the power-law distributions, / x−1.3 for tweets
+and / x−1.45 for unique users.
+Retweets. Often when users tweet a URL that was
+found in another user’s feed, they give credit to the original URL poster. This phenomenon became known as
+retweeting [4]. If @bob wants to give credit to @alice,
+he prepends her message with RT @alice: followed
+by the text of the original tweet of @alice. RT stands
+for re-tweet. We only focus on the tweets containing
+evwn tougthmany tweetcantbey retweerediwn tias
+
+Figure 9: Diffusion delay. Log-normal distribution of the delay
+between the user first hears about a URL from one of the followees
+until the moment the user tweets about that URL. The fit is ln N (µ
+
+we compute each p^
+
+There are approximately 700k positive and 9M negative entries in the training data set with 500k unique users
+and 50k unique URLs. The test data set has 5.2k URL
+mentions that need to be predicted.
+Models. Our evaluation covers the following models
+(§7.1): ALO - the at-least-one model (§7.1), LT - the
+linear threshold model, LTr
+
+

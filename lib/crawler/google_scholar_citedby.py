@@ -6,6 +6,7 @@ import requests
 import commands
 
 from google_scholar_bibliography import *
+from bs4 import BeautifulSoup
 
 def get_citedby(cluster_id):
     '''
@@ -28,11 +29,23 @@ def get_citedby(cluster_id):
             # 各被引用論文について，タイトルで検索した時の上位1件のcluster_idを取得
             citedby_title = soup_title.a.get_text() if soup_title.a else ''
             #print citedby_title
-            citedby_cmd = os.path.dirname(sys.argv[0]) + "/scholarpy/scholar.py -c 1 -t --csv --phrase " # CSV形式で検索
-            citedby_cmd += '"' + citedby_title + '"' 
-            csv = commands.getoutput(citedby_cmd)
-            #print csv
-            citedby_cid = csv.split('|')[5] if len(csv.split('|')) >= 6 else None  # 6番目がcluster_id
+            # citedby_cmd = os.path.dirname(sys.argv[0]) + "/scholarpy/scholar.py -c 1 -t --csv --phrase " # CSV形式で検索
+            # citedby_cmd += '"' + citedby_title + '"' 
+            # csv = commands.getoutput(citedby_cmd)
+            # #print csv
+            # citedby_cid = csv.split('|')[5] if len(csv.split('|')) >= 6 else None  # 6番目がcluster_id
+
+            querier = ScholarQuerierWithSnippets()
+            settings = ScholarSettings()
+            querier.apply_settings(settings)
+            query = SearchScholarQuery()
+            query.set_words(citedby_title.encode('utf-8'))
+            query.set_scope(True)
+            query.set_num_page_results(1) # 返す検索結果は1件
+            querier.send_query(query)
+            result = put_json(querier)
+            citedby_cid = result["cluster_id"][0]
+
             if citedby_cid is not None:
                 citedbyes.append(citedby_cid)
 

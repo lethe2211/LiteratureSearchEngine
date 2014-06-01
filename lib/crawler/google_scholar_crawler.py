@@ -4,6 +4,7 @@
 import json
 
 from google_scholar_base import *
+from bs4 import BeautifulSoup
 
 
 def put_json(querier):
