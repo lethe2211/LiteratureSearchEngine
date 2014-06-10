@@ -1,6 +1,8 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
+import time
+
 from scholarpy.scholar import *
 
 class ScholarArticleWithSnippets(ScholarArticle):
@@ -220,6 +222,7 @@ class SearchScholarQuery(SearchScholarQuery):
 class ScholarQuerierWithSnippets(ScholarQuerier):
     '''
     著者・スニペット追加に対応した変更
+    HTMLの取得に失敗した時，同じ試行を10回まで繰り返すように変更
     '''
     class Parser(ScholarArticleParser120726WithSnippets):
         def __init__(self, querier):
@@ -228,3 +231,38 @@ class ScholarQuerierWithSnippets(ScholarQuerier):
 
         def handle_article(self, art):
             self.querier.add_article(art)
+
+    def _get_http_response(self, url, log_msg=None, err_msg=None):
+        if log_msg is None:
+            log_msg = 'HTTP response data follow'
+        if err_msg is None:
+            err_msg = 'request failed'
+
+        retry = 10  # 試行回数
+
+        while True:
+            try:
+                if retry <= 0:
+                    return None
+
+                ScholarUtils.log('info', 'requesting %s' % url)
+
+                req = Request(url=url, headers={'User-Agent': ScholarConf.USER_AGENT})
+                hdl = self.opener.open(req)
+                html = hdl.read()
+
+                ScholarUtils.log('debug', log_msg)
+                ScholarUtils.log('debug', '>>>>' + '-'*68)
+                ScholarUtils.log('debug', 'url: %s' % hdl.geturl())
+                ScholarUtils.log('debug', 'result: %s' % hdl.getcode())
+                ScholarUtils.log('debug', 'headers:\n' + str(hdl.info()))
+                ScholarUtils.log('debug', 'data:\n' + html)
+                ScholarUtils.log('debug', '<<<<' + '-'*68)
+
+                return html
+            except Exception as err:
+                ScholarUtils.log('info', err_msg + ': %s' % err)
+                retry -= 1
+                time.sleep(10)  # 試行が失敗した際の待ち時間
+                continue
+

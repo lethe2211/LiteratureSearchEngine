@@ -4,6 +4,8 @@
 import os
 import sys
 import time
+import argparse
+import csv as csvfile
 import logging
 
 import requests
@@ -38,7 +40,7 @@ def get_citedby_count(cluster_id, from_year=2000, to_year=2014, timeout_count=10
 
         if int(result['year']) != None:
             from_year = int(result['year'])
-            
+
         years = range(from_year, to_year+1)
 
         total = 0
@@ -108,17 +110,50 @@ def prettify(crawl_result):
         for y, c in sorted(crawl_result['data'].items()):
             print 'year: %(year)s, citedby: %(citedby)d' % {'year': y, 'citedby': c}
 
+def put_csv(crawl_result):
+    if crawl_result is None:
+        print 'No result of crawl'
+
+    elif crawl_result['status'] == 'NG':
+        print 'This result is incomplete. Try again'
+
+    else:
+        abspath = os.path.dirname(os.path.abspath(__file__))
+        directory = '/citedby_count_csv/'
+        filename = str(crawl_result['cluster_id']) + '.csv'
+        with open(abspath + directory + filename, 'w') as f:
+            writer = csvfile.writer(f)
+            writer.writerow([crawl_result['cluster_id'], crawl_result['title'], crawl_result['year'], crawl_result['total']])
+
+            for y, c in sorted(crawl_result['data'].items()):
+                writer.writerow([y, c])
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    if len(sys.argv) < 1:
-        pass
-    elif sys.argv[1] == '':
-        pass
-    elif len(sys.argv) == 2:
-        prettify(get_citedby_count(sys.argv[1]))
-    elif len(sys.argv) == 3:
-        prettify(get_citedby_count(sys.argv[1], int(sys.argv[2])))
-    elif len(sys.argv) == 4:
-        prettify(get_citedby_count(sys.argv[1], int(sys.argv[2]), int(sys.argv[3])))
+
+    parser = argparse.ArgumentParser(description='Count citedby according to the clusrter_id of a paper')
+    parser.add_argument('-c', '--cluster_id', type=int)
+    parser.add_argument('--csvfile', default=False, action='store_true')
+
+    args = parser.parse_args()
+
+    if args.csvfile:
+        put_csv(get_citedby_count(args.cluster_id))
     else:
-        pass
+        prettify(get_citedby_count(args.cluster_id))
+
+    # if len(sys.argv) < 1:
+    #     pass
+    # elif sys.argv[1] == '':
+    #     pass
+    # elif len(sys.argv) == 2:
+    #     if args.c == True:
+    #         csv(get_citedby_count(sys.argv[1]))
+    #     else:
+    #         prettify(get_citedby_count(sys.argv[1]))
+    # elif len(sys.argv) == 3:
+    #     prettify(get_citedby_count(sys.argv[1], int(sys.argv[2])))
+    # elif len(sys.argv) == 4:
+    #     prettify(get_citedby_count(sys.argv[1], int(sys.argv[2]), int(sys.argv[3])))
+    # else:
+    #    pass

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import logging
 
 from google_scholar_base import *
 import filecache
@@ -54,5 +55,9 @@ def get_bibliography(cluster_id):
         return result
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+
     if len(sys.argv) == 2 and sys.argv[1] != '':
-        print json.dumps(get_bibliography(sys.argv[1].strip()))
+        result = json.dumps(get_bibliography(sys.argv[1].strip()))
+        logging.debug(result)
+        print result
