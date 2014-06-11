@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 require 'open3'
 require 'json'
+require 'jsoncache'
 
 class StaticPagesController < ApplicationController
   def search
@@ -10,14 +11,14 @@ class StaticPagesController < ApplicationController
     @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
 
     # クエリの正規化
-    query = params[:search_string] # クエリ
-    if query.strip! == ""
+    @query = params[:search_string] # クエリ
+    if @query.strip! == ""
       return
     end
-    query = query.gsub(/(\s|　)+/, "+")
+    @query = @query.gsub(/(\s|　)+/, "+")
     
 
-    out = crawl(query)
+    out = crawl(@query)
 
     # JSONの処理とグラフへの整形
     logger.debug(out)
@@ -70,40 +71,59 @@ class StaticPagesController < ApplicationController
   end
 
   def shape_graph(articles)
-    @@graph = {nodes: {}, edges: {}}
-    articles.each do |article|
-      cid = article["cluster_id"][0].to_s
-      @@graph[:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0]}
+    graph_cache = JsonCache.new(dir: "../../lib/crawler/graph/")
 
-      @@graph[:edges][cid] = {}
+    cache = graph_cache.get(@query)
+    logger.debug(cache.nil?)
 
-      logger.debug(cid)
-      logger.debug(get_citation(cid.to_i))
-      citations = JSON.parse(get_citation(cid.to_i))
-      citations.each do |cit|
-        bib = JSON.parse(get_bibliography(cit.to_i))
-        @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
-        @@graph[:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+    if (not cache.nil?) and cache["status"] == 'OK'
+      logger.debug(cache[:status])
+      @@graph = cache["data"]
+    else
+      result = {status: '', data: {nodes: {}, edges: {}}}
+
+      articles.each do |article|
+        cid = article["cluster_id"][0].to_s
+        result[:data][:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0]}
+
+        result[:data][:edges][cid] = {}
+
+        logger.debug(cid)
+        citations = JSON.parse(get_citation(cid.to_i))
+        citations.each do |cit|
+          bib = JSON.parse(get_bibliography(cit.to_i))
+          result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+          result[:data][:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+        end
+
+        logger.debug(cid)
+        citedbyes = JSON.parse(get_citedby(cid.to_i))
+        logger.debug(citedbyes)
+        citedbyes.each do |cit|
+          logger.debug(get_bibliography(cit.to_i))
+          bib = JSON.parse(get_bibliography(cit.to_i))
+          logger.debug(bib)
+          result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+          if result[:data][:edges].has_key?(cit) == false
+             result[:data][:edges][cit] = {}
+          end 
+          result[:data][:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
+        end
       end
 
-      logger.debug(cid)
-      logger.debug(get_citedby(cid.to_i))
-      citedbyes = JSON.parse(get_citedby(cid.to_i))
-      logger.debug(citedbyes)
-      citedbyes.each do |cit|
-        logger.debug(get_bibliography(cit.to_i))
-        bib = JSON.parse(get_bibliography(cit.to_i))
-        logger.debug(bib)
-        @@graph[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
-        if @@graph[:edges].has_key?(cit) == false
-           @@graph[:edges][cit] = {}
-        end 
-        @@graph[:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
+      if result[:data][:nodes] != {} and result[:data][:edges] != {}
+        result[:status] = "OK"
+        graph_cache.set(@query, result)
+      else
+        result[:status] = "NG"
       end
+
+      @@graph = result[:data]
+      logger.debug(@@graph)
     end 
     
-    logger.debug(@@graph)
   end
+
 end
 
 

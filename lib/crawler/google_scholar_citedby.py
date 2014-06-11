@@ -38,6 +38,7 @@ def get_citedby(cluster_id):
             soup_titles = soup.find_all("h3", "gs_rt")
             for soup_title in soup_titles:
                 # 各被引用論文について，タイトルで検索した時の上位1件のcluster_idを取得
+                # ↑これって，被引用提示ページの各検索結果に対して被引用提示ページへのリンクを見てcitesパラメータを見たら一発じゃないの？？？
                 citedby_title = soup_title.a.get_text() if soup_title.a else ''
                 # print citedby_title
                 # citedby_cmd = os.path.dirname(sys.argv[0]) + "/scholarpy/scholar.py -c 1 -t --csv --phrase " # CSV形式で検索
