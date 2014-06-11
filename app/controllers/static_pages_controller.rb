@@ -77,7 +77,6 @@ class StaticPagesController < ApplicationController
     logger.debug(cache.nil?)
 
     if (not cache.nil?) and cache["status"] == 'OK'
-      logger.debug(cache[:status])
       @@graph = cache["data"]
     else
       result = {status: '', data: {nodes: {}, edges: {}}}
