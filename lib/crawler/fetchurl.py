@@ -10,6 +10,10 @@ except ImportError:
     sys.exit(1)
 
 class FetchUrl(object):
+    '''
+    Requestsモジュールを使うことでWebからHTMLを取得する
+    '''
+
     def __init__(self):
         pass
 

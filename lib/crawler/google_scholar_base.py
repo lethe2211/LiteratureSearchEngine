@@ -23,7 +23,7 @@ class ScholarArticleWithSnippets(ScholarArticle):
             'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
             'url_citation':  [None, 'Citation link',  9], # よくわからない...
             'snippet':       [None, 'Snippet',       10], # スニペット(新たに追加)
-            'authors':       [[],   'Authors',       11], # 著者(新たに追加)
+            'authors':       [[],   'Authors',       11]  # 著者(新たに追加)
         }
 
         # The citation data in one of the standard export formats,
@@ -68,6 +68,13 @@ class ScholarArticleParser120726WithSnippets(ScholarArticleParser120726):
             if str(tag).lower().find('.pdf'):
                 if tag.find('div', {'class': 'gs_ttss'}):
                     self._parse_links(tag.find('div', {'class': 'gs_ttss'}))
+
+            # 
+            if tag.name == 'div' and self._tag_has_class(tag, 'gs_ggs'):
+                for a in tag.find_all('a'):
+                    if a.get('href').endswith('.pdf'):
+                        self.article['url_pdf'] = a.get('href')
+                        #print a.get('href')
 
             if tag.name == 'div' and self._tag_has_class(tag, 'gs_ri'):
                 # There are (at least) two formats here. In the first
