@@ -69,7 +69,7 @@ class ScholarArticleParser120726WithSnippets(ScholarArticleParser120726):
                 if tag.find('div', {'class': 'gs_ttss'}):
                     self._parse_links(tag.find('div', {'class': 'gs_ttss'}))
 
-            # 
+            # "gs_ggs"クラスのdivタグにはPDFへの直リンクを含むものがあるので，url_pdfに追加しておく
             if tag.name == 'div' and self._tag_has_class(tag, 'gs_ggs'):
                 for a in tag.find_all('a'):
                     if a.get('href').endswith('.pdf'):
