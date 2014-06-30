@@ -30,7 +30,7 @@ def search_pdf(cluster_id):
             soup_link = s.parent.parent
             if soup_link.name == 'a' and soup_link['href'].endswith('.pdf'):
                 result = soup_link['href']
-                pdf.set(cluster_id, result)
+                pdf.set(str(cluster_id), result)
                 return result
 
 if __name__ == '__main__':

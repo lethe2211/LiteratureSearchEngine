@@ -5,6 +5,8 @@ import json
 
 from google_scholar_base import *
 from google_scholar_search_pdf import *
+import filecache
+
 from bs4 import BeautifulSoup
 
 def put_json(querier):
@@ -25,13 +27,26 @@ def put_json(querier):
     return articles_json
 
 def crawl(input_query):
-    querier = ScholarQuerierWithSnippets()
-    settings = ScholarSettings()
-    querier.apply_settings(settings)
-    query = SearchScholarQuery()
-    query.set_words(input_query)
-    querier.send_query(query)
-    return put_json(querier)
+    abspath = os.path.dirname(os.path.abspath(__file__))
+    serp = filecache.Client(abspath + '/serp/')
+
+    cache = serp.get(input_query) # キャッシュ機構
+    if cache != None:
+        return cache
+    else:
+        querier = ScholarQuerierWithSnippets()
+        settings = ScholarSettings()
+        querier.apply_settings(settings)
+        query = SearchScholarQuery()
+        query.set_words(input_query)
+        querier.send_query(query)
+        result = put_json(querier)
+
+        serp.set(input_query, result)
+
+        return result
+
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] != '':
