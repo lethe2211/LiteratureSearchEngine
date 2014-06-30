@@ -5,6 +5,7 @@ import json
 import logging
 
 from google_scholar_base import *
+from google_scholar_search_pdf import *
 import filecache
 
 def put_json(querier):
@@ -23,11 +24,15 @@ def put_json(querier):
             'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
             'url_citation':  [None, 'Citation link',  9], # よくわからない...
             'snippet':       [None, 'Snippet',       10], # スニペット(新たに追加)
-            'authors':       [[],   'Authors',       11] # 著者(新たに追加)
+            'authors':       [[],   'Authors',       11]  # 著者(新たに追加)
     }
 
     if len(querier.articles) > 0:
-        articles = querier.articles[0].as_json() 
+        articles = querier.articles[0].as_json()
+
+    # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得する
+    if articles['url_pdf'][0] is None:
+        articles['url_pdf'][0] = search_pdf(articles['cluster_id'][0])
 
     return articles
 

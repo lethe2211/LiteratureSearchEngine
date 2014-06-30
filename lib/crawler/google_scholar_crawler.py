@@ -4,8 +4,8 @@
 import json
 
 from google_scholar_base import *
+from google_scholar_search_pdf import *
 from bs4 import BeautifulSoup
-
 
 def put_json(querier):
     '''
@@ -16,6 +16,9 @@ def put_json(querier):
     for art in articles:
         art_json = art.as_json()
 
+        # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得
+        if art_json['url_pdf'][0] is None:
+            art_json['url_pdf'][0] = search_pdf(art_json['cluster_id'][0])
 
         articles_json.append(art_json)
         

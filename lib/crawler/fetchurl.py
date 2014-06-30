@@ -1,3 +1,6 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
 import sys
 import time
 
@@ -33,7 +36,7 @@ class FetchUrl(object):
 
         self.response = requests.get(self.base_url, params=self.params, headers=self.headers, timeout=timeout)
 
-    def get(self, url, params={}, headers={}, retry=0, timeout=1.0, sleep_time=60):
+    def get(self, url, params={}, headers={}, retry=0, timeout=100, sleep_time=60):
         while retry >= 0:
             self._get_http_response(url, params, headers, timeout)
 
@@ -44,6 +47,8 @@ class FetchUrl(object):
 
             if retry > 0:
                time.sleep(sleep_time)
+
+        return self.response
 
     def content(self):
         return self.response.content
