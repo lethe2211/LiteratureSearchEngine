@@ -77,9 +77,10 @@
 
 		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
 		    if(hovered != null && hovered.node.name == node.name) {
-			ctx.fillStyle = "black";
-			ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
-			ctx.fillText(hovered.node.data.year, pt.x+10, pt.y);
+				ctx.fillStyle = "black";
+				ctx.font = "normal 12px sans-serif";
+				ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
+				ctx.fillText(hovered.node.data.year, pt.x+10, pt.y+5);
 		    }
 
 		})
