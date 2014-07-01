@@ -87,27 +87,39 @@ class StaticPagesController < ApplicationController
 
         result[:data][:edges][cid] = {}
 
+        # 引用論文
         logger.debug(cid)
         citations = JSON.parse(get_citation(cid.to_i))
+        logger.debug(citations)
         citations.each do |cit|
           bib = JSON.parse(get_bibliography(cit.to_i))
-          result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
-          result[:data][:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+
+          threshold = 20
+          if bib["num_citations"][0] > threshold
+            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+            result[:data][:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+          end
+
         end
 
+        # 被引用論文
         logger.debug(cid)
         citedbyes = JSON.parse(get_citedby(cid.to_i))
         logger.debug(citedbyes)
         citedbyes.each do |cit|
-          logger.debug(get_bibliography(cit.to_i))
           bib = JSON.parse(get_bibliography(cit.to_i))
-          logger.debug(bib)
-          result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
-          if result[:data][:edges].has_key?(cit) == false
-             result[:data][:edges][cit] = {}
-          end 
-          result[:data][:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
+
+          threshold = 20
+          if bib["num_citations"][0] > threshold
+            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+            if result[:data][:edges].has_key?(cit) == false
+               result[:data][:edges][cit] = {}
+            end 
+            result[:data][:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
+          end
+
         end
+
       end
 
       if result[:data][:nodes] != {} and result[:data][:edges] != {}

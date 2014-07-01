@@ -6,17 +6,38 @@ import commands
 from google_scholar_bibliography import *
 from bs4 import BeautifulSoup
 
+def put_json(querier):
+    '''
+    JSONを出力
+    '''
+    articles = {
+            'title':         [None, 'Title',          0], # 論文タイトル
+            'url':           [None, 'URL',            1], # 検索結果URL
+            'year':          [None, 'Year',           2], # 発行年
+            'num_citations': [0,    'Citations',      3], # 被引用数
+            'num_versions':  [0,    'Versions',       4], # 同一判定された論文のバージョン数
+            'cluster_id':    [None, 'Cluster ID',     5], # クラスタID
+            'url_pdf':       [None, 'PDF link',       6], # 論文PDFへのリンク(SERPからの直接リンクでなければ取得できない)
+            'url_citations': [None, 'Citations list', 7], # 被引用論文のリストへのリンク
+            'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
+            'url_citation':  [None, 'Citation link',  9], # よくわからない...
+            'snippet':       [None, 'Snippet',       10], # スニペット(新たに追加)
+            'authors':       [[],   'Authors',       11]  # 著者(新たに追加)
+    }
+
+    if len(querier.articles) > 0:
+        articles = querier.articles[0].as_json()
+
+    return articles
+
 def get_citation(cluster_id):
     '''
     Cluster_idを受け取り，その論文が引用している論文のcluster_idを返す
-
-    FIXME:
-    BeautifulSoupがうまく読み込めていないみたい
     '''
     art = get_bibliography(cluster_id) # 書誌情報を返す
 
     citations = [] # 引用論文のcluster_id
-    if art["url_pdf"][0] != None:
+    if art["url_pdf"][0] is not None:
         # ParsCitによる引用情報の取得
         cmd = os.path.dirname(os.path.abspath(__file__)) + "/../extract_citations.sh " + art["url_pdf"][0]
         xml = commands.getoutput(cmd)
