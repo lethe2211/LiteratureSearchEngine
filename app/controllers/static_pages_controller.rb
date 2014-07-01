@@ -83,7 +83,7 @@ class StaticPagesController < ApplicationController
 
       articles.each do |article|
         cid = article["cluster_id"][0].to_s
-        result[:data][:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0]}
+        result[:data][:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0], color: "#dd0000"}
 
         result[:data][:edges][cid] = {}
 
@@ -94,9 +94,9 @@ class StaticPagesController < ApplicationController
         citations.each do |cit|
           bib = JSON.parse(get_bibliography(cit.to_i))
 
-          threshold = 20
+          threshold = 100
           if bib["num_citations"][0] > threshold
-            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
             result[:data][:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
           end
 
@@ -109,9 +109,9 @@ class StaticPagesController < ApplicationController
         citedbyes.each do |cit|
           bib = JSON.parse(get_bibliography(cit.to_i))
 
-          threshold = 20
+          threshold = 100
           if bib["num_citations"][0] > threshold
-            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0]}
+            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
             if result[:data][:edges].has_key?(cit) == false
                result[:data][:edges][cit] = {}
             end 

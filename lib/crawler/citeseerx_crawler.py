@@ -23,16 +23,23 @@ class CiteSeerXCrawler(object):
         '''
         results = []
         title = self._remove_symbol(title)
+        title = self._escape_whitespace(title)
+        title = title.encode('utf-8')
 
         base_url = 'http://citeseerx.ist.psu.edu/' # 基底URL
 
         search_url = base_url + 'search'
-        query = 'title:({0})'.format(title)
-        params = {'q': query}
+        query = 'title:{0}'.format(title)
+        params = {'q': query, 't': 'doc'}
         html = self._get_html(search_url, params)
 
         soup = BeautifulSoup(html)
+        i = 0
         for soup_result in soup.findAll('div', {'class': 'result'}):
+            if i >= num:
+                break
+            i += 1
+
             if soup_result.h3.a is not None:
                 result = urljoin(base_url, soup_result.h3.a['href'])
                 results.append(result)
@@ -60,20 +67,29 @@ class CiteSeerXCrawler(object):
         return citation_titles
 
     def _get_html(self, url, params={}):
+        '''
+        URLを入力し，Webから取得したHTMLを返す
+        '''
         f = FetchUrl()
         html = f.get(url, params, retry=3).text
         return html
 
     def _remove_symbol(self, string):
+        '''
+        文字列から，半角記号を除く
+        '''
         return re.sub(re.compile("[!-/:-@[-`{-~]"), '', string)
 
     def _escape_whitespace(self, string):
-        return re.sub(re.compile(' '), '', string)
+        '''
+        文字列中の半角スペースを'+'に置き換える
+        '''
+        return re.sub(re.compile(' '), '+', string)
 
 if __name__ == '__main__':
     c = CiteSeerXCrawler()
     results = c.search_with_title('pagerank:')
-    print results
+    #print results
     for result in results:
         print c.get_citations(result)
 

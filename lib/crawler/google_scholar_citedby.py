@@ -23,7 +23,7 @@ def get_citedby(cluster_id):
     citedby = filecache.Client(abspath + '/citedby/')
 
     cache = citedby.get(str(cluster_id))
-    if cache != None and cache['status'] == 'OK':
+    if cache is not None and cache['status'] == 'OK':
         return cache['data']
     else:
         art = get_bibliography(cluster_id) # 書誌情報を返す
@@ -81,7 +81,7 @@ def get_citedby(cluster_id):
             #         result['data'].append(citedby_cid)
 
         # とりあえず結果が空でないならOKとする(←あまりよくない…)
-        if len(result['data']) != 0:
+        if len(result['data']) > 0:
             result['status'] = 'OK'
             citedby.set(str(cluster_id), result)
         else:

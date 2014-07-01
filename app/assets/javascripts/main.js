@@ -61,14 +61,14 @@
 		    var w = 10;
 		    
 		    if (node.data.shape=='dot'){
-			//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
-			nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
+				//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
+				nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
 		    }else{
-			//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
-			nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
+				//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
+				nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
 		    }
 
-		    ctx.fillStyle = "black"
+		    ctx.fillStyle = node.data.color
 
 		    // ノードの円を描画
 		    ctx.beginPath();
