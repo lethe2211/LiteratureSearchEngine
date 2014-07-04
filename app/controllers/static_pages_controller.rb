@@ -79,50 +79,162 @@ class StaticPagesController < ApplicationController
     if (not cache.nil?) and cache["status"] == 'OK'
       @@graph = cache["data"]
     else
-      result = {status: '', data: {nodes: {}, edges: {}}}
+      result = {}
+
+      graph_json = {nodes: {}, edges: {}}
+      citations = {}
+      citedbyes = {}
 
       articles.each do |article|
         cid = article["cluster_id"][0].to_s
-        result[:data][:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0], color: "#dd0000"}
-
-        result[:data][:edges][cid] = {}
 
         # 引用論文
         logger.debug(cid)
-        citations = JSON.parse(get_citation(cid.to_i))
-        logger.debug(citations)
-        citations.each do |cit|
-          bib = JSON.parse(get_bibliography(cit.to_i))
-
-          threshold = 100
-          if bib["num_citations"][0] > threshold
-            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
-            result[:data][:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
-          end
-
-        end
-
+        citations[cid] = JSON.parse(get_citation(cid.to_i))
+        logger.debug(citations[cid])
+        
         # 被引用論文
         logger.debug(cid)
-        citedbyes = JSON.parse(get_citedby(cid.to_i))
-        logger.debug(citedbyes)
-        citedbyes.each do |cit|
-          bib = JSON.parse(get_bibliography(cit.to_i))
-
-          threshold = 100
-          if bib["num_citations"][0] > threshold
-            result[:data][:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
-            if result[:data][:edges].has_key?(cit) == false
-               result[:data][:edges][cit] = {}
-            end 
-            result[:data][:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
-          end
-
-        end
-
+        citedbyes[cid] = JSON.parse(get_citedby(cid.to_i))
+        logger.debug(citedbyes[cid])
+        
       end
 
-      if result[:data][:nodes] != {} and result[:data][:edges] != {}
+      logger.debug(citations)
+      logger.debug(citedbyes)
+
+      used_cids = []
+
+      articles.each do |article1|
+        cid1 = article1["cluster_id"][0].to_s
+        articles.each do |article2|
+          cid2 = article2["cluster_id"][0].to_s
+          if cid1 == cid2
+            next
+          end
+
+          unless used_cids.include?(cid1)
+            graph_json[:nodes][cid1] = {weight: article1["num_citations"][0], title: article1["title"][0], year: article1["year"][0], color: "#dd3333"}
+            graph_json[:edges][cid1] = {}
+          end
+
+          unless used_cids.include?(cid2)
+            graph_json[:nodes][cid2] = {weight: article2["num_citations"][0], title: article2["title"][0], year: article2["year"][0], color: "#dd3333"}
+            graph_json[:edges][cid2] = {}
+          end
+
+          (citations[cid1] & citations[cid2]).each do |cit|
+            bib = JSON.parse(get_bibliography(cit.to_i))
+            graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#ffffff"} unless used_cids.include?(cit)
+            graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
+            graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
+          end
+
+          (citations[cid1] & citedbyes[cid2]).each do |cit|
+            bib = JSON.parse(get_bibliography(cit.to_i))
+            graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#ffffff"} unless used_cids.include?(cit)
+            graph_json[:edges][cit] = {} unless graph_json[:edges][cit]
+            graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
+            graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
+          end
+
+          (citedbyes[cid1] & citations[cid2]).each do |cit|
+            bib = JSON.parse(get_bibliography(cit.to_i))
+            graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#ffffff"} unless used_cids.include?(cit)
+            graph_json[:edges][cit] = {} unless graph_json[:edges][cit]
+            graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
+            graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
+          end 
+
+          (citedbyes[cid1] & citedbyes[cid2]).each do |cit|
+            bib = JSON.parse(get_bibliography(cit.to_i))
+            graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#ffffff"} unless used_cids.include?(cit)
+            graph_json[:edges][cit] = {} unless graph_json[:edges][cit]
+            graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
+            graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
+          end
+
+          used_cids.push(cid1) unless used_cids.include?(cid1)
+          used_cids.push(cid2) unless used_cids.include?(cid2)
+        end
+      end
+
+      # nodes = []
+      # articles.each do |v1|
+      #   cid1 = v1["cluster_id"][0].to_s
+      #   articles.each do |v2|
+      #     cid2 = v2["cluster_id"][0].to_s
+      #     if v1 == v2
+      #       next
+      #     end
+      #     nodes = nodes | [cid1, cid2] | ((citations[cid1] & citations[cid2]) | (citations[cid1] & citedbyes[cid2]) | (citedbyes[cid1] & citations[cid2]) | (citedbyes[cid1] & citedbyes[cid2]))
+      #   end
+      # end
+      # logger.debug(nodes)
+
+      # # search_result_nodes = articles.map { |article| article["cluster_id"][0].to_s }
+
+      # used_cid = []
+
+      # articles.each do |article|
+      #   cid = article["cluster_id"][0].to_s
+      #   used_cid.push(cid)
+      #   graph_json[:nodes][cid] = {weight: article["num_citations"][0], title: article["title"][0], year: article["year"][0], color: "#dd3333"}
+      #   graph_json[:edges][cid] = {}
+
+      #   (citations[cid] & nodes).each do |cit|
+      #     bib = JSON.parse(get_bibliography(cit.to_i))
+      #     graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} unless used_cid.include?(cit)
+      #     graph_json[:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+      #   end
+
+      #   (citedbyes[cid] & nodes).each do |cit|
+      #     bib = JSON.parse(get_bibliography(cit.to_i))
+      #     graph_json[:edges][cit] = {}
+      #     graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} unless used_cid.include?(cit)
+      #     graph_json[:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
+      #   end
+      # end
+
+
+
+      #   # 引用論文
+      #   logger.debug(cid)
+      #   citations = JSON.parse(get_citation(cid.to_i))
+      #   logger.debug(citations)
+      #   citations.each do |cit|
+      #     bib = JSON.parse(get_bibliography(cit.to_i))
+
+      #     threshold = 100
+      #     if bib["num_citations"][0] > threshold
+      #       graph_all[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
+      #       graph_all[:edges][cid][cit] = {directed: true, weight: 10, color: "#cccccc"}
+      #     end
+
+      #   end
+
+      #   # 被引用論文
+      #   logger.debug(cid)
+      #   citedbyes = JSON.parse(get_citedby(cid.to_i))
+      #   logger.debug(citedbyes)
+      #   citedbyes.each do |cit|
+      #     bib = JSON.parse(get_bibliography(cit.to_i))
+
+      #     threshold = 100
+      #     if bib["num_citations"][0] > threshold
+      #       graph_all[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
+      #       if graph_all[:edges].has_key?(cit) == false
+      #          graph_all[:edges][cit] = {}
+      #       end 
+      #       graph_all[:edges][cit][cid] = {directed: true, weight: 10, color: "#888888"}
+      #     end
+
+      #   end
+
+      # end
+
+      if graph_json[:nodes] != {} and graph_json[:edges] != {}
+        result[:data] = graph_json
         result[:status] = "OK"
         graph_cache.set(@query, result)
       else
@@ -131,7 +243,7 @@ class StaticPagesController < ApplicationController
 
       @@graph = result[:data]
       logger.debug(@@graph)
-    end 
+    end   
     
   end
 
