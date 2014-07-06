@@ -138,7 +138,8 @@ class StaticPagesController < ApplicationController
           (citations[cid1] & citations[cid2]).each do |cit|
             bib = JSON.parse(get_bibliography(cit.to_i))
             unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
+              graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
+              used_cids.push(cit)
             end
             graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
             graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
@@ -150,6 +151,7 @@ class StaticPagesController < ApplicationController
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
               graph_json[:edges][cit] = {} 
+              used_cids.push(cit)
             end
             graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
             graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
@@ -161,6 +163,7 @@ class StaticPagesController < ApplicationController
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
               graph_json[:edges][cit] = {} 
+              used_cids.push(cit)
             end
             graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
             graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
@@ -172,6 +175,7 @@ class StaticPagesController < ApplicationController
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
               graph_json[:edges][cit] = {} 
+              used_cids.push(cit)
             end
             graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
             graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
