@@ -52,6 +52,39 @@
 		
 		var nodeBoxes = {} // 矢印の描画に必要
 
+		// すべてのノードについて
+		particleSystem.eachNode(function(node, pt){
+		    // node: {mass:#, p:{x,y}, name:"", data:{}}
+		    // pt:   {x:#, y:#}  node position in screen coords
+		    
+		    // 幅wの時の
+		    var w = 10;
+		    
+		    if (node.data.shape=='dot'){
+				//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
+				nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
+		    }else{
+				//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
+				nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
+		    }
+
+		    ctx.fillStyle = node.data.color
+
+		    // ノードの円を描画
+		    ctx.beginPath();
+		    ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI, false);
+		    ctx.fill();
+
+		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
+		    if(hovered != null && hovered.node.name == node.name) {
+				ctx.fillStyle = "black";
+				ctx.font = "normal 12px sans-serif";
+				ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
+				ctx.fillText(hovered.node.data.year, pt.x+10, pt.y+5);
+		    }
+
+		})
+
 		// すべてのエッジについて
 		particleSystem.eachEdge(function(edge, pt1, pt2){
 		    // edge: {source:Node, target:Node, length:#, data:{}}
@@ -105,39 +138,7 @@
 		    
 		})
 
-		// すべてのノードについて
-		particleSystem.eachNode(function(node, pt){
-		    // node: {mass:#, p:{x,y}, name:"", data:{}}
-		    // pt:   {x:#, y:#}  node position in screen coords
-		    
-		    // 幅wの時の
-		    var w = 10;
-		    
-		    if (node.data.shape=='dot'){
-				//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
-				nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
-		    }else{
-				//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
-				nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
-		    }
-
-		    ctx.fillStyle = node.data.color
-
-		    // ノードの円を描画
-		    ctx.beginPath();
-		    ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI, false);
-		    ctx.fill();
-
-		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
-		    if(hovered != null && hovered.node.name == node.name) {
-				ctx.fillStyle = "black";
-				ctx.font = "normal 12px sans-serif";
-				ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
-				ctx.fillText(hovered.node.data.year, pt.x+10, pt.y+5);
-		    }
-
-		})
-
+	
 		
 		
 	    },
