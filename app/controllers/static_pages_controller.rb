@@ -117,7 +117,7 @@ class StaticPagesController < ApplicationController
           end
 
           unless used_result_cids.include?(cid1)
-            graph_json[:nodes][cid1] = {weight: article1["num_citations"][0], title: article1["title"][0], year: article1["year"][0], color: "#dd3333"}
+            graph_json[:nodes][cid1] = {type: "search_result", weight: article1["num_citations"][0], title: article1["title"][0], year: article1["year"][0], color: "#dd3333"}
 
             unless used_cids.include?(cid1)
               graph_json[:edges][cid1] = {}
@@ -126,7 +126,7 @@ class StaticPagesController < ApplicationController
           end
 
           unless used_result_cids.include?(cid2)
-            graph_json[:nodes][cid2] = {weight: article2["num_citations"][0], title: article2["title"][0], year: article2["year"][0], color: "#dd3333"}
+            graph_json[:nodes][cid2] = {type: "search_result", weight: article2["num_citations"][0], title: article2["title"][0], year: article2["year"][0], color: "#dd3333"}
 
             unless used_cids.include?(cid2)
               graph_json[:edges][cid2] = {}
@@ -138,7 +138,7 @@ class StaticPagesController < ApplicationController
           (citations[cid1] & citations[cid2]).each do |cit|
             bib = JSON.parse(get_bibliography(cit.to_i))
             unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
+              graph_json[:nodes][cit] = {type: "normal", weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
               used_cids.push(cit)
             end
             graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
@@ -149,7 +149,7 @@ class StaticPagesController < ApplicationController
           (citations[cid1] & citedbyes[cid2]).each do |cit|
             bib = JSON.parse(get_bibliography(cit.to_i))
             unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
+              graph_json[:nodes][cit] = {type: "normal", weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
               graph_json[:edges][cit] = {} 
               used_cids.push(cit)
             end
@@ -161,7 +161,7 @@ class StaticPagesController < ApplicationController
           (citedbyes[cid1] & citations[cid2]).each do |cit|
             bib = JSON.parse(get_bibliography(cit.to_i))
             unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
+              graph_json[:nodes][cit] = {type: "normal", weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
               graph_json[:edges][cit] = {} 
               used_cids.push(cit)
             end
@@ -173,7 +173,7 @@ class StaticPagesController < ApplicationController
           (citedbyes[cid1] & citedbyes[cid2]).each do |cit|
             bib = JSON.parse(get_bibliography(cit.to_i))
             unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
+              graph_json[:nodes][cit] = {type: "normal", weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"} 
               graph_json[:edges][cit] = {} 
               used_cids.push(cit)
             end
