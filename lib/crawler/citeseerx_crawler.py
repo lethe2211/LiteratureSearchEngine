@@ -56,7 +56,7 @@ class CiteSeerXCrawler(object):
 
         soup = BeautifulSoup(html)
 
-        if soup.find('div', {'id': 'citations'}).table.findAll('tr'):
+        if soup.find('div', {'id': 'citaitons'}) and soup.find('div', {'id': 'citations'}).table.findAll('tr'):
             soup_table = soup.find('div', {'id': 'citations'}).table.findAll('tr')
             for soup_tr in soup_table:
                 if soup_tr.findAll('td') and len(soup_tr.findAll('td')) >= 2:

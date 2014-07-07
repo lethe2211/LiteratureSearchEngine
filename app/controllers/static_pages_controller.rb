@@ -116,9 +116,13 @@ class StaticPagesController < ApplicationController
             next
           end
 
+          logger.debug("cid1: " + cid1)
+          logger.debug("cid2: " + cid2)
+          logger.debug("")
+
           unless used_result_cids.include?(cid1)
             graph_json[:nodes][cid1] = {type: "search_result", weight: article1["num_citations"][0], title: article1["title"][0], year: article1["year"][0], color: "#dd3333"}
-
+            used_result_cids.push(cid1)
             unless used_cids.include?(cid1)
               graph_json[:edges][cid1] = {}
               used_cids.push(cid1)
@@ -127,7 +131,7 @@ class StaticPagesController < ApplicationController
 
           unless used_result_cids.include?(cid2)
             graph_json[:nodes][cid2] = {type: "search_result", weight: article2["num_citations"][0], title: article2["title"][0], year: article2["year"][0], color: "#dd3333"}
-
+            used_result_cids.push(cid2)
             unless used_cids.include?(cid2)
               graph_json[:edges][cid2] = {}
               used_cids.push(cid2)
@@ -139,8 +143,10 @@ class StaticPagesController < ApplicationController
             bib = JSON.parse(get_bibliography(cit.to_i))
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["num_citations"][0], title: bib["title"][0], year: bib["year"][0], color: "#cccccc"}
+              graph_json[:edges][cit] = {} 
               used_cids.push(cit)
             end
+            logger.debug("citation of cid1 and cid2: " + cit)
             graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
             graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
           end
@@ -153,6 +159,7 @@ class StaticPagesController < ApplicationController
               graph_json[:edges][cit] = {} 
               used_cids.push(cit)
             end
+            logger.debug("citation of cid1 and cited by cid2: " + cit)
             graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
             graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
           end
@@ -165,6 +172,7 @@ class StaticPagesController < ApplicationController
               graph_json[:edges][cit] = {} 
               used_cids.push(cit)
             end
+            logger.debug("cited by cid1 and citation of cid2: " + cit)
             graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
             graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
           end 
@@ -177,12 +185,11 @@ class StaticPagesController < ApplicationController
               graph_json[:edges][cit] = {} 
               used_cids.push(cit)
             end
+            logger.debug("cited by cid1 and cid2: " + cit)
             graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
             graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
           end
 
-          used_result_cids.push(cid1) unless used_result_cids.include?(cid1)
-          used_result_cids.push(cid2) unless used_result_cids.include?(cid2)
         end
       end
 
