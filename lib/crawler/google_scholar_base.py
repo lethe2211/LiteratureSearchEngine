@@ -50,13 +50,20 @@ class ScholarArticle(object):
             res.append(fmt % (item[1], item[0]))
         return '\n'.join(res)
 
-
 class ScholarArticleParser120726WithSnippets(ScholarArticleParser120726):
     '''
     著者・スニペット追加に対応した変更
     被引用数・バージョン数の日本語対応
     "gs_r"クラスのdivタグの内部の要素がそれぞれの検索結果
     '''
+
+    def parse(self, html):
+        self.soup = BeautifulSoup(html, 'html.parser')
+        for div in self.soup.findAll(ScholarArticleParser._tag_checker):
+            self._parse_article(div)
+            self._clean_article()
+            if self.article['title']:
+                self.handle_article(self.article)
 
     # 引数divが"gs_r"クラスのdivタグの集合
     def _parse_article(self, div):
@@ -226,6 +233,7 @@ class SearchScholarQuery(SearchScholarQuery):
 
         return self.SCHOLAR_QUERY_URL % urlargs
 
+
 class ScholarQuerierWithSnippets(ScholarQuerier):
     '''
     著者・スニペット追加に対応した変更
@@ -238,6 +246,58 @@ class ScholarQuerierWithSnippets(ScholarQuerier):
 
         def handle_article(self, art):
             self.querier.add_article(art)
+
+    def apply_settings(self, settings):
+        """
+        Applies settings as provided by a ScholarSettings instance.
+        """
+        if settings is None or not settings.is_configured():
+            return True
+
+        self.settings = settings
+
+        # This is a bit of work. We need to actually retrieve the
+        # contents of the Settings pane HTML in order to extract
+        # hidden fields before we can compose the query for updating
+        # the settings.
+        html = self._get_http_response(url=self.GET_SETTINGS_URL,
+                                       log_msg='dump of settings form HTML',
+                                       err_msg='requesting settings failed')
+        if html is None:
+            return False
+
+        # Now parse the required stuff out of the form. We require the
+        # "scisig" token to make the upload of our settings acceptable
+        # to Google.
+        soup = BeautifulSoup(html, 'html.parser')
+
+        tag = soup.find(name='form', attrs={'id': 'gs_settings_form'})
+        if tag is None:
+            ScholarUtils.log('info', 'parsing settings failed: no form')
+            return False
+
+        tag = tag.find('input', attrs={'type':'hidden', 'name':'scisig'})
+        if tag is None:
+            ScholarUtils.log('info', 'parsing settings failed: scisig')
+            return False
+
+        urlargs = {'scisig': tag['value'],
+                   'num': settings.per_page_results,
+                   'scis': 'no',
+                   'scisf': ''}
+
+        if settings.citform != 0:
+            urlargs['scis'] = 'yes'
+            urlargs['scisf'] = '&scisf=%d' % settings.citform
+
+        html = self._get_http_response(url=self.SET_SETTINGS_URL % urlargs,
+                                       log_msg='dump of settings result HTML',
+                                       err_msg='applying setttings failed')
+        if html is None:
+            return False
+
+        ScholarUtils.log('info', 'settings applied')
+        return True
 
     def _get_http_response(self, url, log_msg=None, err_msg=None):
         if log_msg is None:

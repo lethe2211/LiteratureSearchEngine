@@ -36,7 +36,8 @@ class GoogleScholarArticleCrawler(object):
             querier.send_query(query)
             result = self.put_json(querier)
 
-            serp.set(input_query, result)
+            if len(result) > 0:
+                serp.set(input_query, result)
 
             return result
 
@@ -137,7 +138,7 @@ class GoogleScholarArticleCrawler(object):
             # 被引用提示ページの各検索結果に対して，被引用提示ページへのリンクからcluster_idを取得する
             if art["url_citations"][0] is not None:
                 f = FetchUrl()
-                html = f.get(art["url_citations"][0]).text
+                html = f.get(art["url_citations"][0], retry=3).text
                 #print html
                 soup = BeautifulSoup(html, 'html.parser')
                 #print soup
