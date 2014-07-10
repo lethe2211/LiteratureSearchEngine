@@ -33,6 +33,7 @@ class GoogleScholarArticleCrawler(object):
             querier.apply_settings(settings)
             query = SearchScholarQuery()
             query.set_words(input_query)
+            query.set_num_page_results(10) # 返す検索結果は10件
             querier.send_query(query)
             result = self.put_json(querier)
 
