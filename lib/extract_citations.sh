@@ -1,4 +1,4 @@
-#!/usr/local/bin/zsh
+#!/bin/sh
 
 curl -o ./tmp.pdf $1 >/dev/null 2>&1
 # if [ $? -gt 0 ]; then
@@ -12,7 +12,7 @@ fi
 
 #~/ParsCit/bin/citeExtract.pl ./tmp.cite
 #cd `dirname $0`
-parscit=$(cd $(dirname $0) && pwd)/crawler/Parscit/bin/citeExtract.pl
+parscit=$(cd $(dirname $0) && pwd)/crawler/ParsCit/bin/citeExtract.pl
 $parscit ./tmp.cite
 #~/Dropbox/rails/search/lib/crawler/ParsCit/bin/citeExtract.pl ./tmp.cite
 if [ $? -gt 0 ]; then
