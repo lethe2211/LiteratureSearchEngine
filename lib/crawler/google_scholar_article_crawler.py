@@ -57,12 +57,13 @@ class GoogleScholarArticleCrawler(object):
 
             # CiteSeerXによる引用論文の取得
             if art["title"][0] is not None:
+                logging.debug('CiteSeerX')
                 c = CiteSeerXCrawler()
                 search_results = c.search_with_title(art['title'][0], num=1)
-                # print search_results
+                #print search_results
                 for search_result in search_results:
                     citation_titles =  c.get_citations(search_result)
-                    # print citation_titles
+                    #print citation_titles
                     for citation_title in citation_titles:
                         # print citation_title
                         querier = ScholarQuerierWithSnippets()
@@ -81,6 +82,7 @@ class GoogleScholarArticleCrawler(object):
 
             # CiteSeerXによる引用論文の取得によって結果が得られなかった場合に限り，ParsCitによる引用情報の取得を行う
             if len(result['data']) == 0 and art["url_pdf"][0] is not None:
+                logging.debug('ParsCit')
                 cmd = os.path.dirname(os.path.abspath(__file__)) + "/../extract_citations.sh " + art["url_pdf"][0]
                 xml = commands.getoutput(cmd)
                 soup = BeautifulSoup(xml, "html.parser")

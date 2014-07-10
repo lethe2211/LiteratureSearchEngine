@@ -78,7 +78,7 @@ class CiteSeerXCrawler(object):
         '''
         文字列から，半角記号を除く
         '''
-        return re.sub(re.compile("[!-/:-@[-`{-~]"), '', string)
+        return re.sub(re.compile("[!-/:-@[-`{-~]"), ' ', string)
 
     def _escape_whitespace(self, string):
         '''
