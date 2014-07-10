@@ -137,8 +137,10 @@ class GoogleScholarArticleCrawler(object):
                 f = FetchUrl()
                 html = f.get(art["url_citations"][0]).text
                 #print html
-                soup = BeautifulSoup(html)
+                soup = BeautifulSoup(html, 'html.parser')
+                #print soup
                 for soup_gs_ri in soup.find_all('div', {'class': 'gs_ri'}):
+                    #print soup_gs_ri
                     if not hasattr(soup_gs_ri, 'name'):
                         continue
 
@@ -208,7 +210,7 @@ class GoogleScholarArticleCrawler(object):
             payload = {'cluster': cluster_id, 'hl': 'ja'}
             html = f.get(url, params=payload, retry=3).text
 
-            soup = BeautifulSoup(html)
+            soup = BeautifulSoup(html, 'html.parser')
             for s in soup.findAll('span', {'class': 'gs_ctg2'}):
                 soup_link = s.parent.parent
                 if soup_link.name == 'a' and soup_link['href'].endswith('.pdf'):

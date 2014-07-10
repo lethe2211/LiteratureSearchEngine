@@ -33,7 +33,7 @@ class CiteSeerXCrawler(object):
         params = {'q': query, 't': 'doc'}
         html = self._get_html(search_url, params)
 
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'html.parser')
         i = 0
         for soup_result in soup.findAll('div', {'class': 'result'}):
             if i >= num:
@@ -54,9 +54,9 @@ class CiteSeerXCrawler(object):
 
         html = self._get_html(url)
 
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'html.parser')
 
-        if soup.find('div', {'id': 'citaitons'}) and soup.find('div', {'id': 'citations'}).table.findAll('tr'):
+        if soup.find('div', {'id': 'citations'}) and soup.find('div', {'id': 'citations'}).table and soup.find('div', {'id': 'citations'}).table.findAll('tr'):
             soup_table = soup.find('div', {'id': 'citations'}).table.findAll('tr')
             for soup_tr in soup_table:
                 if soup_tr.findAll('td') and len(soup_tr.findAll('td')) >= 2:
@@ -88,7 +88,7 @@ class CiteSeerXCrawler(object):
 
 if __name__ == '__main__':
     c = CiteSeerXCrawler()
-    results = c.search_with_title('pagerank:')
+    results = c.search_with_title('pagerank')
     #print results
     for result in results:
         print c.get_citations(result)
