@@ -139,16 +139,6 @@ class StaticPagesController < ApplicationController
             end
           end
 
-          # cid1の論文がcid2の論文を引用している
-          if (citedbyes[cid2]).include?(cid1) or (citations[cid1]).include?(cid2)
-            graph_json[:edges][cid1][cid2] = {directed: true, weight: 10, color: "#333333"}
-          end
-
-          # cid2の論文がcid1の論文を引用している
-          if (citations[cid2]).include?(cid1) or (citedbyes[cid1]).include?(cid2)
-            graph_json[:edges][cid2][cid1] = {directed: true, weight: 10, color: "#333333"}
-          end
-
           # 両方が(共)引用する論文
           (citations[cid1] & citations[cid2]).each do |cit|
             bib = JSON.parse(get_bibliography(cit.to_i))
@@ -199,6 +189,16 @@ class StaticPagesController < ApplicationController
             logger.debug("cited by cid1 and cid2: " + cit)
             graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
             graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
+          end
+
+          # cid1の論文がcid2の論文を引用している
+          if (citedbyes[cid2]).include?(cid1) or (citations[cid1]).include?(cid2)
+            graph_json[:edges][cid1][cid2] = {directed: true, weight: 10, color: "#333333"}
+          end
+
+          # cid2の論文がcid1の論文を引用している
+          if (citations[cid2]).include?(cid1) or (citedbyes[cid1]).include?(cid2)
+            graph_json[:edges][cid2][cid1] = {directed: true, weight: 10, color: "#333333"}
           end
 
         end

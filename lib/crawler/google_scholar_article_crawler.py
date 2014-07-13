@@ -62,6 +62,7 @@ class GoogleScholarArticleCrawler(object):
                 logging.debug('CiteSeerX')
                 c = CiteSeerXCrawler()
                 search_results = c.search_with_title(art['title'][0], num=1)
+                time.sleep(1)
                 #print search_results
                 for search_result in search_results:
                     citation_titles =  c.get_citations(search_result)
@@ -81,6 +82,8 @@ class GoogleScholarArticleCrawler(object):
 
                         if citation_cid is not None:
                             result['data'].append(citation_cid)
+
+                        time.sleep(1)
 
             # CiteSeerXによる引用論文の取得によって結果が得られなかった場合に限り，ParsCitによる引用情報の取得を行う
             if len(result['data']) == 0 and art["url_pdf"][0] is not None:
@@ -108,6 +111,8 @@ class GoogleScholarArticleCrawler(object):
                         if citation_cid is not None:
                             result['data'].append(citation_cid)
             
+                        time.sleep(1)
+
             # とりあえず結果が空でないならOKとする(←あまりよくない…)
             if len(result['data']) > 0:
                 result['status'] = 'OK'
@@ -144,13 +149,13 @@ class GoogleScholarArticleCrawler(object):
                 soup = BeautifulSoup(html, 'html.parser')
                 #print soup
                 for soup_gs_ri in soup.find_all('div', {'class': 'gs_ri'}):
-                    #print soup_gs_ri
+                    citedby_cid = None
                     if not hasattr(soup_gs_ri, 'name'):
                         continue
 
                     if soup_gs_ri.find('div', {'class': 'gs_fl'}):
                         soup_fl = soup_gs_ri.find('div', {'class': 'gs_fl'})
-                        #print soup_fl
+                        #print soup_fl                        
                         if soup_fl.find('a') is None or soup_fl.a.get('href') is None:
                             continue
 
@@ -206,7 +211,7 @@ class GoogleScholarArticleCrawler(object):
         pdf = filecache.Client(abspath + '/pdf/')
 
         cache = pdf.get(str(cluster_id)) # キャッシュ機構
-        if cache != None:
+        if cache is not None:
             return cache
         else:
             f = FetchUrl()
@@ -222,6 +227,8 @@ class GoogleScholarArticleCrawler(object):
                     pdf.set(str(cluster_id), result)
                     return result
 
+            return None
+
     def put_json(self, querier):
         '''
         JSONを出力
@@ -234,6 +241,7 @@ class GoogleScholarArticleCrawler(object):
             # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得
             if art_json['url_pdf'][0] is None:
                 art_json['url_pdf'][0] = self.search_pdf(art_json['cluster_id'][0])
+                time.sleep(1)
 
             articles_json.append(art_json)
             
@@ -264,6 +272,7 @@ class GoogleScholarArticleCrawler(object):
         # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得する
         if articles['url_pdf'][0] is None:
             articles['url_pdf'][0] = self.search_pdf(articles['cluster_id'][0])
+            time.sleep(1)
 
         return articles
 

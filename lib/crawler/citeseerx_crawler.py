@@ -71,7 +71,7 @@ class CiteSeerXCrawler(object):
         URLを入力し，Webから取得したHTMLを返す
         '''
         f = FetchUrl()
-        html = f.get(url, params, retry=3).text
+        html = f.get(url, params, retry=3, sleep_time=120).text
         return html
 
     def _remove_symbol(self, string):
