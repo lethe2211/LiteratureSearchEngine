@@ -122,7 +122,7 @@ class StaticPagesController < ApplicationController
 
           # 論文ノードの初期化
           unless used_result_cids.include?(cid1)
-            graph_json[:nodes][cid1] = {type: "search_result", weight: article1["num_citations"][0], title: article1["title"][0], year: article1["year"][0], color: "#dd3333"}
+            graph_json[:nodes][cid1] = {type: "search_result", weight: article1["num_citations"][0], title: article1["title"][0], year: article1["year"][0], color: "#dd3333", rank: article1["rank"][0]}
             used_result_cids.push(cid1)
             unless used_cids.include?(cid1)
               graph_json[:edges][cid1] = {}
@@ -131,7 +131,7 @@ class StaticPagesController < ApplicationController
           end
 
           unless used_result_cids.include?(cid2)
-            graph_json[:nodes][cid2] = {type: "search_result", weight: article2["num_citations"][0], title: article2["title"][0], year: article2["year"][0], color: "#dd3333"}
+            graph_json[:nodes][cid2] = {type: "search_result", weight: article2["num_citations"][0], title: article2["title"][0], year: article2["year"][0], color: "#dd3333", rank: article2["rank"][0]}
             used_result_cids.push(cid2)
             unless used_cids.include?(cid2)
               graph_json[:edges][cid2] = {}

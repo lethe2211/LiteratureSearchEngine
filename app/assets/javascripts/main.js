@@ -68,19 +68,36 @@
 				nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
 		    }
 
-		    ctx.fillStyle = node.data.color
-
-		    // ノードの円を描画
-		    ctx.beginPath();
-		    ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI, false);
-		    ctx.fill();
-
 		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
 		    if(hovered != null && hovered.node.name == node.name) {
 				ctx.fillStyle = "black";
 				ctx.font = "normal 12px sans-serif";
 				ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
 				ctx.fillText(hovered.node.data.year, pt.x+10, pt.y+5);
+		    }
+
+		    if (node.data.type == "search_result") {
+
+			// ノードの円を描画
+			ctx.fillStyle = node.data.color;
+			ctx.beginPath();
+			ctx.arc(pt.x, pt.y, 10, 0, 2 * Math.PI, false);
+			ctx.fill();
+
+			ctx.fillStyle = "white";
+			ctx.font = "normal 10px sans-serif";
+			ctx.fillText(node.data.rank, pt.x - 2.5, pt.y + 2.5);
+
+		    }
+
+		    else {
+
+			// ノードの円を描画
+			ctx.fillStyle = node.data.color;
+			ctx.beginPath();
+			ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI, false);
+			ctx.fill();
+
 		    }
 
 		})
@@ -91,23 +108,52 @@
 		    // pt1:  {x:#, y:#}  source position in screen coords
 		    // pt2:  {x:#, y:#}  target position in screen coords
 		    
-		    var weight = edge.data.weight // エッジの重み
-		    var color = edge.data.color	  // エッジの色
+		    var weight = edge.data.weight; // エッジの重み
+		    var color = edge.data.color;	  // エッジの色
 		    
-		    if (!color || (""+color).match(/^[ \t]*$/)) color = null
-		    
-		    
+		    if (!color || (""+color).match(/^[ \t]*$/)) color = null;
+		    		    
 		    // find the start point
-		    var tail = intersect_line_box(pt1, pt2, nodeBoxes[edge.source.name])
-		    var head = intersect_line_box(tail, pt2, nodeBoxes[edge.target.name])
-		    
+		    // var tail = intersect_line_box(pt1, pt2, nodeBoxes[edge.source.name])
+		    // var head = intersect_line_box(tail, pt2, nodeBoxes[edge.target.name])
+
+		    var tail = arbor.Point(0, 0); // 有向枝の末尾座標
+
+		    // ノードの大きさに応じて矢印の長さを変更する
+		    if (edge.source.data.type == "search_result") {
+
+		    	tail = intersect_line_circle(pt2, pt1, 10);
+
+		    }
+		    else {
+
+		    	tail = intersect_line_circle(pt2, pt1, 5);
+
+		    }
+
+		    var head = arbor.Point(0, 0); // 有向枝の先頭座標
+
+		    if (edge.target.data.type == "search_result") {
+
+		    	head = intersect_line_circle(tail, pt2, 10);
+
+		    }
+		    else {
+
+		    	head = intersect_line_circle(tail, pt2, 5);
+
+		    }
+
+		    console.log("tail: " + tail.x + " " + tail.y);
+		    console.log("head: " + head.x + " " + head.y);
+
 		    // エッジに線を引く
-		    // draw a line from pt1 to pt2
+		    // draw a line from head to tail
 		    ctx.strokeStyle = "rgba(0,0,0, .333)"
 		    ctx.lineWidth = 1
 		    ctx.beginPath()
-		    ctx.moveTo(pt1.x, pt1.y)
-		    ctx.lineTo(pt2.x, pt2.y)
+		    ctx.moveTo(tail.x,tail.y)
+		    ctx.lineTo(head.x, head.y)
 		    ctx.stroke()
 		    
 		    // そのエッジが有向である場合，矢印の頭を書く
@@ -116,8 +162,8 @@
 	    		ctx.save()
 			// move to the head position of the edge we just drew
 	    		var wt = !isNaN(weight) ? parseFloat(weight) : 1
-	    		var arrowLength = 6 + wt
-	    		var arrowWidth = 2 + wt
+	    		var arrowLength = 2 + wt
+	    		var arrowWidth = 0 + wt
 	    		ctx.fillStyle = (color) ? color : "#cccccc"
 	    		ctx.translate(head.x, head.y); // 座標変換？
 	    		ctx.rotate(Math.atan2(head.y - tail.y, head.x - tail.x));
@@ -260,6 +306,7 @@
     
     // 矢印の描画に必要
     // helpers for figuring out where to draw arrows (thanks springy.js)
+    // 点p1, p2からなる直線(線分？)とp3, p4からなる直線の交点を求める
     var intersect_line_line = function(p1, p2, p3, p4)
     {
 	var denom = ((p4.y - p3.y)*(p2.x - p1.x) - (p4.x - p3.x)*(p2.y - p1.y));
@@ -271,22 +318,60 @@
 	return arbor.Point(p1.x + ua * (p2.x - p1.x), p1.y + ua * (p2.y - p1.y));
     }
     
+    // p1, p2からなる直線(線分？)と，長方形boxTupleの交点を求める
     var intersect_line_box = function(p1, p2, boxTuple)
     {
-	var p3 = {x:boxTuple[0], y:boxTuple[1]},
-        w = boxTuple[2],
-        h = boxTuple[3]
+	var p3 = {x:boxTuple[0], y:boxTuple[1]},　 // x: 当たり判定を計算する長方形のx座標 y: y座標
+        w = boxTuple[2],			   // 長方形の幅
+        h = boxTuple[3]				   // 長方形の長さ
 	
-	var tl = {x: p3.x, y: p3.y};
+	var tl = {x: p3.x, y: p3.y}; // 長方形の左上
 	var tr = {x: p3.x + w, y: p3.y};
 	var bl = {x: p3.x, y: p3.y + h};
 	var br = {x: p3.x + w, y: p3.y + h};
 	
+	// 長方形のいずれかの辺と交点を持てば，長方形と交わっているとする
 	return intersect_line_line(p1, p2, tl, tr) ||
             intersect_line_line(p1, p2, tr, br) ||
             intersect_line_line(p1, p2, br, bl) ||
             intersect_line_line(p1, p2, bl, tl) ||
             false
+    }
+
+    // 点pから，半径rの円の中心pcまで直線を引いた際の交点のうち，pに近いものを求める
+    var intersect_line_circle = function (p, pc, r) {
+
+	// 点pからpcまでの距離
+	var length = Math.sqrt((pc.x - p.x) * (pc.x - p.x) + (pc.y - p.y) * (pc.y - p.y));
+
+	// 点pcからpまでの単位ベクトル
+	var ex = (p.x - pc.x) / length;
+	var ey = (p.y - pc.y) / length;
+
+	// 点pcから(ex, ey)の向きに距離r離れた点が求める点
+	var x = pc.x - r * ex;
+	var y = pc.y - r * ey;
+
+
+	console.log("p.x: " + p.x, " p.y: " + p.y);
+	console.log("pc.x: " + pc.x, " pc.y: " + pc.y);
+	console.log("x: " + x, " y: " + y);
+
+	// 求める点が点pと点pcの間にない場合，円を挟んで裏側の点を求めてしまっているので，入れ替える
+	if ((x < pc.x && x > p.x) || (x < p.x && x > pc.x)) {
+
+	    return arbor.Point(x, y);
+
+	}
+	else {
+
+	    x = pc.x + r * ex;
+	    y = pc.y + r * ey;
+
+	    return arbor.Point(x, y);
+
+	}
+
     }
     
 })(this.jQuery)

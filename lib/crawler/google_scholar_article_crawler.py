@@ -235,13 +235,15 @@ class GoogleScholarArticleCrawler(object):
         '''
         articles_json = []
         articles = querier.articles
-        for art in articles:
+        for rank, art in enumerate(articles):
             art_json = art.as_json()
 
             # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得
             if art_json['url_pdf'][0] is None:
                 art_json['url_pdf'][0] = self.search_pdf(art_json['cluster_id'][0])
                 time.sleep(1)
+
+            art_json['rank'] = [rank + 1, 'Rank', 12]
 
             articles_json.append(art_json)
             
