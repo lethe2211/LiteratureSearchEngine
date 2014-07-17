@@ -13,6 +13,7 @@
 	var gfx = arbor.Graphics(canvas);
 	var particleSystem;
 
+	var position = {};	     // 各ノードの座標
 	var hovered = null;	// 現在マウスホバーされているノードを表す
 	
 	var that = {
@@ -50,7 +51,7 @@
 		ctx.fillStyle = "white"
 		ctx.fillRect(0,0, canvas.width, canvas.height)
 		
-		var nodeBoxes = {} // 矢印の描画に必要
+		// var nodeBoxes = {} // 矢印の描画に必要
 
 		// すべてのノードについて
 		particleSystem.eachNode(function(node, pt){
@@ -58,48 +59,51 @@
 		    // pt:   {x:#, y:#}  node position in screen coords
 		    
 		    // 幅wの時の
-		    var w = 10;
+		    // var w = 10;
+
+		    var r;	// ノード(円で表す)の半径
+
+		    // if (!(node.name in position)) {
+
+		    // 	position[node.name] = arbor.Point(parseInt(node.data.year) - 2000, Math.floor(Math.random() * 300));
+		    // 	node.p = position[node.name];
+
+		    // 	console.log(node.p);
+
+		    // }
+
+		    (node.data.type == "search_result")? r = 10: r = 5;
 		    
-		    if (node.data.shape=='dot'){
-				//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
-				nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
-		    }else{
-				//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
-				nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
-		    }
+		    // if (node.data.shape=='dot'){
+		    // 		//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
+		    // 		nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
+		    // }else{
+		    // 		//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
+		    // 		nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
+		    // }
 
 		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
 		    if(hovered != null && hovered.node.name == node.name) {
-				ctx.fillStyle = "black";
-				ctx.font = "normal 12px sans-serif";
-				ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
-				ctx.fillText(hovered.node.data.year, pt.x+10, pt.y+5);
+			ctx.fillStyle = "black";
+			ctx.font = "normal 12px sans-serif";
+			ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
+			ctx.fillText(hovered.node.data.year, pt.x+10, pt.y+5);
 		    }
+
+		    // ノードの円を描画
+		    ctx.fillStyle = node.data.color;
+		    ctx.beginPath();
+		    ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
+		    ctx.fill();
 
 		    if (node.data.type == "search_result") {
 
-			// ノードの円を描画
-			ctx.fillStyle = node.data.color;
-			ctx.beginPath();
-			ctx.arc(pt.x, pt.y, 10, 0, 2 * Math.PI, false);
-			ctx.fill();
-
 			ctx.fillStyle = "white";
 			ctx.font = "normal 10px sans-serif";
-			ctx.fillText(node.data.rank, pt.x - 2.5, pt.y + 2.5);
+			ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
 
 		    }
-
-		    else {
-
-			// ノードの円を描画
-			ctx.fillStyle = node.data.color;
-			ctx.beginPath();
-			ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI, false);
-			ctx.fill();
-
-		    }
-
+		    		    
 		})
 
 		// すべてのエッジについて
@@ -270,8 +274,8 @@
     
     $(document).ready(function(){
 	// Arbor.jsの初期化
-	var sys = arbor.ParticleSystem(5000, 500, 0) // create the system with sensible repulsion/stiffness/friction
-	sys.parameters({gravity:true}) // use center-gravity to make the graph settle nicely (ymmv)
+	var sys = arbor.ParticleSystem(0, 0, 0) // create the system with sensible repulsion/stiffness/friction
+	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
 	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 
 	// JSONの読み込み(static_pages/get_citationを呼び出すことで，コールバックにJSONが返ってくる)
