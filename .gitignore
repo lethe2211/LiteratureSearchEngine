@@ -53,3 +53,4 @@ config/secrets.yml
 *.cite
 *.pdf
 *.dat
+*.json
