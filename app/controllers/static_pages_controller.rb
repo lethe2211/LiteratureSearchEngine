@@ -24,13 +24,13 @@ class StaticPagesController < ApplicationController
     logger.debug(out)
     @articles = JSON.parse(out)
 
-    shape_graph(@articles)
-
+    gon.graph = shape_graph(@articles)
+    
   end
 
   # グラフを記述したJSONをJavaScript側に送る
   def send_graph
-    render :json => @@graph
+    # render :json => @@graph
   end
 
   private
@@ -78,7 +78,7 @@ class StaticPagesController < ApplicationController
     logger.debug(cache.nil?)
 
     if (not cache.nil?) and cache["status"] == 'OK'
-      @@graph = cache["data"]
+      return cache["data"]
     else
       result = {}
 
@@ -90,13 +90,15 @@ class StaticPagesController < ApplicationController
         cid = article["cluster_id"][0].to_s
 
         # 引用論文
-        logger.debug(cid)
-        citations[cid] = JSON.parse(get_citation(cid.to_i))
+        logger.debug("citation: " + cid)
+        citation = get_citation(cid.to_i)
+        citations[cid] = citation.blank? ? [] : JSON.parse(citation)
         logger.debug(citations[cid])
         
         # 被引用論文
-        logger.debug(cid)
-        citedbyes[cid] = JSON.parse(get_citedby(cid.to_i))
+        logger.debug("citedby: " + cid)
+        citedby = get_citedby(cid.to_i)
+        citedbyes[cid] = citedby.blank? ? [] : JSON.parse(citedby)
         logger.debug(citedbyes[cid])
         
       end
@@ -212,8 +214,9 @@ class StaticPagesController < ApplicationController
         result[:status] = "NG"
       end
 
-      @@graph = result[:data]
-      logger.debug(@@graph)
+      logger.debug(result[:data])
+      return result[:data]
+
     end   
     
   end

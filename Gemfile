@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+# source 'http://production.cf.rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.0'
@@ -18,6 +19,9 @@ gem 'coffee-rails', '~> 4.0.0'
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 gem 'therubyracer', platforms: :ruby
+
+# Use Gon for using variables of rails as variables of JavaScript
+gem 'gon'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'

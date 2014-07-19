@@ -279,9 +279,10 @@
 	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 
 	// JSONの読み込み(static_pages/get_citationを呼び出すことで，コールバックにJSONが返ってくる)
-	var data = $.getJSON('send_graph',function(data){
-	    sys.graft({nodes:data.nodes, edges:data.edges})
-	})
+	// var data = $.getJSON('send_graph',function(data){
+	//     sys.graft({nodes:data.nodes, edges:data.edges})
+	// })
+	var data = gon.graph
 	sys.graft(data);
 
 	// add some nodes to the graph and watch it go...
