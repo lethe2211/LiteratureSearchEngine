@@ -1,7 +1,16 @@
-<%= form_tag static_pages_result_path, {method: :get} do %>
+<%= "interface: #{@interface}" %>
+<%= form_tag "/static_pages/result/#{@interface}", {method: :get} do %>
   <%= text_field_tag :search_string %>
   <%= submit_tag "検索" %>
 <% end %>
+
+
+
+
+
+
+
+
 
 
 

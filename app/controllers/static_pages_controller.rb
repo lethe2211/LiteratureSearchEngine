@@ -5,9 +5,14 @@ require 'jsoncache'
 
 class StaticPagesController < ApplicationController
   def search
+    @interface = params[:interface].to_i # インタフェースの番号(1: 従来の検索エンジン，2: 提案手法)
+    gon.interface = @interface
   end
 
   def result
+    @interface = params[:interface].to_i
+    gon.interface = @interface
+
     @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
 
     # クエリの正規化
@@ -17,21 +22,23 @@ class StaticPagesController < ApplicationController
     end
     @query = @query.gsub(/(\s|　)+/, "+")
     
-
     out = crawl(@query)
-
-    # JSONの処理とグラフへの整形
     logger.debug(out)
+
+    # JSONの処理とグラフへの整形    
     @articles = JSON.parse(out)
 
-    gon.graph = shape_graph(@articles)
+    if @interface == 2
+      gon.graph = shape_graph(@articles) # グラフを記述したJSONをJavaScript側の"gon.graph"に送る
+    end
+
     
   end
 
   # グラフを記述したJSONをJavaScript側に送る
-  def send_graph
-    # render :json => @@graph
-  end
+  # def send_graph
+  #   # render :json => @@graph
+  # end
 
   private
   # クエリを受け取り，google_scholar_crawler.pyを呼び出す
@@ -222,5 +229,3 @@ class StaticPagesController < ApplicationController
   end
 
 end
-
-

@@ -1,9 +1,11 @@
-<%= form_tag static_pages_result_path, {method: :get} do %>
+<%= "interface: #{@interface}" %>
+<%= form_tag "/static_pages/result/#{@interface}", {method: :get} do %>
   <%= text_field_tag :search_string, @text_field_val %>
   <%= submit_tag "検索" %>
 <% end %>
 
 <% if @articles %>
+
   <canvas id="citation_graph" width="600" height="450"></canvas>
 
   <div id="search_results" >

@@ -273,6 +273,15 @@
     }
     
     $(document).ready(function(){
+
+	// 従来の検索エンジンが選択されている場合は，canvas要素を不可視化する必要がある
+	if (parseInt(gon.interface) == 1) {
+
+	    $("#citation_graph").hide();
+	    return;
+
+	}
+
 	// Arbor.jsの初期化
 	var sys = arbor.ParticleSystem(0, 0, 0) // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
@@ -282,7 +291,9 @@
 	// var data = $.getJSON('send_graph',function(data){
 	//     sys.graft({nodes:data.nodes, edges:data.edges})
 	// })
-	var data = gon.graph
+
+	var data = gon.graph	// グラフのJSON
+
 	sys.graft(data);
 
 	// add some nodes to the graph and watch it go...
