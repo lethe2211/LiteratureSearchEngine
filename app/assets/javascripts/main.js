@@ -50,8 +50,22 @@
 		//
 		ctx.fillStyle = "white"
 		ctx.fillRect(0,0, canvas.width, canvas.height)
-		
-		// var nodeBoxes = {} // 矢印の描画に必要
+
+		// 時系列を表す矢印の描画
+		ctx.strokeStyle = "#99aaaa";
+		ctx.beginPath();
+		ctx.moveTo(10, canvas.height - 50);
+		ctx.lineTo(540, canvas.height - 50);
+		ctx.lineWidth = 5;
+		ctx.closePath()
+		ctx.stroke();
+
+		ctx.fillStyle = "#99aaaa";
+		ctx.moveTo(550, canvas.height - 50);
+		ctx.lineTo(540, canvas.height - 40);
+		ctx.lineTo(540, canvas.height - 60);
+		ctx.closePath();
+		ctx.fill();
 
 		// すべてのノードについて
 		particleSystem.eachNode(function(node, pt){
@@ -59,30 +73,31 @@
 		    // pt:   {x:#, y:#}  node position in screen coords
 		    
 		    var type = node.data.type; // ノードタイプ
-
-		    // 幅wの時の
-		    // var w = 10;
+		    var rank = node.data.rank; // 検索結果ノードのランキング
 
 		    // ノードの重み決定(関数化すべき)
 		    var r;	// ノード(円で表す)の半径
 		    var r_type;	// ノードタイプによる重み
 		    var r_rank;	// 検索結果ノードのランクによる(逆)重み
 
-
 		    if (type == "search_result") {
 
-			r_type = 15;
+			r_type = 20;
 			r_rank = -0.8 * node.data.rank;
 
 		    }
 		    else {
 
 			r_type = 5;
+			ctx.beginPath();
+			ctx.moveTo(10, 10);
+			ctx.lineTo(90, 90);
 			r_rank = 0;
 
 		    }
 
 		    r = r_type + r_rank;
+		    node.data.r = r; // プロパティrはノードの半径を表す
 
 		    // ノードの位置決定
 		    if (!(node.name in position)) {
@@ -93,7 +108,7 @@
 
 			if (type == "search_result") {
 
-			    y = 100 + Math.round(Math.random()) * 100;
+			    (rank % 2 == 1)? y = 100 : y = 200;
 
 			}
 			else {
@@ -103,19 +118,11 @@
 			}
 
 		    	position[node.name] = arbor.Point(x, y);
-		    	node.p = position[node.name];
+		    	node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
 
-		    	// console.log(node.p);
+		    	console.log(node.data.rank + " x: " + x + " " + position[node.name].x + " y: " + y + " " + position[node.name].y);
 
 		    }
-
-		    // if (node.data.shape=='dot'){
-		    // 		//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
-		    // 		nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
-		    // }else{
-		    // 		//gfx.rect(pt.x-w/2, pt.y-10, w,20, 4, {fill:ctx.fillStyle})
-		    // 		nodeBoxes[node.name] = [pt.x-w/2, pt.y-11, w, 22]
-		    // }
 
 		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
 		    if(hovered != null && hovered.node.name == node.name) {
@@ -131,11 +138,14 @@
 		    ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
 		    ctx.fill();
 
-		    if (node.data.type == "search_result") {
+		    // 検索結果ノードにランクを描画
+		    if (type == "search_result") {
 
 			ctx.fillStyle = "white";
-			ctx.font = "normal 10px sans-serif";
-			ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
+			ctx.font = "normal " + (15 - 0.5 * rank) + "px sans-serif";
+			
+			if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
+			else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
 
 		    }
 		    		    
@@ -151,22 +161,18 @@
 		    var color = edge.data.color;	  // エッジの色
 		    
 		    if (!color || (""+color).match(/^[ \t]*$/)) color = null;
-		    		    
-		    // find the start point
-		    // var tail = intersect_line_box(pt1, pt2, nodeBoxes[edge.source.name])
-		    // var head = intersect_line_box(tail, pt2, nodeBoxes[edge.target.name])
 
 		    var tail = arbor.Point(0, 0); // 有向枝の末尾座標
 
 		    // ノードの大きさに応じて矢印の長さを変更する
 		    if (edge.source.data.type == "search_result") {
 
-		    	tail = intersect_line_circle(pt2, pt1, 10);
+		    	tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
 
 		    }
 		    else {
 
-		    	tail = intersect_line_circle(pt2, pt1, 5);
+		    	tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
 
 		    }
 
@@ -174,12 +180,12 @@
 
 		    if (edge.target.data.type == "search_result") {
 
-		    	head = intersect_line_circle(tail, pt2, 10);
+		    	head = intersect_line_circle(tail, pt2, edge.target.data.r);
 
 		    }
 		    else {
 
-		    	head = intersect_line_circle(tail, pt2, 5);
+		    	head = intersect_line_circle(tail, pt2, edge.target.data.r);
 
 		    }
 
