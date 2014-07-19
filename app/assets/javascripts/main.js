@@ -58,22 +58,57 @@
 		    // node: {mass:#, p:{x,y}, name:"", data:{}}
 		    // pt:   {x:#, y:#}  node position in screen coords
 		    
+		    var type = node.data.type; // ノードタイプ
+
 		    // 幅wの時の
 		    // var w = 10;
 
+		    // ノードの重み決定(関数化すべき)
 		    var r;	// ノード(円で表す)の半径
+		    var r_type;	// ノードタイプによる重み
+		    var r_rank;	// 検索結果ノードのランクによる(逆)重み
 
-		    // if (!(node.name in position)) {
 
-		    // 	position[node.name] = arbor.Point(parseInt(node.data.year) - 2000, Math.floor(Math.random() * 300));
-		    // 	node.p = position[node.name];
+		    if (type == "search_result") {
 
-		    // 	console.log(node.p);
+			r_type = 15;
+			r_rank = -0.8 * node.data.rank;
 
-		    // }
+		    }
+		    else {
 
-		    (node.data.type == "search_result")? r = 10: r = 5;
-		    
+			r_type = 5;
+			r_rank = 0;
+
+		    }
+
+		    r = r_type + r_rank;
+
+		    // ノードの位置決定
+		    if (!(node.name in position)) {
+
+			var x, y;
+
+			x = parseInt(node.data.year) - 2000;
+
+			if (type == "search_result") {
+
+			    y = 100 + Math.round(Math.random()) * 100;
+
+			}
+			else {
+
+			    y = 100 + Math.floor(Math.random() * 100);
+
+			}
+
+		    	position[node.name] = arbor.Point(x, y);
+		    	node.p = position[node.name];
+
+		    	// console.log(node.p);
+
+		    }
+
 		    // if (node.data.shape=='dot'){
 		    // 		//gfx.oval(pt.x-w/2, pt.y-w/2, w,w, {fill:ctx.fillStyle})
 		    // 		nodeBoxes[node.name] = [pt.x-w/2, pt.y-w/2, w,w]
@@ -148,8 +183,8 @@
 
 		    }
 
-		    console.log("tail: " + tail.x + " " + tail.y);
-		    console.log("head: " + head.x + " " + head.y);
+		    // console.log("tail: " + tail.x + " " + tail.y);
+		    // console.log("head: " + head.x + " " + head.y);
 
 		    // エッジに線を引く
 		    // draw a line from head to tail
@@ -367,11 +402,6 @@
 	// 点pcから(ex, ey)の向きに距離r離れた点が求める点
 	var x = pc.x - r * ex;
 	var y = pc.y - r * ey;
-
-
-	console.log("p.x: " + p.x, " p.y: " + p.y);
-	console.log("pc.x: " + pc.x, " pc.y: " + pc.y);
-	console.log("x: " + x, " y: " + y);
 
 	// 求める点が点pと点pcの間にない場合，円を挟んで裏側の点を求めてしまっているので，入れ替える
 	if ((x < pc.x && x > p.x) || (x < p.x && x > pc.x)) {
