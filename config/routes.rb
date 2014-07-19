@@ -1,4 +1,5 @@
 Search::Application.routes.draw do
+  root controller: "static_pages", action: "search", interface: 1
   get "static_pages/search" => redirect("/static_pages/search/1")
   get "static_pages/search/:interface" => "static_pages#search"
   get "static_pages/result/:interface" => "static_pages#result"

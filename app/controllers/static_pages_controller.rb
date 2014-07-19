@@ -28,7 +28,8 @@ class StaticPagesController < ApplicationController
     # JSONの処理とグラフへの整形    
     @articles = JSON.parse(out)
 
-    if @interface == 2
+    # 従来の検索エンジンが選択されている場合は，グラフの生成を行わない
+    if @interface != 1
       gon.graph = shape_graph(@articles) # グラフを記述したJSONをJavaScript側の"gon.graph"に送る
     end
 
