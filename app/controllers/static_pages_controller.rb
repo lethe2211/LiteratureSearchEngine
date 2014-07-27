@@ -7,11 +7,13 @@ class StaticPagesController < ApplicationController
   def search
     @interface = params[:interface].to_i # インタフェースの番号(1: 従来の検索エンジン，2: 提案手法)
     gon.interface = @interface
+    gon.action = "search"
   end
 
   def result
     @interface = params[:interface].to_i
     gon.interface = @interface
+    gon.action = "result"
 
     @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
 

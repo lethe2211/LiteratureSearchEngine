@@ -315,6 +315,10 @@
     
     $(document).ready(function(){
 
+	// アクションがresultでなければ関数を出ることで，ノードを読み込もうとするエラーを消す
+	// FIXME: できるならアクションごとに読み込むJavaScriptを変えるべき
+	if (gon.action != "result") return;
+
 	// 従来の検索エンジンが選択されている場合は，canvas要素を不可視化する必要がある
 	if (parseInt(gon.interface) == 1) {
 

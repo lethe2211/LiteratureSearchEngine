@@ -5,7 +5,7 @@
     <%= include_gon %>
     <%= stylesheet_link_tag "application", media: "all",
                                            "data-turbolinks-track" => true %>
-    <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+    <%= javascript_include_tag "application", "data-turbolinks-track" => true %> 
     <%= csrf_meta_tags %>
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -18,8 +18,8 @@
           <%= link_to "extended SERP", '/static_pages/search/1', id: "logo" %>
           <nav>
             <ul class="nav pull-right">
-              <li><%= link_to "interface 1",    '/static_pages/search/1' %></li>
-              <li><%= link_to "interface 2",    '/static_pages/search/2' %></li>
+              <li><%= link_to "interface 1", '/static_pages/search/1', data: { no_turbolink: true } %></li>
+              <li><%= link_to "interface 2", '/static_pages/search/2', data: { no_turbolink: true } %></li>
             </ul>
           </nav>
         </div>

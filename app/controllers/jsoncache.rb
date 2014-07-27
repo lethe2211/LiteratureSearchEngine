@@ -1,40 +1,44 @@
+# -*- coding: utf-8 -*-
 require 'json'
+require 'fileutils'
 
 =begin
 JSONファイルを用いたファイルキャッシュ   
 =end
 class JsonCache
 
-    def initialize(dir: "cache/")
-        @abspath = File.dirname(__FILE__)
-        @dir = dir
-        @prefix = "cache_"
-        @postfix = ".json"
+  def initialize(dir: "cache/", prefix: "cache_", postfix: ".json")
+    @abspath = File.dirname(__FILE__)
+    @dir = dir
+    @prefix = prefix
+    @postfix = postfix
+
+    FileUtils.mkdir_p("#{ @abspath }/#{ @dir }") unless File.exist?("#{ @abspath }/# { @dir }") # ディレクトリがなければ作る
+  end
+
+  # 保存したキャッシュファイルをオブジェクトの形で取り出す 
+  def get(key, defValue: nil)
+    relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
+
+    if not File.exists?(@abspath + relpath)
+      return defValue
     end
 
-    # 保存したキャッシュファイルをオブジェクトの形で取り出す 
-    def get(key, defValue: nil)
-        relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
+    f = open(@abspath + relpath, "r")
+    json = f.read
+    result = JSON.parse(json)
+    f.close
 
-        if not File.exists?(@abspath + relpath)
-            return nil
-        end
+    return result
+  end
 
-        f = open(@abspath + relpath, "r")
-        json = f.read
-        result = JSON.parse(json)
-        f.close
-
-        return result
+  # RubyオブジェクトをJSONに変換し，ファイルに保存する
+  def set(key, value)
+    relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
+    open(@abspath + relpath, "w") do |io|
+      JSON.dump(value, io)
     end
-
-    # RubyオブジェクトをJSONに変換し，ファイルに保存する
-    def set(key, value)
-        relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
-        open(@abspath + relpath, "w") do |io|
-            JSON.dump(value, io)
-        end
-    end
+  end
 
 end
 

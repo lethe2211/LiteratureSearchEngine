@@ -26,4 +26,7 @@ Search::Application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   config.assets.debug = true
+
+  # As you deleted "//= require_tree ." in application.js, you need to add JavaScript files to assets pipeline.
+  # config.assets.precompile += ["*.js"]
 end
