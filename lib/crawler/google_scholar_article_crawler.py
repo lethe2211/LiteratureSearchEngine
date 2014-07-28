@@ -201,8 +201,39 @@ class GoogleScholarArticleCrawler(object):
 
             return result
 
+    def get_abstract(self, cluster_id):
+        '''
+        Cluster_idを受け取り，対応する論文のアブストラクトを返す
+        '''
+        abspath = os.path.dirname(os.path.abspath(__file__))
+        abstract = filecache.Client(abspath + '/abstract/')
 
+        cache = abstract.get(str(cluster_id)) # キャッシュ機構
+        if cache is not None and cache['status'] == 'OK':
+            return cache['data']
+        else:
+            art = self.get_bibliography(cluster_id) # 書誌情報を返す
 
+            result = {'status': '', 'data': []}
+
+            # CiteSeerXによる引用論文の取得
+            if art["title"][0] is not None:
+                c = CiteSeerXCrawler()
+                search_results = c.search_with_title(art['title'][0], num=1)
+                time.sleep(1)
+                # print search_results
+                if len(search_results) > 0:
+                    result['data'] = c.get_abstract(search_results[0])
+
+                if len(result['data']) > 0:
+                    result['status'] = 'OK'
+                    abstract.set(str(cluster_id), result)
+                else:
+                    result['status'] = 'NG'
+
+            return result['data']
+
+    
     def search_pdf(self, cluster_id):
         '''
         Cluster_idを受け取り，対応する論文PDFのURLを返す
@@ -277,5 +308,4 @@ class GoogleScholarArticleCrawler(object):
             time.sleep(1)
 
         return articles
-
 

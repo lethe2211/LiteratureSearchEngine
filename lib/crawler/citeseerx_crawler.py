@@ -48,7 +48,7 @@ class CiteSeerXCrawler(object):
 
     def get_citations(self, url):
         '''
-        CiteSeerXの論文詳細ページから，引用論文のタイトルのリストを返す
+        入力としてURLを受け取り，CiteSeerXの論文詳細ページから，引用論文のタイトルのリストを返す
         '''
         citation_titles = []
 
@@ -65,6 +65,21 @@ class CiteSeerXCrawler(object):
                         citation_titles.append(soup_tr.findAll('td')[1].a.string)
 
         return citation_titles
+
+    def get_abstract(self, url):
+        '''
+        入力としてURLを受け取り，CiteSeerXの論文詳細ページから，アブストラクトを返す
+        '''
+        abstract = ''
+
+        html = self._get_html(url)
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        if soup.find('div', {'id': 'abstract'}):
+            soup_abstract = soup.find('div', {'id': 'abstract'}).p
+            abstract = unicode(soup_abstract.string)
+        return abstract
 
     def _get_html(self, url, params={}):
         '''
