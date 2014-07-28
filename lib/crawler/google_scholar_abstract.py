@@ -13,7 +13,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] != '':
         g = GoogleScholarArticleCrawler()
         abstract = g.get_abstract(sys.argv[1])
-        print abstract
+        print abstract.encode('utf-8')
 
     
 

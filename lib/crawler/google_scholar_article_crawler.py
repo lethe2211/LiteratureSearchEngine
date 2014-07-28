@@ -214,7 +214,7 @@ class GoogleScholarArticleCrawler(object):
         else:
             art = self.get_bibliography(cluster_id) # 書誌情報を返す
 
-            result = {'status': '', 'data': []}
+            result = {'status': '', 'data': ''}
 
             # CiteSeerXによる引用論文の取得
             if art["title"][0] is not None:

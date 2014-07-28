@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require 'open3'
 require 'json'
-require 'jsoncache'
+require 'jsoncache'             # FIXME: autoloadしてるはずなのに外すと動かない
 
 class StaticPagesController < ApplicationController
   def search
@@ -74,6 +74,15 @@ class StaticPagesController < ApplicationController
   # Cluster_idを受け取り，google_scholar_bibliography.pyを呼び出して書誌情報を返す  
   def get_bibliography(cluster_id)
     command = Rails.root.to_s + "/lib/crawler/google_scholar_bibliography.py " 
+    command += cluster_id.to_s
+    out, err, status = Open3.capture3(command)
+
+    return out
+  end
+
+  # Cluster_idを受け取り，google_scholar_abstract.pyを呼び出してアブストラクトを返す  
+  def get_abstract(cluster_id)
+    command = Rails.root.to_s + "/lib/crawler/google_scholar_abstract.py " 
     command += cluster_id.to_s
     out, err, status = Open3.capture3(command)
 
