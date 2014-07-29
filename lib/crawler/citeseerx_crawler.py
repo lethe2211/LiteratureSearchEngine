@@ -78,7 +78,7 @@ class CiteSeerXCrawler(object):
 
         if soup.find('div', {'id': 'abstract'}):
             soup_abstract = soup.find('div', {'id': 'abstract'}).p
-            abstract = str(soup_abstract.string)
+            abstract = unicode(soup_abstract.string).encode('utf-8')
         return abstract
 
     def _get_html(self, url, params={}):

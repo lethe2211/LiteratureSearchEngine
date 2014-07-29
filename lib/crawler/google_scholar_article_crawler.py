@@ -77,11 +77,13 @@ class GoogleScholarArticleCrawler(object):
                         query.set_scope(True)
                         query.set_num_page_results(1) # 返す検索結果は1件
                         querier.send_query(query)
-                        res = self.put_json_zero(querier)
-                        citation_cid = res["cluster_id"][0]
 
-                        if citation_cid is not None:
-                            result['data'].append(citation_cid)
+                        if self.put_json_zero(querier) != []:
+                            res = self.put_json_zero(querier)
+                            citation_cid = res["cluster_id"][0]
+
+                            if citation_cid is not None:
+                                result['data'].append(citation_cid)
 
                         time.sleep(1)
 
@@ -105,11 +107,13 @@ class GoogleScholarArticleCrawler(object):
                         query.set_scope(True)
                         query.set_num_page_results(1) # 返す検索結果は1件
                         querier.send_query(query)
-                        res = self.put_json_zero(querier)
-                        citation_cid = res["cluster_id"][0]
 
-                        if citation_cid is not None:
-                            result['data'].append(citation_cid)
+                        if self.put_json_zero(querier):
+                            res = self.put_json_zero(querier)
+                            citation_cid = res["cluster_id"][0]
+
+                            if citation_cid is not None:
+                                result['data'].append(citation_cid)
             
                         time.sleep(1)
 
@@ -274,7 +278,17 @@ class GoogleScholarArticleCrawler(object):
                 art_json['url_pdf'][0] = self.search_pdf(art_json['cluster_id'][0])
                 time.sleep(1)
 
-            art_json['rank'] = [rank + 1, 'Rank', 12]
+            # CiteSeerXによるアブストラクトの取得
+            if art["title"][0] is not None:
+                c = CiteSeerXCrawler()
+                search_results = c.search_with_title(art_json['title'][0], num=1)
+                time.sleep(1)
+                # print search_results
+                if len(search_results) > 0:
+                    art_json['abstract'] = [c.get_abstract(search_results[0]), 'Abstract', 12]
+
+
+            art_json['rank'] = [rank + 1, 'Rank', 13] # FIXME: 書誌情報に含めるのではなく，検索結果固有の情報にする
 
             articles_json.append(art_json)
             
@@ -296,6 +310,8 @@ class GoogleScholarArticleCrawler(object):
 
             # art_json['abstract'] = [self.get_abstract(art_json['cluster_id'][0]), 'Abstract', 12]
 
+            art_json['abstract'] = [None, 'Abstract', 12]
+
             # CiteSeerXによるアブストラクトの取得
             if art["title"][0] is not None:
                 c = CiteSeerXCrawler()
@@ -303,7 +319,7 @@ class GoogleScholarArticleCrawler(object):
                 time.sleep(1)
                 # print search_results
                 if len(search_results) > 0:
-                    art_json['abstract'] = [c.get_abstract(search_results[0]), 'Abstract', 12]
+                    art_json['abstract'][0] = c.get_abstract(search_results[0])
 
             # TODO: JSONの構造を見直す
             # 1. 書誌情報(cluster_idに依存するもの): cluster_id, title, url, abstract, ...
@@ -314,7 +330,16 @@ class GoogleScholarArticleCrawler(object):
             # Bibliographyの1番目，2番目の要素は正直不必要なのでこの機会に消しておく(内包表記とか)
 
             articles_json.append(art_json)
-            
-        return articles_json
+
+        # logging.debug("articles_json: " + str(articles_json))
+        # for art in articles_json:
+        #     logging.debug('hogehoge')
+        #     logging.debug(art)
+
+        if len(articles_json) > 0:
+            return articles_json[0]
+        else:
+            return []
+
 
     
