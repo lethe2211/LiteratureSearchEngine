@@ -89,12 +89,59 @@ class StaticPagesController < ApplicationController
     return out
   end
 
+  # アブストラクトの類似度に応じたグラフを作成
+  def shape_graph_with_relevance(articles)
+    graph_cache = JsonCache.new(dir: "../../lib/crawler/graph/", prefix: "cache_relevance")
+
+    cache = graph_cache.get(@query)
+
+    if (not cache.nil?) and cache["status"] == 'OK'
+      return cache["data"]
+    else
+      result = {}
+
+      graph_json = {nodes: {}, edges: {}} # グラフ
+      abstracts = {}
+      
+      articles.each do |article|
+        cid = article["cluster_id"][0].to_s
+
+        logger.debug("abstract: " + cid)
+
+        abstracts[cid] = article['abstract'][0]
+
+      end
+
+      used_cids = [] # ループ中ですでに1度呼ばれた論文
+      used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
+
+      # 任意の一対の検索結果論文について
+      articles.each do |article1|
+        cid1 = article1["cluster_id"][0].to_s
+        articles.each do |article2|
+          cid2 = article2["cluster_id"][0].to_s
+          if cid1.to_i >= cid2.to_i
+            next
+          end
+
+          words1 = abstract[cid1].split()
+          words2 = abstract[cid2].split()
+
+          logger.debug(cid1 + " " + words1)
+          logger.debug(cid2 + " " + words2)
+
+          
+
+        end
+      
+    end
+  end
+
   # グラフを生成
   def shape_graph(articles)
     graph_cache = JsonCache.new(dir: "../../lib/crawler/graph/")
 
     cache = graph_cache.get(@query)
-    logger.debug(cache.nil?)
 
     if (not cache.nil?) and cache["status"] == 'OK'
       return cache["data"]

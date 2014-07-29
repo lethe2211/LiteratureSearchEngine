@@ -284,28 +284,37 @@ class GoogleScholarArticleCrawler(object):
         '''
         JSONを出力
         '''
-        articles = {
-                'title':         [None, 'Title',          0], # 論文タイトル
-                'url':           [None, 'URL',            1], # 検索結果URL
-                'year':          [None, 'Year',           2], # 発行年
-                'num_citations': [0,    'Citations',      3], # 被引用数
-                'num_versions':  [0,    'Versions',       4], # 同一判定された論文のバージョン数
-                'cluster_id':    [None, 'Cluster ID',     5], # クラスタID
-                'url_pdf':       [None, 'PDF link',       6], # 論文PDFへのリンク(SERPからの直接リンクでなければ取得できない)
-                'url_citations': [None, 'Citations list', 7], # 被引用論文のリストへのリンク
-                'url_versions':  [None, 'Versions list',  8], # 同一判定された論文の各バージョンのリストへのリンク
-                'url_citation':  [None, 'Citation link',  9], # よくわからない...
-                'snippet':       [None, 'Snippet',       10], # スニペット(新たに追加)
-                'authors':       [[],   'Authors',       11]  # 著者(新たに追加)
-        }
+        articles_json = []
+        articles = querier.articles
+        for rank, art in enumerate(articles):
+            art_json = art.as_json()
 
-        if len(querier.articles) > 0:
-            articles = querier.articles[0].as_json()
+            # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得
+            if art_json['url_pdf'][0] is None:
+                art_json['url_pdf'][0] = self.search_pdf(art_json['cluster_id'][0])
+                time.sleep(1)
 
-        # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得する
-        if articles['url_pdf'][0] is None:
-            articles['url_pdf'][0] = self.search_pdf(articles['cluster_id'][0])
-            time.sleep(1)
+            # art_json['abstract'] = [self.get_abstract(art_json['cluster_id'][0]), 'Abstract', 12]
 
-        return articles
+            # CiteSeerXによるアブストラクトの取得
+            if art["title"][0] is not None:
+                c = CiteSeerXCrawler()
+                search_results = c.search_with_title(art_json['title'][0], num=1)
+                time.sleep(1)
+                # print search_results
+                if len(search_results) > 0:
+                    art_json['abstract'] = [c.get_abstract(search_results[0]), 'Abstract', 12]
 
+            # TODO: JSONの構造を見直す
+            # 1. 書誌情報(cluster_idに依存するもの): cluster_id, title, url, abstract, ...
+            # 2. 引用情報: cluster_id, citation, citedby
+            # 3. 検索結果情報: cluster_id, rank, snippet
+            # 4. 検索結果集合情報: query, num, search_results
+            # それぞれ，WebAPI化を前提にstatusとdataをうまく分類した形で作る
+            # Bibliographyの1番目，2番目の要素は正直不必要なのでこの機会に消しておく(内包表記とか)
+
+            articles_json.append(art_json)
+            
+        return articles_json
+
+    
