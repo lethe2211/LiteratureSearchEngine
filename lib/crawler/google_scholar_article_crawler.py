@@ -59,7 +59,7 @@ class GoogleScholarArticleCrawler(object):
         else:
             art = self.get_bibliography(cluster_id) # 書誌情報を返す
             logging.debug(art['data']['title'])
-            result = {'status': '', 'data': []}
+            result = {'status': 'NG', 'data': []}
 
             # CiteSeerXによる引用論文の取得
             if art['data']['title'] is not None:
