@@ -7,7 +7,6 @@ Search::Application.routes.draw do
   get "citation/citation/:cluster_id" => "citation#citation"
   get "citation/citedby/:cluster_id" => "citation#citedby"
   get "citation/bibliography/:cluster_id" => "citation#bibliography"
-  get "citation/abstract/:cluster_id" => "citation#abstract"
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

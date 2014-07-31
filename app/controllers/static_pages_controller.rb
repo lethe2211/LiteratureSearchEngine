@@ -60,38 +60,26 @@ class StaticPagesController < ApplicationController
 
   # Cluster_idを受け取り，google_scholar_citation.pyを呼び出して引用論文のcluster_idを返す  
   def get_citation(cluster_id)
-    command = Rails.root.to_s + "/lib/crawler/google_scholar_citation.py " 
-    command += cluster_id.to_s
-    out, err, status = Open3.capture3(command)
-
-    return out
+    filepath = "#{ Rails.root.to_s }/lib/crawler/google_scholar_citation.py"
+    return Util.execute_command(filepath, cluster_id)
   end
 
   # Cluster_idを受け取り，google_scholar_citedby.pyを呼び出して被引用論文のcluster_idを返す  
   def get_citedby(cluster_id)
-    command = Rails.root.to_s + "/lib/crawler/google_scholar_citedby.py " 
-    command += cluster_id.to_s
-    out, err, status = Open3.capture3(command)
-
-    return out
+    filepath = "#{ Rails.root.to_s }/lib/crawler/google_scholar_citedby.py"
+    return Util.execute_command(filepath, cluster_id)
   end
 
   # Cluster_idを受け取り，google_scholar_bibliography.pyを呼び出して書誌情報を返す  
   def get_bibliography(cluster_id)
-    command = Rails.root.to_s + "/lib/crawler/google_scholar_bibliography.py " 
-    command += cluster_id.to_s
-    out, err, status = Open3.capture3(command)
-
-    return out
+    filepath = "#{ Rails.root.to_s }/lib/crawler/google_scholar_bibliography.py"
+    return Util.execute_command(filepath, cluster_id)
   end
 
   # Cluster_idを受け取り，google_scholar_abstract.pyを呼び出してアブストラクトを返す  
   def get_abstract(cluster_id)
-    command = Rails.root.to_s + "/lib/crawler/google_scholar_abstract.py " 
-    command += cluster_id.to_s
-    out, err, status = Open3.capture3(command)
-
-    return out
+    filepath = "#{ Rails.root.to_s }/lib/crawler/google_scholar_abstract.py"
+    return Util.execute_command(filepath, cluster_id)
   end
 
   # アブストラクトの類似度に応じたグラフを作成
