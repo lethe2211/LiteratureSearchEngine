@@ -31,6 +31,8 @@ class StaticPagesController < ApplicationController
     # JSONの処理とグラフへの整形    
     @articles = JSON.parse(out)
 
+    logger.debug(@articles)
+
     # 従来の検索エンジンが選択されている場合は，グラフの生成を行わない
     if @interface == 2
       gon.graph = shape_graph_with_relevance(@articles) # グラフを記述したJSONをJavaScript側の"gon.graph"に送る
@@ -94,7 +96,7 @@ class StaticPagesController < ApplicationController
 
   # アブストラクトの類似度に応じたグラフを作成
   def shape_graph_with_relevance(articles)
-    graph_cache = JsonCache.new(dir: "./crawler/graph/", prefix: "cache_relevance")
+    graph_cache = JsonCache.new(dir: "./crawler/graph/", prefix: "cache_relevance_")
   
     cache = graph_cache.get(@query)
 
@@ -104,37 +106,42 @@ class StaticPagesController < ApplicationController
       result = {}
 
       graph_json = {nodes: {}, edges: {}} # グラフ
-      abstracts = {}
+      bibliographies = {}
 
       logger.debug(articles)
       
-      articles.each do |article|
-        logger.debug(article)
-        cid = article["cluster_id"][0].to_s
+      search_results = articles["data"]["search_results"]
+
+      search_results.each do |search_result|
+        logger.debug(search_result)
+        cid = search_result["cluster_id"].to_s
 
         logger.debug("abstract: " + cid)
 
-        abstracts[cid] = article["abstract"].nil? ? nil : article["abstract"][0]
+        bib = get_bibliography(cid.to_i)
+        bibliographies[cid] = bib.blank? ? [] : JSON.parse(bib)
 
       end
+
+      logger.debug(bibliographies)
 
       used_cids = [] # ループ中ですでに1度呼ばれた論文
       used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
 
-      threshold = 0.5
+      threshold = 0.2
 
       # 任意の一対の検索結果論文について
-      articles.each do |article1|
-        cid1 = article1["cluster_id"][0].to_s
-        articles.each do |article2|
-          cid2 = article2["cluster_id"][0].to_s
+      search_results.each do |search_result1|
+        cid1 = search_result1["cluster_id"].to_s
+        search_results.each do |search_result2|
+          cid2 = search_result2["cluster_id"].to_s
           if cid1.to_i >= cid2.to_i
             next
           end
 
           # 論文ノードの初期化
           unless used_result_cids.include?(cid1)
-            graph_json[:nodes][cid1] = {type: "search_result", weight: article1["num_citations"][0], title: article1["title"][0], year: article1["year"][0], color: "#dd3333", rank: article1["rank"][0]}
+            graph_json[:nodes][cid1] = {type: "search_result", weight: bibliographies[cid1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[cid1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
             used_result_cids.push(cid1)
             unless used_cids.include?(cid1)
               graph_json[:edges][cid1] = {}
@@ -143,7 +150,7 @@ class StaticPagesController < ApplicationController
           end
 
           unless used_result_cids.include?(cid2)
-            graph_json[:nodes][cid2] = {type: "search_result", weight: article2["num_citations"][0], title: article2["title"][0], year: article2["year"][0], color: "#dd3333", rank: article2["rank"][0]}
+            graph_json[:nodes][cid2] = {type: "search_result", weight: bibliographies[cid2]["data"]["num_citations"], title: search_result2["title"], year: bibliographies[cid2]["data"]["year"], color: "#dd3333", rank: search_result2["rank"]}
             used_result_cids.push(cid2)
             unless used_cids.include?(cid2)
               graph_json[:edges][cid2] = {}
@@ -151,17 +158,19 @@ class StaticPagesController < ApplicationController
             end
           end
 
-          if abstracts[cid1] and abstracts[cid2]
+          if bibliographies[cid1]["data"]["abstract"] and bibliographies[cid2]["data"]["abstract"]
             su = StringUtil.new
-            words1 = su.count_frequency(abstracts[cid1])
-            words2 = su.count_frequency(abstracts[cid2])
+            words1 = su.count_frequency(bibliographies[cid1]["data"]["abstract"])
+            words2 = su.count_frequency(bibliographies[cid2]["data"]["abstract"])
 
-            logger.debug(cid1 + " " + words1.inspect)
-            logger.debug(cid2 + " " + words2.inspect)
+            logger.debug(cid1)
+            logger.debug(cid2)
 
             sc = SimCalculator.new
+            logger.debug(sc.cosine_similarity(words1, words2))
             if sc.cosine_similarity(words1, words2) >= threshold
               graph_json[:edges][cid1][cid2] = {directed: false, weight: 10, color: "#333333"}
+              logger.debug(cid1 + " " + cid2 + " is connected")
             end
           end
           
