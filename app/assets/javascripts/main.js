@@ -9,6 +9,12 @@
     var Renderer = function(canvas){
 	var canvas = $(canvas).get(0);
 
+	if (!canvas || !canvas.getContext) {
+
+	    return false;
+
+	}
+
 	var ctx = canvas.getContext("2d");
 	var gfx = arbor.Graphics(canvas);
 	var particleSystem;
@@ -104,7 +110,7 @@
 
 			var x, y;
 
-			x = parseInt(node.data.year) - 2000;
+			x = node.data.year ? parseInt(node.data.year) - 2000 : 0;
 
 			if (type == "search_result") {
 
@@ -330,16 +336,16 @@
 	// Arbor.jsの初期化
 	var sys = arbor.ParticleSystem(0, 0, 0) // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
-	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 
 	// JSONの読み込み(static_pages/get_citationを呼び出すことで，コールバックにJSONが返ってくる)
-	// var data = $.getJSON('send_graph',function(data){
-	//     sys.graft({nodes:data.nodes, edges:data.edges})
-	// })
+	$.getJSON('../graph/' + gon.interface + "?search_string=" + gon.query, function(json){
+	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
+	    sys.graft(json)
+	})
 
-	var data = gon.graph	// グラフのJSON
+	// var data = gon.graph	// グラフのJSON
 
-	sys.graft(data);
+	// sys.graft(data);
 
 	// add some nodes to the graph and watch it go...
 	// sys.addEdge('a','b')

@@ -6,7 +6,7 @@ require 'similarity_calculator'
 
 class StaticPagesController < ApplicationController
   def search
-    @interface = params[:interface].to_i # インタフェースの番号(1: 従来の検索エンジン，2: 提案手法)
+    @interface = params[:interface].to_i # インタフェースの番号
     gon.interface = @interface
     gon.action = "search"
   end
@@ -24,6 +24,7 @@ class StaticPagesController < ApplicationController
       return
     end
     @query = @query.gsub(/(\s|　)+/, "+")
+    gon.query = @query
     
     out = crawl(@query)
     logger.debug(out)
@@ -32,21 +33,33 @@ class StaticPagesController < ApplicationController
     @articles = JSON.parse(out)
 
     logger.debug(@articles)
-
-    # 従来の検索エンジンが選択されている場合は，グラフの生成を行わない
-    if @interface == 2
-      gon.graph = shape_graph_with_relevance(@articles) # グラフを記述したJSONをJavaScript側の"gon.graph"に送る
-    elsif @interface == 3
-      gon.graph = shape_graph(@articles)
-    end
-
     
   end
 
   # グラフを記述したJSONをJavaScript側に送る
-  # def send_graph
-  #   # render :json => @@graph
-  # end
+  def graph
+    @interface = params[:interface].to_i
+    
+    # クエリの正規化
+    @query = params[:search_string] # クエリ
+    @query = @query.gsub(/(\s|　)+/, "+")
+    
+    out = crawl(@query)
+    logger.debug(out)
+
+    # JSONの処理とグラフへの整形    
+    @articles = JSON.parse(out)
+
+    # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
+    if @interface == 1
+      render :json => JSON.dump({:nodes => {}, :edges => {}})
+    elsif @interface == 2
+      render :json => shape_graph_with_relevance(@articles) # グラフを記述したJSONを呼び出す
+    elsif @interface == 3
+      render :json => shape_graph(@articles)
+    end
+
+  end
 
   private
   # クエリを受け取り，google_scholar_crawler.pyを呼び出す

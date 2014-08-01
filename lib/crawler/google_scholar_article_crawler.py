@@ -37,7 +37,7 @@ class GoogleScholarArticleCrawler(object):
             query.set_words(input_query)
             query.set_num_page_results(10) # 返す検索結果は10件
             querier.send_query(query)
-            data = self.put_json(querier)
+            data = self.put_json(querier, input_query)
 
             if len(result) > 0:
                 result['status'] = 'OK'
@@ -273,15 +273,16 @@ class GoogleScholarArticleCrawler(object):
 
             return None
 
-    def put_json(self, querier):
+    def put_json(self, querier, input_query):
         '''
         JSONを出力
         '''
         search_results_json = {}
         search_results = []
 
-        # TODO: search_results_json['data']['query']を求める
-
+        # TODO: search_results_json['query']を求める
+        search_results_json['query'] = input_query
+        
         articles = querier.articles
 
         search_results_json['num'] = len(articles)

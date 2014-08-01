@@ -11,9 +11,9 @@
   <div id="search_results" >
     <% @articles["data"]["search_results"].each do |search_result| %>
       <div class="search_result">
-	     <div class="search_result_title" ><a href=<%= "#{search_result['url']}" %> target="_blank" ><%= "#{search_result['title']}" %></a></div>
-	     <div class="search_result_url" ><%= "#{search_result['url']}" %></div>
-	     <div class="search_result_summary" ><%= "#{search_result['snippet']}" %></div>
+	<div class="search_result_title" ><a href=<%= "#{search_result['url']}" %> target="_blank" ><%= "#{search_result['title']}" %></a></div>
+	<div class="search_result_url" ><%= "#{search_result['url']}" %></div>
+	<div class="search_result_summary" ><%= "#{search_result['snippet']}" %></div>
       </div>
     <% end %>
   </div>
