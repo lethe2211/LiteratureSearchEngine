@@ -49,3 +49,8 @@ end
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
+# pry-rails
+gem 'pry-rails'
+
+# pry-debugger
+gem 'pry-debugger'
