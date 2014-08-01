@@ -216,18 +216,18 @@ class StaticPagesController < ApplicationController
         cid = search_result["cluster_id"].to_s
 
         bib = get_bibliography(cid.to_i)
-        bibliographies[cid] = bib.blank? ? {} : JSON.parse(bib)
+        bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : JSON.parse(bib)
 
         # 引用論文
         logger.debug("citation: " + cid)
         citation = get_citation(cid.to_i)
-        citations[cid] = citation.blank? ? [] : JSON.parse(citation)
+        citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citation)
         logger.debug(citations[cid])
         
         # 被引用論文
         logger.debug("citedby: " + cid)
         citedby = get_citedby(cid.to_i)
-        citedbyes[cid] = citedby.blank? ? [] : JSON.parse(citedby)
+        citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citedby)
         logger.debug(citedbyes[cid])
         
       end

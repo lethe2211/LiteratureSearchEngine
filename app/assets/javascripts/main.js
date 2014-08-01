@@ -333,41 +333,26 @@
 
 	}
 
+	var ctx = $("canvas").get(0).getContext("2d");
+
+	ctx.fillStyle = "black";
+	ctx.font = "normal 24px sans-serif";
+	ctx.fillText("Now Loading...", 150, 150);
+
+
 	// Arbor.jsの初期化
 	var sys = arbor.ParticleSystem(0, 0, 0) // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
 
 	// JSONの読み込み(static_pages/get_citationを呼び出すことで，コールバックにJSONが返ってくる)
 	$.getJSON('../graph/' + gon.interface + "?search_string=" + gon.query, function(json){
-	sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
+	    sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 	    sys.graft(json)
 	})
 
 	// var data = gon.graph	// グラフのJSON
 
 	// sys.graft(data);
-
-	// add some nodes to the graph and watch it go...
-	// sys.addEdge('a','b')
-	// sys.addEdge('a','c')
-	// sys.addEdge('a','d')
-	// sys.addEdge('a','e', {directed: true, weight: 3})
-	// sys.addNode('f', {alone:true, mass:.25})
-	
-	// or, equivalently:
-	//
-	// sys.graft({
-	//   nodes:{
-	//     f:{alone:true, mass:.25}
-	//   },
-	//   edges:{
-	//     a:{ b:{},
-	//         c:{},
-	//         d:{},
-	//         e:{}
-	//     }
-	//   }
-	// })
 
     })
     
