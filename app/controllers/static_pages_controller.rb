@@ -6,12 +6,14 @@ require 'similarity_calculator'
 
 class StaticPagesController < ApplicationController
   def search
+    @userid = params[:userid]
     @interface = params[:interface].to_i # インタフェースの番号
     gon.interface = @interface
     gon.action = "search"
   end
 
   def result
+    @userid = params[:userid]
     @interface = params[:interface].to_i
     gon.interface = @interface
     gon.action = "result"
@@ -26,13 +28,12 @@ class StaticPagesController < ApplicationController
     @query = @query.gsub(/(\s|　)+/, "+")
     gon.query = @query
     
+    # 検索結果の取得と整形
     out = crawl(@query)
-    logger.debug(out)
-
-    # JSONの処理とグラフへの整形    
     @articles = JSON.parse(out)
-
     logger.debug(@articles)
+
+    # write_log_for_search_results(@query)
     
   end
 
@@ -44,11 +45,10 @@ class StaticPagesController < ApplicationController
     @query = params[:search_string] # クエリ
     @query = @query.gsub(/(\s|　)+/, "+")
     
+    # 検索結果の取得と整形
     out = crawl(@query)
     logger.debug(out)
-
-    # JSONの処理とグラフへの整形    
-    @articles = JSON.parse(out)
+    @articles = JSON.parse(out) 
 
     # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
     if @interface == 1

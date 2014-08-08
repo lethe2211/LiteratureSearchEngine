@@ -53,4 +53,4 @@ end
 gem 'pry-rails'
 
 # pry-debugger
-gem 'pry-debugger'
+# gem 'pry-debugger'

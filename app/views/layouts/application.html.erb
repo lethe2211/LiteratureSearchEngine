@@ -15,7 +15,7 @@
     <header class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
         <div class="container">
-          <%= link_to "extended SERP", '/static_pages/search/1', id: "logo" %>
+          <%= link_to "extended SERP", '/static_pages/search/1', id: "logo", data: { no_turbolink: true } %>
           <nav>
             <ul class="nav pull-right">
               <li><%= link_to "interface 1", '/static_pages/search/1', data: { no_turbolink: true } %></li>
@@ -31,3 +31,6 @@
     </div>
   </body>
 </html>
+
+
+

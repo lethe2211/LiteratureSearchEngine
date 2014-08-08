@@ -1,5 +1,8 @@
 <%= "interface: #{@interface}" %>
 <%= form_tag "/static_pages/result/#{@interface}", {method: :get} do %>
+  <div>
+    <%= text_field_tag :userid, @userid %>
+  </div>
   <%= text_field_tag :search_string, @text_field_val %>
   <%= submit_tag "検索" %>
 <% end %>
@@ -10,10 +13,16 @@
 
   <div id="search_results" >
     <% @articles["data"]["search_results"].each do |search_result| %>
-      <div class="search_result">
-	<div class="search_result_title" ><a href=<%= "#{search_result['url']}" %> target="_blank" ><%= "#{search_result['title']}" %></a></div>
-	<div class="search_result_url" ><%= "#{search_result['url']}" %></div>
-	<div class="search_result_summary" ><%= "#{search_result['snippet']}" %></div>
+      <div class="search_result_row">
+	<div class="relevance">
+	  <button type="button" class="btn btn-default relevant">Relevant</button>
+	  <button type="button" class="btn btn-default irrelevant">Irrelevant</button>
+	</div>
+	<div class="search_result">
+	  <div class="search_result_title" ><a href=<%= "#{search_result['url']}" %> target="_blank" ><%= "#{search_result['title']}" %></a></div>
+	  <div class="search_result_url" ><%= "#{search_result['url']}" %></div>
+	  <div class="search_result_summary" ><%= "#{search_result['snippet']}" %></div>
+	</div>
       </div>
     <% end %>
   </div>

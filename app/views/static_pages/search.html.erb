@@ -1,5 +1,8 @@
 <%= "interface: #{@interface}" %>
 <%= form_tag "/static_pages/result/#{@interface}", {method: :get} do %>
+  <div>
+    <%= text_field_tag :userid, @userid %>
+  </div>
   <%= text_field_tag :search_string %>
   <%= submit_tag "検索" %>
 <% end %>

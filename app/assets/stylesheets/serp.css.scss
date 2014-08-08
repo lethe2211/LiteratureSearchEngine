@@ -1,5 +1,5 @@
 #search_results {
-    width: 630px;
+    width: 900px;
     z-index: 1;			/* 背面に表示 */
 }
 
@@ -10,9 +10,24 @@
     margin-bottom: 16px;
 }
 
-.search_result {
+.relevance {
+    position: relative;
+    left: 0;
+    float: right;
+
+}
+
+.relevance button {
+    float: left;
+}
+
+.search_result_row {
     position: relative;
     margin-top: 30px;
+}
+
+.search_result {
+    max-width: 712px;
 }
 
 .search_result_title {
