@@ -6,14 +6,14 @@ require 'similarity_calculator'
 
 class StaticPagesController < ApplicationController
   def search
-    @userid = params[:userid]
+    (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous"
     @interface = params[:interface].to_i # インタフェースの番号
     gon.interface = @interface
     gon.action = "search"
   end
 
   def result
-    @userid = params[:userid]
+    (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous"
     @interface = params[:interface].to_i
     gon.interface = @interface
     gon.action = "result"

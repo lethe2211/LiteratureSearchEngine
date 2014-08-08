@@ -344,8 +344,8 @@
 	var sys = arbor.ParticleSystem(0, 0, 0) // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
 
-	// JSONの読み込み(static_pages/get_citationを呼び出すことで，コールバックにJSONが返ってくる)
-	$.getJSON('../graph/' + gon.interface + "?search_string=" + gon.query, function(json){
+	// JSONの読み込み
+	$.getJSON('../../graph/' + gon.interface + "?search_string=" + gon.query, function(json){
 	    sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
 	    sys.graft(json)
 	})
