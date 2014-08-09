@@ -3,10 +3,12 @@ require 'open3'
 require 'json'
 require 'jsoncache'             # FIXME: autoloadしてるはずなのに外すと動かない
 require 'similarity_calculator'
+require 'research_logger'
 
 class StaticPagesController < ApplicationController
   def search
     (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous"
+    gon.userid = @userid
     @interface = params[:interface].to_i # インタフェースの番号
     gon.interface = @interface
     gon.action = "search"
@@ -14,6 +16,7 @@ class StaticPagesController < ApplicationController
 
   def result
     (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous"
+    gon.userid = @userid
     @interface = params[:interface].to_i
     gon.interface = @interface
     gon.action = "result"
@@ -33,7 +36,8 @@ class StaticPagesController < ApplicationController
     @articles = JSON.parse(out)
     logger.debug(@articles)
 
-    # write_log_for_search_results(@query)
+    rl = ResearchLogger.new
+    rl.write_initial_log(@userid, @interface, @query)
     
   end
 
@@ -59,6 +63,21 @@ class StaticPagesController < ApplicationController
       render :json => shape_graph(@articles)
     end
 
+  end
+
+  # ログを書き換える
+  # TODO: ログを扱うコントローラを作るべき
+  def change_relevance
+    (not params[:userid].nil?) ? userid = params[:userid] : userid = "anonymous"
+    interfaceid = params[:interfaceid].to_i
+    query = params[:search_string] 
+    query = query.gsub(/(\s|　)+/, "+")
+    rank = params[:rank]
+    relevance = params[:relevance]
+    
+    rl = ResearchLogger.new
+    render :text => rl.rewrite_log(userid, interfaceid, query, rank, relevance)
+        
   end
 
   private
