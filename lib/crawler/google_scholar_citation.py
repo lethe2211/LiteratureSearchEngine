@@ -12,5 +12,5 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 2 and sys.argv[1] != '':
         g = GoogleScholarArticleCrawler()
-        citation = g.get_citation(sys.argv[1])
+        citation = g.get_citation(sys.argv[1], num=10)
         print json.dumps(citation)

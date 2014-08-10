@@ -46,7 +46,7 @@ class GoogleScholarArticleCrawler(object):
 
             return result
 
-    def get_citation(self, cluster_id):
+    def get_citation(self, cluster_id, num=10000):
         '''
         Cluster_idを受け取り，その論文が引用している論文のcluster_idを返す
         '''
@@ -58,20 +58,29 @@ class GoogleScholarArticleCrawler(object):
             return cache
         else:
             art = self.get_bibliography(cluster_id) # 書誌情報を返す
-            logging.debug(art['data']['title'])
+
             result = {'status': 'NG', 'data': []}
+
+            if art['data'] == {}:
+                return result
 
             # CiteSeerXによる引用論文の取得
             if art['data']['title'] is not None:
                 logging.debug('CiteSeerX')
                 c = CiteSeerXCrawler()
+
+                # 論文タイトルでCiteSeerXを検索
                 search_results = c.search_with_title(art['data']['title'], num=1)
                 time.sleep(1)
-                #print search_results
+
                 for search_result in search_results:
-                    citation_titles =  c.get_citations(search_result)
+                    citation_titles =  c.get_citations(search_result) # 引用論文のタイトルのリスト
                     #print citation_titles
+
+                    # 各引用論文のcluster_idを取得
                     for citation_title in citation_titles:
+                        if num <= 0:
+                            break
                         # print citation_title
                         querier = ScholarQuerierWithSnippets()
                         settings = ScholarSettings()
@@ -84,12 +93,14 @@ class GoogleScholarArticleCrawler(object):
 
                         if self.put_json_zero(querier) != []:
                             res = self.put_json_zero(querier)
-                            citation_cid = res["cluster_id"]
+                            if res.has_key("cluster_id"):
+                                citation_cid = res["cluster_id"]
 
-                            if citation_cid is not None:
-                                result['data'].append(citation_cid)
+                                if citation_cid is not None:
+                                    result['data'].append(citation_cid)
+                                    num -= 1
 
-                        time.sleep(1)
+                        time.sleep(0.3)
 
             # CiteSeerXによる引用論文の取得によって結果が得られなかった場合に限り，ParsCitによる引用情報の取得を行う
             if len(result['data']) == 0 and art['data']['url_pdf'] is not None:
@@ -100,6 +111,9 @@ class GoogleScholarArticleCrawler(object):
 
                 if len(soup.find_all("citation")) > 0:
                     for citation_soup in soup.find_all("citation"):
+                        if num <= 0:
+                            break
+
                         # 各引用論文について，タイトルで検索した時の上位1件のcluster_idを取得
                         citation_title = citation_soup.title.string if citation_soup.title else ''
          
@@ -118,8 +132,9 @@ class GoogleScholarArticleCrawler(object):
 
                             if citation_cid is not None:
                                 result['data'].append(citation_cid)
+                                num -= 1
             
-                        time.sleep(1)
+                        time.sleep(0.3)
 
             # とりあえず結果が空でないならOKとする(←あまりよくない…)
             if len(result['data']) > 0:
@@ -207,7 +222,7 @@ class GoogleScholarArticleCrawler(object):
             querier.send_query(query)
             data = self.put_json_zero(querier)
 
-            if data['cluster_id'] is not None:
+            if data != {} and data['cluster_id'] is not None:
                 result['status'] = 'OK'
                 result['data'] = data
                 bibliography.set(str(cluster_id), result)
@@ -366,7 +381,7 @@ class GoogleScholarArticleCrawler(object):
         if len(articles_json) > 0:
             return articles_json[0]
         else:
-            return []
+            return {}
 
 
     
