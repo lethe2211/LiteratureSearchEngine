@@ -71,7 +71,7 @@ class GoogleScholarArticleCrawler(object):
 
                 # 論文タイトルでCiteSeerXを検索
                 search_results = c.search_with_title(art['data']['title'], num=1)
-                time.sleep(1)
+                time.sleep(0.5)
 
                 for search_result in search_results:
                     citation_titles =  c.get_citations(search_result) # 引用論文のタイトルのリスト
@@ -92,7 +92,7 @@ class GoogleScholarArticleCrawler(object):
                         querier.send_query(query)
 
                         if self.put_json_zero(querier) != []:
-                            res = self.put_json_zero(querier)
+                            res = self.put_json_citation(querier)
                             if res.has_key("cluster_id"):
                                 citation_cid = res["cluster_id"]
 
@@ -127,7 +127,7 @@ class GoogleScholarArticleCrawler(object):
                         querier.send_query(query)
 
                         if self.put_json_zero(querier):
-                            res = self.put_json_zero(querier)
+                            res = self.put_json_citation(querier)
                             citation_cid = res["cluster_id"]
 
                             if citation_cid is not None:
@@ -295,7 +295,6 @@ class GoogleScholarArticleCrawler(object):
         search_results_json = {}
         search_results = []
 
-        # TODO: search_results_json['query']を求める
         search_results_json['query'] = input_query
         
         articles = querier.articles
@@ -308,26 +307,6 @@ class GoogleScholarArticleCrawler(object):
 
             search_result = {"cluster_id": art_json['cluster_id'], "rank": rank + 1, "title": art_json['title'], "url": art_json['url'], "snippet": art_json['snippet']}
             search_results.append(search_result)
-
-            # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得
-            # if art_json['data']['url_pdf'] is None:
-            #     art_json['data']['url_pdf'] = self.search_pdf(art_json['data']['cluster_id'])
-            #     time.sleep(1)
-
-            # CiteSeerXによるアブストラクトの取得
-            # if art['data']['title'] is not None:
-            #     c = CiteSeerXCrawler()
-            #     search_results = c.search_with_title(art_json['data']['title'], num=1)
-            #     time.sleep(1)
-            #     # print search_results
-            #     if len(search_results) > 0:
-            #         art_json['data']['abstract'] = c.get_abstract(search_results[0])
-
-
-            
-            # art_json['rank'] = [rank + 1, 'Rank', 13] # FIXME: 書誌情報に含めるのではなく，検索結果固有の情報にする
-
-            # articles_json.append(art_json)
             
         search_results_json['search_results'] = search_results
 
@@ -348,7 +327,7 @@ class GoogleScholarArticleCrawler(object):
             # PDFへの直リンクは引用論文取得のために必要であるため，取得できていない場合は論文詳細ページから取得
             if art_json['url_pdf'] is None:
                 art_json['url_pdf'] = self.search_pdf(art_json['cluster_id'])
-                time.sleep(1)
+                time.sleep(0.3)
 
             art_json['abstract'] = None
 
@@ -356,7 +335,7 @@ class GoogleScholarArticleCrawler(object):
             if art["title"] is not None:
                 c = CiteSeerXCrawler()
                 search_results = c.search_with_title(art_json['title'], num=1)
-                time.sleep(1)
+                time.sleep(0.5)
                 # print search_results
                 if len(search_results) > 0:
                     art_json['abstract'] = c.get_abstract(search_results[0])
@@ -383,5 +362,22 @@ class GoogleScholarArticleCrawler(object):
         else:
             return {}
 
+    def put_json_citation(self, querier):
+        '''
+        JSONを出力
+        '''
+
+        articles_json = []
+        articles = querier.articles
+        for rank, art in enumerate(articles):
+            art_json = art.as_json()
+
+            art_json = {k: v[0] for k, v in art_json.items()}            
+            articles_json.append(art_json)
+
+        if len(articles_json) > 0:
+            return articles_json[0]
+        else:
+            return {}
 
     

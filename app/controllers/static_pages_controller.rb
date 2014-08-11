@@ -127,8 +127,6 @@ class StaticPagesController < ApplicationController
 
       graph_json = {nodes: {}, edges: {}} # グラフ
       bibliographies = {}
-
-      logger.debug(articles)
       
       search_results = articles["data"]["search_results"]
 
@@ -148,7 +146,7 @@ class StaticPagesController < ApplicationController
       used_cids = [] # ループ中ですでに1度呼ばれた論文
       used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
 
-      threshold = 0.2
+      threshold = 0.2           # 類似度のしきい値
 
       # 任意の一対の検索結果論文について
       search_results.each do |search_result1|
