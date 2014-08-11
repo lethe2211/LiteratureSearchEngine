@@ -100,7 +100,7 @@ class GoogleScholarArticleCrawler(object):
                                     result['data'].append(citation_cid)
                                     num -= 1
 
-                        time.sleep(0.3)
+                        time.sleep(0.1)
 
             # CiteSeerXによる引用論文の取得によって結果が得られなかった場合に限り，ParsCitによる引用情報の取得を行う
             if len(result['data']) == 0 and art['data']['url_pdf'] is not None:
@@ -134,7 +134,7 @@ class GoogleScholarArticleCrawler(object):
                                 result['data'].append(citation_cid)
                                 num -= 1
             
-                        time.sleep(0.3)
+                        time.sleep(0.1)
 
             # とりあえず結果が空でないならOKとする(←あまりよくない…)
             if len(result['data']) > 0:

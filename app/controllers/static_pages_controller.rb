@@ -333,10 +333,8 @@ class StaticPagesController < ApplicationController
 
           # 両方が被引用される論文
           (citedbyes[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
-            logger.debug(cit)
             b = get_bibliography(cit.to_i)
             bib = b.blank? ? {} : JSON.parse(b)
-            logger.debug(bib)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 

@@ -57,6 +57,13 @@
 		ctx.fillStyle = "white"
 		ctx.fillRect(0,0, canvas.width, canvas.height)
 
+		// グラフの囲み線の描画
+		ctx.strokeStyle = "#99aaaa";
+		ctx.lineWidth = 3;
+		ctx.strokeRect(3, 50, canvas.width - 10, canvas.height - 55);
+		ctx.fillStyle = "#EEFFFF"
+		ctx.fillRect(3, 50, canvas.width - 10, canvas.height - 55);
+
 		// 時系列を表す矢印の描画
 		ctx.strokeStyle = "#99aaaa";
 		ctx.beginPath();
@@ -114,28 +121,20 @@
 
 			if (type == "search_result") {
 
-			    (rank % 2 == 1)? y = 100 : y = 200;
+			    (rank % 2 == 1)? y = 120 : y = 200;
 
 			}
 			else {
 
-			    y = 100 + Math.floor(Math.random() * 100);
+			    y = 120 + Math.floor(Math.random() * 80);
 
 			}
 
 		    	position[node.name] = arbor.Point(x, y);
 		    	node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
 
-		    	console.log(node.data.rank + " x: " + x + " " + position[node.name].x + " y: " + y + " " + position[node.name].y);
+		    	// console.log(node.data.rank + " x: " + x + " " + position[node.name].x + " y: " + y + " " + position[node.name].y);
 
-		    }
-
-		    // あるノードがホバーされているなら，そのノードの名前を描画(変更予定あり)
-		    if(hovered != null && hovered.node.name == node.name) {
-			ctx.fillStyle = "black";
-			ctx.font = "normal 12px sans-serif";
-			ctx.fillText(hovered.node.data.title, pt.x+10, pt.y-10);
-			ctx.fillText(hovered.node.data.year, pt.x+10, pt.y+5);
 		    }
 
 		    // ノードの円を描画
@@ -153,6 +152,41 @@
 			if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
 			else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
 
+		    }
+
+		    // あるノードがホバーされている時に
+		    if(hovered != null && hovered.node.name == node.name) {
+
+			ctx.strokeStyle = "#8888EE";
+			ctx.fillStyle = "#CCCCFF";
+			ctx.beginPath();
+			ctx.moveTo(10, 0);
+			ctx.lineTo(canvas.width - 10, 0);
+			ctx.lineTo(canvas.width - 10, 40);
+			ctx.lineTo(80, 40);
+			ctx.lineTo(pt.x, pt.y);
+			ctx.lineTo(50, 40);
+			ctx.lineTo(10, 40);
+			ctx.lineTo(10, 0);
+			ctx.lineWidth = 5;
+			ctx.closePath()
+			ctx.fill();
+			ctx.stroke();
+
+			
+			ctx.fillStyle = "black";
+			ctx.font = "normal 14px sans-serif";
+			
+			var title = hovered.node.data.title;
+			var year = hovered.node.data.year;
+
+			if (title.length > 80) {
+			    title = title.substring(0, 80);
+			    ctx.fillText("...", canvas.width - 25, 20);
+			}
+
+			ctx.fillText(title, 15, 20);
+			ctx.fillText(year, 15, 35);
 		    }
 		    		    
 		})
@@ -333,26 +367,36 @@
 
 	}
 
-	var ctx = $("canvas").get(0).getContext("2d");
+	var canvas = $("canvas").get(0);
+	var ctx = canvas.getContext("2d");
 
 	ctx.fillStyle = "black";
 	ctx.font = "normal 24px sans-serif";
-	ctx.fillText("Now Loading...", 150, 150);
-
+	ctx.fillText("Now Loading...", canvas.width / 2 - 100, canvas.height / 2);
 
 	// Arbor.jsの初期化
 	var sys = arbor.ParticleSystem(0, 0, 0) // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
 
+	graph_url = '../../graph/' + gon.interface + "?search_string=" + gon.query;
 	// JSONの読み込み
-	$.getJSON('../../graph/' + gon.interface + "?search_string=" + gon.query, function(json){
-	    sys.renderer = Renderer("#citation_graph") // our newly created renderer will have its .init() method called shortly by sys...
+	$.getJSON(graph_url, function(json){
+	    console.log(graph_url);
+	    sys.renderer = Renderer("#citation_graph");
 	    sys.graft(json)
 	})
+	    .success(function(json) {
+		console.log("success");
+	    })
+	    .error(function(jqXHR, textStatus, errorThrown) {
+		console.log("error: " + textStatus);
 
-	// var data = gon.graph	// グラフのJSON
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	// sys.graft(data);
+		ctx.fillStyle = "black";
+		ctx.font = "normal 24px sans-serif";
+		ctx.fillText("Graph Loading Failed...", 150, 150);
+	    });
 
     })
     

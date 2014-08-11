@@ -16,7 +16,7 @@ $(document).ready(function() {
 	    
 	    // ログを書き換えて「適合」にする
 	    $.get('../../change_relevance/' + gon.userid + '/' + gon.interface, {search_string: gon.query, rank: rank, relevance: 'relevant'}, function(json) {
-		alert("odd");
+		// alert("odd");
 	    });
 
 	    // 使えなくしておく
@@ -47,7 +47,7 @@ $(document).ready(function() {
 	    
 	    // ログを書き換えて「非適合」にする
 	    $.get('../../change_relevance/' + gon.userid + '/' + gon.interface, {search_string: gon.query, rank: rank, relevance: 'irrelevant'}, function(json) {
-		alert("odd");
+		//alert("odd");
 	    });
 
 	    // 使えなくしておく
