@@ -54,3 +54,9 @@ gem 'pry-rails'
 
 # pry-debugger
 # gem 'pry-debugger'
+
+# oj
+gem 'rails-patch-json-encode'
+gem 'oj'
+
+

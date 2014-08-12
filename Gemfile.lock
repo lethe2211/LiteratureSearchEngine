@@ -61,6 +61,7 @@ GEM
     mime-types (1.25.1)
     minitest (4.7.5)
     multi_json (1.9.2)
+    oj (2.10.0)
     polyglot (0.3.4)
     pry (0.10.0)
       coderay (~> 1.1.0)
@@ -79,6 +80,8 @@ GEM
       bundler (>= 1.3.0, < 2.0)
       railties (= 4.0.0)
       sprockets-rails (~> 2.0.0)
+    rails-patch-json-encode (0.1.0)
+      multi_json
     railties (4.0.0)
       actionpack (= 4.0.0)
       activesupport (= 4.0.0)
@@ -134,8 +137,10 @@ DEPENDENCIES
   gon
   jbuilder (~> 1.2)
   jquery-rails
+  oj
   pry-rails
   rails (= 4.0.0)
+  rails-patch-json-encode
   sass-rails (~> 4.0.0)
   sdoc
   sqlite3

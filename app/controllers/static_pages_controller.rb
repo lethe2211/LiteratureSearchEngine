@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 require 'open3'
 require 'json'
+require 'oj'
+
 require 'jsoncache'             # FIXME: autoloadしてるはずなのに外すと動かない
 require 'similarity_calculator'
 require 'research_logger'
@@ -33,7 +35,8 @@ class StaticPagesController < ApplicationController
     
     # 検索結果の取得と整形
     out = crawl(@query)
-    @articles = JSON.parse(out)
+    # @articles = JSON.parse(out)
+    @articles = Oj.load(out)
     logger.debug(@articles)
 
     rl = ResearchLogger.new
@@ -52,11 +55,13 @@ class StaticPagesController < ApplicationController
     # 検索結果の取得と整形
     out = crawl(@query)
     logger.debug(out)
-    @articles = JSON.parse(out) 
+    # @articles = JSON.parse(out) 
+    @articles = Oj.load(out)
 
     # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
     if @interface == 1
-      render :json => JSON.dump({:nodes => {}, :edges => {}})
+      # render :json => JSON.dump({:nodes => {}, :edges => {}})
+      render :json => Oj.dump({:nodes => {}, :edges => {}})
     elsif @interface == 2
       render :json => shape_graph_with_relevance(@articles) # グラフを記述したJSONを呼び出す
     elsif @interface == 3
@@ -137,7 +142,8 @@ class StaticPagesController < ApplicationController
         logger.debug("abstract: " + cid)
 
         bib = get_bibliography(cid.to_i)
-        bibliographies[cid] = bib.blank? ? [] : JSON.parse(bib)
+        # bibliographies[cid] = bib.blank? ? [] : JSON.parse(bib)
+        bibliographies[cid] = bib.blank? ? [] : Oj.parse(bib)
 
       end
 
@@ -233,18 +239,21 @@ class StaticPagesController < ApplicationController
         cid = search_result["cluster_id"].to_s
 
         bib = get_bibliography(cid.to_i)
-        bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : JSON.parse(bib)
+        # bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : JSON.parse(bib)
+        bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(bib)
 
         # 引用論文
         logger.debug("citation: " + cid)
         citation = get_citation(cid.to_i)
-        citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citation)
+        # citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citation)
+        citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : Oj.load(citation)
         logger.debug(citations[cid])
         
         # 被引用論文
         logger.debug("citedby: " + cid)
         citedby = get_citedby(cid.to_i)
-        citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citedby)
+        # citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citedby)
+        citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : Oj.load(citedby)
         logger.debug(citedbyes[cid])
         
       end
@@ -290,7 +299,8 @@ class StaticPagesController < ApplicationController
           # 両方が(共)引用する論文
           (citations[cid1]["data"] & citations[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
-            bib = b.blank? ? {} : JSON.parse(b)
+            # bib = b.blank? ? {} : JSON.parse(b)
+            bib = b.blank? ? {} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
@@ -304,7 +314,8 @@ class StaticPagesController < ApplicationController
           # 片方が引用し，もう片方が被引用する論文
           (citations[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
-            bib = b.blank? ? {} : JSON.parse(b)
+            # bib = b.blank? ? {} : JSON.parse(b)
+            bib = b.blank? ? {} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
@@ -318,7 +329,8 @@ class StaticPagesController < ApplicationController
           # 片方が被引用し，もう片方が引用する論文
           (citedbyes[cid1]["data"] & citations[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
-            bib = b.blank? ? {} : JSON.parse(b)
+            # bib = b.blank? ? {} : JSON.parse(b)
+            bib = b.blank? ? {} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
@@ -332,7 +344,8 @@ class StaticPagesController < ApplicationController
           # 両方が被引用される論文
           (citedbyes[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
-            bib = b.blank? ? {} : JSON.parse(b)
+            # bib = b.blank? ? {} : JSON.parse(b)
+            bib = b.blank? ? {} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
