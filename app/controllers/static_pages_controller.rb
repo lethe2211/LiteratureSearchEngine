@@ -143,7 +143,7 @@ class StaticPagesController < ApplicationController
 
         bib = get_bibliography(cid.to_i)
         # bibliographies[cid] = bib.blank? ? [] : JSON.parse(bib)
-        bibliographies[cid] = bib.blank? ? [] : Oj.parse(bib)
+        bibliographies[cid] = bib.blank? ? [] : Oj.load(bib)
 
       end
 
