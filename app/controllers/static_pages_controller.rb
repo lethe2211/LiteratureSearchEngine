@@ -143,7 +143,7 @@ class StaticPagesController < ApplicationController
 
         bib = get_bibliography(cid.to_i)
         # bibliographies[cid] = bib.blank? ? [] : JSON.parse(bib)
-        bibliographies[cid] = bib.blank? ? [] : Oj.parse(bib)
+        bibliographies[cid] = bib.blank? ? [] : Oj.load(bib)
 
       end
 
@@ -300,7 +300,7 @@ class StaticPagesController < ApplicationController
           (citations[cid1]["data"] & citations[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
             # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {} : Oj.load(b)
+            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
@@ -315,7 +315,7 @@ class StaticPagesController < ApplicationController
           (citations[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
             # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {} : Oj.load(b)
+            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
@@ -330,7 +330,7 @@ class StaticPagesController < ApplicationController
           (citedbyes[cid1]["data"] & citations[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
             # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {} : Oj.load(b)
+            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
@@ -345,7 +345,7 @@ class StaticPagesController < ApplicationController
           (citedbyes[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
             b = get_bibliography(cit.to_i)
             # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {} : Oj.load(b)
+            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
             unless used_cids.include?(cit)
               graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
               graph_json[:edges][cit] = {} 
