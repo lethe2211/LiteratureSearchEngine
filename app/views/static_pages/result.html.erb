@@ -8,9 +8,12 @@
 
   <canvas id="citation_graph" width="600" height="450"></canvas>
 
-  <div id="search_results" >
-    <% @articles["data"]["search_results"].each do |search_result| %>
+  <div id="search_results">
+    <% @articles["data"]["search_results"].each_with_index do |search_result, index| %>
       <div class="search_result_row">
+	<div class="rank">
+	  <%= index + 1 %>
+	</div>
 	<div class="relevance">
 	  <button type="button" class="btn btn-success relevant">Relevant</button>
 	  <button type="button" class="btn btn-danger irrelevant">Irrelevant</button>
