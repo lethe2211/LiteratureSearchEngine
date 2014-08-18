@@ -1,5 +1,6 @@
 #search_results {
     width: 900px;
+    height: 1600px;
     z-index: 1;			/* 背面に表示 */
 }
 
@@ -8,6 +9,13 @@
     font-weight: bold;
     margin-top: 0px;
     margin-bottom: 16px;
+}
+
+.rank {
+    position: relative;
+    font-size: 24px;
+    top: 10px;
+    left: -30px;
 }
 
 .relevance {

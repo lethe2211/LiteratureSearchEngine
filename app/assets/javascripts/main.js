@@ -72,7 +72,6 @@
 		ctx.lineWidth = 5;
 		ctx.closePath()
 		ctx.stroke();
-
 		ctx.fillStyle = "#99aaaa";
 		ctx.moveTo(550, canvas.height - 50);
 		ctx.lineTo(540, canvas.height - 40);
@@ -118,17 +117,20 @@
 			var x, y;
 
 			x = node.data.year ? parseInt(node.data.year) - 2000 : 0;
+			// x = Math.floor(Math.random() * 600);
 
-			if (type == "search_result") {
+			// if (type == "search_result") {
 
-			    (rank % 2 == 1)? y = 120 : y = 200;
+			//     (rank % 2 == 1)? y = 120 : y = 200;
 
-			}
-			else {
+			// }
+			// else {
 
-			    y = 120 + Math.floor(Math.random() * 80);
+			//     y = 120 + Math.floor(Math.random() * 80);
 
-			}
+			// }
+
+			y = 120 + Math.floor(Math.random() * 80);
 
 		    	position[node.name] = arbor.Point(x, y);
 		    	node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
@@ -142,6 +144,11 @@
 		    ctx.beginPath();
 		    ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
 		    ctx.fill();
+
+		    // ノードの発行年情報を座標軸下に描画
+		    ctx.fillStyle = "black";
+		    ctx.font = "normal 10px sans-serif";
+		    if (node.data.year) ctx.fillText(node.data.year, pt.x, canvas.height - 20);
 
 		    // 検索結果ノードにランクを描画
 		    if (type == "search_result") {
@@ -157,18 +164,49 @@
 		    // あるノードがホバーされている時に
 		    if(hovered != null && hovered.node.name == node.name) {
 
+			// ノードを強調
+			if (type == "search_result") {
+
+			    ctx.fillStyle = "#3333EE";
+			    ctx.beginPath();
+			    ctx.arc(pt.x, pt.y, r + 3, 0, 2 * Math.PI, false);
+			    ctx.fill();
+
+			    ctx.fillStyle = "white";
+			    ctx.font = "normal " + (16 - 0.5 * rank) + "px sans-serif";
+			    
+			    if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
+			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
+
+			}
+			else {
+
+			    ctx.fillStyle = "#333333";
+			    ctx.beginPath();
+			    ctx.arc(pt.x, pt.y, r + 3, 0, 2 * Math.PI, false);
+			    ctx.fill();
+
+			}
+
+			// 発行年情報を強調
+			// ctx.fillStyle = "black";
+			// ctx.font = "normal 24px sans-serif";
+			// if (node.data.year) ctx.fillText(node.data.year, pt.x, canvas.height - 30);
+
+
+			// 論文タイトルと発行年を吹き出しにして描画
 			ctx.strokeStyle = "#8888EE";
 			ctx.fillStyle = "#CCCCFF";
 			ctx.beginPath();
+			ctx.lineWidth = 5;
 			ctx.moveTo(10, 0);
 			ctx.lineTo(canvas.width - 10, 0);
 			ctx.lineTo(canvas.width - 10, 40);
 			ctx.lineTo(80, 40);
-			ctx.lineTo(pt.x, pt.y);
+			ctx.lineTo(pt.x - 5, pt.y);
 			ctx.lineTo(50, 40);
 			ctx.lineTo(10, 40);
 			ctx.lineTo(10, 0);
-			ctx.lineWidth = 5;
 			ctx.closePath()
 			ctx.fill();
 			ctx.stroke();
@@ -185,8 +223,8 @@
 			    ctx.fillText("...", canvas.width - 25, 20);
 			}
 
-			ctx.fillText(title, 15, 20);
-			ctx.fillText(year, 15, 35);
+			ctx.fillText("Title: " + title, 15, 20);
+			(year) ? ctx.fillText("Year: " + year, 15, 35) : ctx.fillText("Year: No information", 15, 35);
 		    }
 		    		    
 		})
@@ -278,6 +316,10 @@
 	    initMouseHandling:function(){
 
 		var dragged = null; // ドラッグされているかどうか
+
+		var mouseDownTime;
+		var mouseUpTime;
+
 		
 		var handler = {
 		    
@@ -296,12 +338,14 @@
 
 		    // mousedown
 		    clicked:function(e){
+			mouseDownTime = new Date($.now()); // マウスが押された時の時刻
+			
 			var pos = $(canvas).offset();
 			_mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
 
 			// マウス位置から最も近いノードをドラッグする
 			dragged = particleSystem.nearest(_mouseP);
-			
+
 			if (dragged && dragged.node !== null){
 			    // ドラッグ中は物理演算をしない
 			    // while we're dragging, don't let physics move the node
@@ -333,11 +377,27 @@
 		    dropped:function(e){
 			if (dragged===null || dragged.node===undefined) return
 			if (dragged.node !== null) dragged.node.fixed = false
+
+			if (dragged.node.data.type == "search_result") {
+
+			    mouseUpTime = new Date($.now()); // マウスが話された時の時刻
+			    // マウスが100ミリ秒以下の時間でクリックされたら(ドラッグされていなければ)
+			    if (mouseUpTime - mouseDownTime < 100) {
+
+				var rank = dragged.node.data.rank;
+				var p = $(".search_result").eq(rank-1).offset().top;
+				$("body").animate({ scrollTop: p - 50 }, "fast"); // 対応する検索結果まで移動
+
+			    }
+
+			}
+
 			dragged.node.tempMass = 1000
 			dragged = null
 			$(canvas).unbind('mousemove', handler.dragged)
 			$(window).unbind('mouseup', handler.dropped)
 			_mouseP = null
+
 			return false
 		    }
 		    
