@@ -12,14 +12,22 @@ class ResearchLogger
 
   # クエリ入力に応じて，検索結果についてのログを書き込む
   def write_initial_log(userid, interfaceid, query)
-    cc = CrawlController.new
-    out = cc.get_search_results(query)
-    articles = JSON.parse(out)
+    # cc = CrawlController.new
+    # out = cc.get_search_results(query)
+    # articles = JSON.parse(out)
 
-    articles["data"]["search_results"].each do |article|
-      log = Log.create(userid: userid, interfaceid: interfaceid, query: query, rank: article["rank"], relevance: "none")
-      log.save
+    # articles["data"]["search_results"].each do |article|
+    #   log = Log.create(userid: userid, interfaceid: interfaceid, query: query, rank: article["rank"], relevance: "none")
+    #   log.save
+    # end
+
+    # バルクインサート
+    logs = []
+    articles["data"]["search_results"].each_with_index do |article, index|
+      logs << Log.new(userid: userid, interfaceid: interfaceid, query: query, rank: index + 1, relevance: "none")
     end
+    Log.import logs
+
   end
 
   # ボタンからの入力に応じて，ログのrelevanceを書き換える
