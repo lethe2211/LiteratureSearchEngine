@@ -20,7 +20,7 @@
 	  <button type="button" class="btn btn-default undo">Undo</button>
 	</div>
 	<div class="search_result">
-	  <div class="search_result_title" ><a href=<%= "#{search_result['url']}" %> target="_blank" ><%= "#{search_result['title']}" %></a></div>
+	  <div class="search_result_title" ><%= link_to "#{ search_result['title'] }", "#{ search_result['url'] }", :target => "_blank" %> </div>
 	  <div class="search_result_url" ><%= "#{search_result['url']}" %></div>
 	  <div class="search_result_summary" ><%= "#{search_result['snippet']}" %></div>
 	</div>

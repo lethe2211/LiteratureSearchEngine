@@ -59,4 +59,5 @@ gem 'pry-rails'
 gem 'rails-patch-json-encode'
 gem 'oj'
 
-
+# activerecord-import for bulk insert
+gem 'activerecord-import'
