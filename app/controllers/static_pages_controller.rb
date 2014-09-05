@@ -3,13 +3,9 @@ require 'open3'
 require 'json'
 require 'oj'
 
-require 'jsoncache'             # FIXME: autoloadしてるはずなのに外すと動かない
-require 'similarity_calculator'
-require 'research_logger'
-
 class StaticPagesController < ApplicationController
   def search
-    (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous"
+    (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous" # ユーザID
     gon.userid = @userid
     @interface = params[:interface].to_i # インタフェースの番号
     gon.interface = @interface
@@ -26,11 +22,7 @@ class StaticPagesController < ApplicationController
     @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
 
     # クエリの正規化
-    @query = params[:search_string] # クエリ
-    if @query.strip! == ""
-      return
-    end
-    @query = @query.gsub(/(\s|　)+/, "+")
+    @query = StringUtil.space_to_plus(params[:search_string])
     gon.query = @query
     
     # 検索結果の取得と整形
@@ -40,8 +32,7 @@ class StaticPagesController < ApplicationController
     logger.debug(@articles)
 
     rl = ResearchLogger.new
-    rl.write_initial_log(@userid, @interface, @query)
-    
+    rl.write_initial_log(@userid, @interface, @query)    
   end
 
   # グラフを記述したJSONをJavaScript側に送る
@@ -49,8 +40,7 @@ class StaticPagesController < ApplicationController
     @interface = params[:interface].to_i
     
     # クエリの正規化
-    @query = params[:search_string] # クエリ
-    @query = @query.gsub(/(\s|　)+/, "+")
+    @query = StringUtil.space_to_plus(params[:search_string])
     
     # 検索結果の取得と整形
     out = crawl(@query)
@@ -59,13 +49,26 @@ class StaticPagesController < ApplicationController
     @articles = Oj.load(out)
 
     # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
-    if @interface == 1
-      # render :json => JSON.dump({:nodes => {}, :edges => {}})
+    # if @interface == 1
+    #   # render :json => JSON.dump({:nodes => {}, :edges => {}})
+    #   render :json => Oj.dump({:nodes => {}, :edges => {}})
+    # elsif @interface == 2
+    #   render :json => shape_graph_with_relevance(@articles) # グラフを記述したJSONを呼び出す
+    # elsif @interface == 3
+    #   render :json => shape_graph(@articles)
+    # end
+
+    # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
+    # TODO: グラフのクラスを作るべき
+    case @interface
+    when 1
       render :json => Oj.dump({:nodes => {}, :edges => {}})
-    elsif @interface == 2
-      render :json => shape_graph_with_relevance(@articles) # グラフを記述したJSONを呼び出す
-    elsif @interface == 3
-      render :json => shape_graph(@articles)
+    when 2
+      argc = AbstractRelevanceGraphComposer.new
+      render :json => argc.compose_graph(@articles) # グラフを記述したJSONを呼び出す
+    when 3
+      cgc = CitationGraphComposer.new
+      render :json => cgc.compose_graph(@articles)
     end
 
   end
@@ -75,8 +78,7 @@ class StaticPagesController < ApplicationController
   def change_relevance
     (not params[:userid].nil?) ? userid = params[:userid] : userid = "anonymous"
     interfaceid = params[:interfaceid].to_i
-    query = params[:search_string] 
-    query = query.gsub(/(\s|　)+/, "+")
+    query = StringUtil.space_to_plus(params[:search_string]) 
     rank = params[:rank]
     relevance = params[:relevance]
     
@@ -119,269 +121,266 @@ class StaticPagesController < ApplicationController
     return Util.execute_command(filepath, cluster_id)
   end
 
-  # アブストラクトの類似度に応じたグラフを作成
-  def shape_graph_with_relevance(articles)
-    graph_cache = JsonCache.new(dir: "./crawler/graph/", prefix: "cache_relevance_")
+  # def shape_graph_with_relevance(articles)
+  #   graph_cache = JsonCache.new(dir: "./crawler/graph/", prefix: "cache_relevance_")
   
-    cache = graph_cache.get(@query)
+  #   cache = graph_cache.get(@query)
 
-    if (not cache.nil?) and cache["status"] == 'OK'
-      return cache["data"]
-    else
-      result = {}
+  #   if (not cache.nil?) and cache["status"] == 'OK'
+  #     return cache["data"]
+  #   else
+  #     result = {}
 
-      graph_json = {nodes: {}, edges: {}} # グラフ
-      bibliographies = {}
+  #     graph_json = {nodes: {}, edges: {}} # グラフ
+  #     bibliographies = {}
       
-      search_results = articles["data"]["search_results"]
+  #     search_results = articles["data"]["search_results"]
 
-      search_results.each do |search_result|
-        logger.debug(search_result)
-        cid = search_result["cluster_id"].to_s
+  #     search_results.each do |search_result|
+  #       logger.debug(search_result)
+  #       cid = search_result["cluster_id"].to_s
 
-        logger.debug("abstract: " + cid)
+  #       logger.debug("abstract: " + cid)
 
-        bib = get_bibliography(cid.to_i)
-        # bibliographies[cid] = bib.blank? ? [] : JSON.parse(bib)
-        bibliographies[cid] = bib.blank? ? [] : Oj.load(bib)
+  #       bib = get_bibliography(cid.to_i)
+  #       # bibliographies[cid] = bib.blank? ? [] : JSON.parse(bib)
+  #       bibliographies[cid] = bib.blank? ? [] : Oj.load(bib)
 
-      end
+  #     end
 
-      logger.debug(bibliographies)
+  #     logger.debug(bibliographies)
 
-      used_cids = [] # ループ中ですでに1度呼ばれた論文
-      used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
+  #     used_cids = [] # ループ中ですでに1度呼ばれた論文
+  #     used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
 
-      threshold = 0.2           # 類似度のしきい値
+  #     threshold = 0.2           # 類似度のしきい値
 
-      # 任意の一対の検索結果論文について
-      search_results.each do |search_result1|
-        cid1 = search_result1["cluster_id"].to_s
-        search_results.each do |search_result2|
-          cid2 = search_result2["cluster_id"].to_s
-          if cid1.to_i >= cid2.to_i
-            next
-          end
+  #     # 任意の一対の検索結果論文について
+  #     search_results.each do |search_result1|
+  #       cid1 = search_result1["cluster_id"].to_s
+  #       search_results.each do |search_result2|
+  #         cid2 = search_result2["cluster_id"].to_s
+  #         if cid1.to_i >= cid2.to_i
+  #           next
+  #         end
 
-          # 論文ノードの初期化
-          unless used_result_cids.include?(cid1)
-            graph_json[:nodes][cid1] = {type: "search_result", weight: bibliographies[cid1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[cid1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
-            used_result_cids.push(cid1)
-            unless used_cids.include?(cid1)
-              graph_json[:edges][cid1] = {}
-              used_cids.push(cid1)
-            end
-          end
+  #         # 論文ノードの初期化
+  #         unless used_result_cids.include?(cid1)
+  #           graph_json[:nodes][cid1] = {type: "search_result", weight: bibliographies[cid1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[cid1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
+  #           used_result_cids.push(cid1)
+  #           unless used_cids.include?(cid1)
+  #             graph_json[:edges][cid1] = {}
+  #             used_cids.push(cid1)
+  #           end
+  #         end
 
-          unless used_result_cids.include?(cid2)
-            graph_json[:nodes][cid2] = {type: "search_result", weight: bibliographies[cid2]["data"]["num_citations"], title: search_result2["title"], year: bibliographies[cid2]["data"]["year"], color: "#dd3333", rank: search_result2["rank"]}
-            used_result_cids.push(cid2)
-            unless used_cids.include?(cid2)
-              graph_json[:edges][cid2] = {}
-              used_cids.push(cid2)
-            end
-          end
+  #         unless used_result_cids.include?(cid2)
+  #           graph_json[:nodes][cid2] = {type: "search_result", weight: bibliographies[cid2]["data"]["num_citations"], title: search_result2["title"], year: bibliographies[cid2]["data"]["year"], color: "#dd3333", rank: search_result2["rank"]}
+  #           used_result_cids.push(cid2)
+  #           unless used_cids.include?(cid2)
+  #             graph_json[:edges][cid2] = {}
+  #             used_cids.push(cid2)
+  #           end
+  #         end
 
-          if bibliographies[cid1]["data"]["abstract"] and bibliographies[cid2]["data"]["abstract"]
-            su = StringUtil.new
-            words1 = su.count_frequency(bibliographies[cid1]["data"]["abstract"])
-            words2 = su.count_frequency(bibliographies[cid2]["data"]["abstract"])
+  #         if bibliographies[cid1]["data"]["abstract"] and bibliographies[cid2]["data"]["abstract"]
+  #           words1 = StringUtil.count_frequency(bibliographies[cid1]["data"]["abstract"])
+  #           words2 = StringUtil.count_frequency(bibliographies[cid2]["data"]["abstract"])
 
-            logger.debug(cid1)
-            logger.debug(cid2)
+  #           logger.debug(cid1)
+  #           logger.debug(cid2)
 
-            sc = SimCalculator.new
-            logger.debug(sc.cosine_similarity(words1, words2))
-            if sc.cosine_similarity(words1, words2) >= threshold
-              graph_json[:edges][cid1][cid2] = {directed: false, weight: 10, color: "#333333"}
-              logger.debug(cid1 + " " + cid2 + " is connected")
-            end
-          end
+  #           logger.debug(SimCalculator.cosine_similarity(words1, words2))
+  #           if SimCalculator.cosine_similarity(words1, words2) >= threshold
+  #             graph_json[:edges][cid1][cid2] = {directed: false, weight: 10, color: "#333333"}
+  #             logger.debug(cid1 + " " + cid2 + " is connected")
+  #           end
+  #         end
           
-        end
-      end
+  #       end
+  #     end
 
-      if graph_json[:nodes] != {} and graph_json[:edges] != {}
-        result[:data] = graph_json
-        result[:status] = "OK"
-        graph_cache.set(@query, result)
-      else
-        result[:status] = "NG"
-      end
+  #     if graph_json[:nodes] != {} and graph_json[:edges] != {}
+  #       result[:data] = graph_json
+  #       result[:status] = "OK"
+  #       graph_cache.set(@query, result)
+  #     else
+  #       result[:status] = "NG"
+  #     end
 
-      logger.debug(result[:data])
-      return result[:data]
+  #     logger.debug(result[:data])
+  #     return result[:data]
 
-    end
+  #   end
 
-  end
+  # end
 
   # グラフを生成
-  def shape_graph(articles)
-    graph_cache = JsonCache.new(dir: "./crawler/graph/")
+  # def shape_graph(articles)
+  #   graph_cache = JsonCache.new(dir: "./crawler/graph/")
 
-    cache = graph_cache.get(@query)
+  #   cache = graph_cache.get(@query)
 
-    if (not cache.nil?) and cache["status"] == 'OK'
-      return cache["data"]
-    else
-      result = {}
+  #   if (not cache.nil?) and cache["status"] == 'OK'
+  #     return cache["data"]
+  #   else
+  #     result = {}
 
-      graph_json = {nodes: {}, edges: {}} # グラフ
-      bibliographies = {}
-      citations = {} # 論文のCluster_idをキーとして，引用論文の配列を値として持つハッシュ
-      citedbyes = {} # 論文のCluster_idをキーとして，被引用論文の配列を値として持つハッシュ
-      logger.debug(articles)
+  #     graph_json = {nodes: {}, edges: {}} # グラフ
+  #     bibliographies = {}
+  #     citations = {} # 論文のCluster_idをキーとして，引用論文の配列を値として持つハッシュ
+  #     citedbyes = {} # 論文のCluster_idをキーとして，被引用論文の配列を値として持つハッシュ
+  #     logger.debug(articles)
 
-      search_results = articles["data"]["search_results"]
+  #     search_results = articles["data"]["search_results"]
 
-      search_results.each do |search_result|
-        cid = search_result["cluster_id"].to_s
+  #     search_results.each do |search_result|
+  #       cid = search_result["cluster_id"].to_s
 
-        bib = get_bibliography(cid.to_i)
-        # bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : JSON.parse(bib)
-        bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(bib)
+  #       bib = get_bibliography(cid.to_i)
+  #       # bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : JSON.parse(bib)
+  #       bibliographies[cid] = bib.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(bib)
 
-        # 引用論文
-        logger.debug("citation: " + cid)
-        citation = get_citation(cid.to_i)
-        # citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citation)
-        citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : Oj.load(citation)
-        logger.debug(citations[cid])
+  #       # 引用論文
+  #       logger.debug("citation: " + cid)
+  #       citation = get_citation(cid.to_i)
+  #       # citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citation)
+  #       citations[cid] = citation.blank? ? {'status' => 'NG', 'data' => []} : Oj.load(citation)
+  #       logger.debug(citations[cid])
         
-        # 被引用論文
-        logger.debug("citedby: " + cid)
-        citedby = get_citedby(cid.to_i)
-        # citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citedby)
-        citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : Oj.load(citedby)
-        logger.debug(citedbyes[cid])
+  #       # 被引用論文
+  #       logger.debug("citedby: " + cid)
+  #       citedby = get_citedby(cid.to_i)
+  #       # citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : JSON.parse(citedby)
+  #       citedbyes[cid] = citedby.blank? ? {'status' => 'NG', 'data' => []} : Oj.load(citedby)
+  #       logger.debug(citedbyes[cid])
         
-      end
+  #     end
 
-      logger.debug(citations)
-      logger.debug(citedbyes)
+  #     logger.debug(citations)
+  #     logger.debug(citedbyes)
 
-      used_cids = [] # ループ中ですでに1度呼ばれた論文
-      used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
+  #     used_cids = [] # ループ中ですでに1度呼ばれた論文
+  #     used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
 
-      # 任意の一対の検索結果論文について
-      search_results.each do |search_result1|
-        cid1 = search_result1["cluster_id"].to_s
-        search_results.each do |search_result2|
-          cid2 = search_result2["cluster_id"].to_s
-          if cid1.to_i >= cid2.to_i
-            next
-          end
+  #     # 任意の一対の検索結果論文について
+  #     search_results.each do |search_result1|
+  #       cid1 = search_result1["cluster_id"].to_s
+  #       search_results.each do |search_result2|
+  #         cid2 = search_result2["cluster_id"].to_s
+  #         if cid1.to_i >= cid2.to_i
+  #           next
+  #         end
 
-          logger.debug("cid1: " + cid1)
-          logger.debug("cid2: " + cid2)
-          logger.debug("")
+  #         logger.debug("cid1: " + cid1)
+  #         logger.debug("cid2: " + cid2)
+  #         logger.debug("")
 
-          # 論文ノードの初期化
-          unless used_result_cids.include?(cid1)
-            graph_json[:nodes][cid1] = {type: "search_result", weight: bibliographies[cid1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[cid1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
-            used_result_cids.push(cid1)
-            unless used_cids.include?(cid1)
-              graph_json[:edges][cid1] = {}
-              used_cids.push(cid1)
-            end
-          end
+  #         # 論文ノードの初期化
+  #         unless used_result_cids.include?(cid1)
+  #           graph_json[:nodes][cid1] = {type: "search_result", weight: bibliographies[cid1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[cid1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
+  #           used_result_cids.push(cid1)
+  #           unless used_cids.include?(cid1)
+  #             graph_json[:edges][cid1] = {}
+  #             used_cids.push(cid1)
+  #           end
+  #         end
 
-          unless used_result_cids.include?(cid2)
-            graph_json[:nodes][cid2] = {type: "search_result", weight: bibliographies[cid2]["data"]["num_citations"], title: search_result2["title"], year: bibliographies[cid2]["data"]["year"], color: "#dd3333", rank: search_result2["rank"]}
-            used_result_cids.push(cid2)
-            unless used_cids.include?(cid2)
-              graph_json[:edges][cid2] = {}
-              used_cids.push(cid2)
-            end
-          end
+  #         unless used_result_cids.include?(cid2)
+  #           graph_json[:nodes][cid2] = {type: "search_result", weight: bibliographies[cid2]["data"]["num_citations"], title: search_result2["title"], year: bibliographies[cid2]["data"]["year"], color: "#dd3333", rank: search_result2["rank"]}
+  #           used_result_cids.push(cid2)
+  #           unless used_cids.include?(cid2)
+  #             graph_json[:edges][cid2] = {}
+  #             used_cids.push(cid2)
+  #           end
+  #         end
 
-          # 両方が(共)引用する論文
-          (citations[cid1]["data"] & citations[cid2]["data"]).each do |cit|
-            b = get_bibliography(cit.to_i)
-            # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
-            unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
-              graph_json[:edges][cit] = {} 
-              used_cids.push(cit)
-            end
-            logger.debug("citation of cid1 and cid2: " + cit)
-            graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
-            graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
-          end
+  #         # 両方が(共)引用する論文
+  #         (citations[cid1]["data"] & citations[cid2]["data"]).each do |cit|
+  #           b = get_bibliography(cit.to_i)
+  #           # bib = b.blank? ? {} : JSON.parse(b)
+  #           bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
+  #           unless used_cids.include?(cit)
+  #             graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
+  #             graph_json[:edges][cit] = {} 
+  #             used_cids.push(cit)
+  #           end
+  #           logger.debug("citation of cid1 and cid2: " + cit)
+  #           graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
+  #           graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
+  #         end
 
-          # 片方が引用し，もう片方が被引用する論文
-          (citations[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
-            b = get_bibliography(cit.to_i)
-            # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
-            unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
-              graph_json[:edges][cit] = {} 
-              used_cids.push(cit)
-            end
-            logger.debug("citation of cid1 and cited by cid2: " + cit)
-            graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
-            graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
-          end
+  #         # 片方が引用し，もう片方が被引用する論文
+  #         (citations[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
+  #           b = get_bibliography(cit.to_i)
+  #           # bib = b.blank? ? {} : JSON.parse(b)
+  #           bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
+  #           unless used_cids.include?(cit)
+  #             graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
+  #             graph_json[:edges][cit] = {} 
+  #             used_cids.push(cit)
+  #           end
+  #           logger.debug("citation of cid1 and cited by cid2: " + cit)
+  #           graph_json[:edges][cid1][cit] = {directed: true, weight: 10, color: "#cccccc"}
+  #           graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
+  #         end
 
-          # 片方が被引用し，もう片方が引用する論文
-          (citedbyes[cid1]["data"] & citations[cid2]["data"]).each do |cit|
-            b = get_bibliography(cit.to_i)
-            # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
-            unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
-              graph_json[:edges][cit] = {} 
-              used_cids.push(cit)
-            end
-            logger.debug("cited by cid1 and citation of cid2: " + cit)
-            graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
-            graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
-          end 
+  #         # 片方が被引用し，もう片方が引用する論文
+  #         (citedbyes[cid1]["data"] & citations[cid2]["data"]).each do |cit|
+  #           b = get_bibliography(cit.to_i)
+  #           # bib = b.blank? ? {} : JSON.parse(b)
+  #           bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
+  #           unless used_cids.include?(cit)
+  #             graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
+  #             graph_json[:edges][cit] = {} 
+  #             used_cids.push(cit)
+  #           end
+  #           logger.debug("cited by cid1 and citation of cid2: " + cit)
+  #           graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
+  #           graph_json[:edges][cid2][cit] = {directed: true, weight: 10, color: "#cccccc"}
+  #         end 
 
-          # 両方が被引用される論文
-          (citedbyes[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
-            b = get_bibliography(cit.to_i)
-            # bib = b.blank? ? {} : JSON.parse(b)
-            bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
-            unless used_cids.include?(cit)
-              graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
-              graph_json[:edges][cit] = {} 
-              used_cids.push(cit)
-            end
-            logger.debug("cited by cid1 and cid2: " + cit)
-            graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
-            graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
-          end
+  #         # 両方が被引用される論文
+  #         (citedbyes[cid1]["data"] & citedbyes[cid2]["data"]).each do |cit|
+  #           b = get_bibliography(cit.to_i)
+  #           # bib = b.blank? ? {} : JSON.parse(b)
+  #           bib = b.blank? ? {'status' => 'NG', 'data' => {}} : Oj.load(b)
+  #           unless used_cids.include?(cit)
+  #             graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
+  #             graph_json[:edges][cit] = {} 
+  #             used_cids.push(cit)
+  #           end
+  #           logger.debug("cited by cid1 and cid2: " + cit)
+  #           graph_json[:edges][cit][cid1] = {directed: true, weight: 10, color: "#888888"}
+  #           graph_json[:edges][cit][cid2] = {directed: true, weight: 10, color: "#888888"}
+  #         end
 
-          # cid1の論文がcid2の論文を引用している
-          if (citedbyes[cid2]["data"]).include?(cid1) or (citations[cid1]["data"]).include?(cid2)
-            graph_json[:edges][cid1][cid2] = {directed: true, weight: 10, color: "#333333"}
-          end
+  #         # cid1の論文がcid2の論文を引用している
+  #         if (citedbyes[cid2]["data"]).include?(cid1) or (citations[cid1]["data"]).include?(cid2)
+  #           graph_json[:edges][cid1][cid2] = {directed: true, weight: 10, color: "#333333"}
+  #         end
 
-          # cid2の論文がcid1の論文を引用している
-          if (citations[cid2]["data"]).include?(cid1) or (citedbyes[cid1]["data"]).include?(cid2)
-            graph_json[:edges][cid2][cid1] = {directed: true, weight: 10, color: "#333333"}
-          end
+  #         # cid2の論文がcid1の論文を引用している
+  #         if (citations[cid2]["data"]).include?(cid1) or (citedbyes[cid1]["data"]).include?(cid2)
+  #           graph_json[:edges][cid2][cid1] = {directed: true, weight: 10, color: "#333333"}
+  #         end
 
-        end
-      end
+  #       end
+  #     end
 
-      if graph_json[:nodes] != {} and graph_json[:edges] != {}
-        result[:data] = graph_json
-        result[:status] = "OK"
-        graph_cache.set(@query, result)
-      else
-        result[:status] = "NG"
-      end
+  #     if graph_json[:nodes] != {} and graph_json[:edges] != {}
+  #       result[:data] = graph_json
+  #       result[:status] = "OK"
+  #       graph_cache.set(@query, result)
+  #     else
+  #       result[:status] = "NG"
+  #     end
 
-      logger.debug(result[:data])
-      return result[:data]
+  #     logger.debug(result[:data])
+  #     return result[:data]
 
-    end   
+  #   end   
     
-  end
+  # end
 
 end
