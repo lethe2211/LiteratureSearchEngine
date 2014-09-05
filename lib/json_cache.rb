@@ -17,11 +17,11 @@ class JsonCache
   end
 
   # 保存したキャッシュファイルをオブジェクトの形で取り出す 
-  def get(key, defValue: nil)
+  def get(key, def_value: nil)
     relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
 
     if not File.exists?(@abspath + relpath)
-      return defValue
+      return def_value
     end
 
     f = open(@abspath + relpath, "r")
