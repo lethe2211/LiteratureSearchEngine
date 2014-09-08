@@ -20,6 +20,7 @@ class StringUtil
 
   # 区切り文字で文字列を分割し，頻度ベクトル({"word1" => freq1, "word2" => freq2}の形式)を返す
   def self.count_frequency(string, delimiter: /[[:space:]]+/)
+    string = string.downcase
     words = string.split(delimiter)
     freq = Hash.new(0)
     words.each do |w|
