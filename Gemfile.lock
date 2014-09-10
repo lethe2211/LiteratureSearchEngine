@@ -30,6 +30,7 @@ GEM
     arel (4.0.2)
     bootstrap-sass (3.2.0.1)
       sass (~> 3.2)
+    bootstrap_form (2.1.1)
     builder (3.1.4)
     coderay (1.1.0)
     coffee-rails (4.0.1)
@@ -136,6 +137,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-import
   bootstrap-sass
+  bootstrap_form
   coffee-rails (~> 4.0.0)
   gon
   jbuilder (~> 1.2)

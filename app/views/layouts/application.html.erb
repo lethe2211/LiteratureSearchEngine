@@ -4,7 +4,7 @@
     <title></title>
     <%= include_gon %>
     <%= stylesheet_link_tag "application", media: "all",
-                                           "data-turbolinks-track" => true %>
+    "data-turbolinks-track" => true %>
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %> 
     <%= csrf_meta_tags %>
     <!--[if lt IE 9]>
@@ -13,16 +13,14 @@
   </head>
   <body>
     <header class="navbar navbar-fixed-top navbar-inverse">
-      <div class="navbar-inner">
-        <div class="container">
-          <!-- <%= link_to "extended SERP", "/static_pages/search/#{ @userid }/1", id: "logo", data: { no_turbolink: true } %> -->
-          <nav>
-            <ul class="nav pull-right">
-              <li><%= link_to "interface 1", "/static_pages/search/#{ @userid }/1", data: { no_turbolink: true } %></li>
-              <li><%= link_to "interface 2", "/static_pages/search/#{ @userid }/2", data: { no_turbolink: true } %></li>
-              <li><%= link_to "interface 3", "/static_pages/search/#{ @userid }/3", data: { no_turbolink: true } %></li>
-            </ul>
-          </nav>
+      <div class="container">
+        <%= link_to "extended SERP", "/static_pages/search/#{ @userid }/1", class: "navbar-brand", data: { no_turbolink: true } %>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li><%= link_to "interface 1", "/static_pages/search/#{ @userid }/1", data: { no_turbolink: true } %></li>
+            <li><%= link_to "interface 2", "/static_pages/search/#{ @userid }/2", data: { no_turbolink: true } %></li>
+            <li><%= link_to "interface 3", "/static_pages/search/#{ @userid }/3", data: { no_turbolink: true } %></li>
+          </ul>
         </div>
       </div>
     </header>
