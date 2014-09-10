@@ -1,7 +1,11 @@
 <%= "userid: #{ @userid } " + "interface: #{ @interface }" %>
-<%= form_tag "/static_pages/result/#{ @userid }/#{ @interface }", {method: :get} do %>
+<!-- <%= form_tag "/static_pages/result/#{ @userid }/#{ @interface }", {method: :get} do %>
   <%= text_field_tag :search_string, @text_field_val %>
   <%= submit_tag "検索" %>
+<% end %> -->
+<%= bootstrap_form_tag url: "/static_pages/result/#{ @userid }/#{ @interface }", method: :get, layout: :inline do |f| %>
+  <%= f.text_field :search_string, hide_label: :true %>
+  <%= f.submit "検索" %>
 <% end %>
 
 <% if @articles %>

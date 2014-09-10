@@ -61,3 +61,6 @@ gem 'oj'
 
 # activerecord-import for bulk insert
 gem 'activerecord-import'
+
+# Rails Bootstrap Forms to use forms in rails and bootstrap
+gem 'bootstrap_form'
