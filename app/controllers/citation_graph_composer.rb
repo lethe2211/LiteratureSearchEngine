@@ -214,7 +214,7 @@ class CitationGraphComposer
     bibliographies = {}
     search_results.each do |search_result|
       cid  = search_result["cluster_id"].to_s
-      Rails.logger.debug("abstract: " + cid)
+      Rails.logger.debug("bibliography: " + cid)
       bib = CitationController.get_bibliography(cid.to_i)
       bibliographies[cid] = bib.blank? ? [] : Oj.load(bib)
     end
@@ -223,7 +223,7 @@ class CitationGraphComposer
   end
 
   def extract_citations(search_results)
-    citations = {} # 論文のCluster_idをキーとして，引用論文の配列を値として持つハッシュ
+    citations = {}
     search_results.each do |search_result|
       cid  = search_result["cluster_id"].to_s
       Rails.logger.debug("citation: " + cid)
@@ -235,7 +235,7 @@ class CitationGraphComposer
   end
 
   def extract_citedbyes(search_results)
-    citedbyes = {} # 論文のCluster_idをキーとして，被引用論文の配列を値として持つハッシュ
+    citedbyes = {}
     search_results.each do |search_result|
       cid  = search_result["cluster_id"].to_s
       Rails.logger.debug("citedby: " + cid)
@@ -265,7 +265,6 @@ class CitationGraphComposer
         Rails.logger.debug("cid2: " + cid2)
         Rails.logger.debug("")
 
-        Rails.logger.debug(bibliographies)
         # 論文ノードの初期化
         unless used_result_cids.include?(cid1)
           # graph_json[:nodes][cid1] = {type: "search_result", weight: bibliographies[cid1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[cid1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
