@@ -7,6 +7,14 @@ class Graph
     @graph = {nodes: {}, edges: {}}
   end
 
+  def count_node
+    return @graph[:nodes].length
+  end
+
+  def count_edge
+    return @graph[:edges].length
+  end
+
   # IDを受け取り，ノードが存在するかを返す
   def exists_node?(id)
     return @graph[:nodes].has_key?(id.to_s)
