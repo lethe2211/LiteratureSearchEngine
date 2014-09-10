@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'open-uri'
 require 'crawl_controller'
-require 'jsoncache'
 
 =begin
 実験用に，適合・非適合のログを取るためのクラス

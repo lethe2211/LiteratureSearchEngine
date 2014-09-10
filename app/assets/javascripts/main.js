@@ -116,7 +116,7 @@
 
 			var x, y;
 
-			x = node.data.year ? parseInt(node.data.year) - 2000 : 0;
+			x = node.data.bibliography.year ? parseInt(node.data.bibliography.year) - 2000 : 0;
 			// x = Math.floor(Math.random() * 600);
 
 			// if (type == "search_result") {
@@ -148,7 +148,7 @@
 		    // ノードの発行年情報を座標軸下に描画
 		    ctx.fillStyle = "black";
 		    ctx.font = "normal 10px sans-serif";
-		    if (node.data.year) ctx.fillText(node.data.year, pt.x, canvas.height - 20);
+		    if (node.data.bibliography.year) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 20);
 
 		    // 検索結果ノードにランクを描画
 		    if (type == "search_result") {
@@ -191,7 +191,7 @@
 			// 発行年情報を強調
 			// ctx.fillStyle = "black";
 			// ctx.font = "normal 24px sans-serif";
-			// if (node.data.year) ctx.fillText(node.data.year, pt.x, canvas.height - 30);
+			// if (node.data.bibliography.year) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 30);
 
 
 			// 論文タイトルと発行年を吹き出しにして描画
@@ -215,8 +215,8 @@
 			ctx.fillStyle = "black";
 			ctx.font = "normal 14px sans-serif";
 			
-			var title = hovered.node.data.title;
-			var year = hovered.node.data.year;
+			var title = hovered.node.data.bibliography.title;
+			var year = hovered.node.data.bibliography.year;
 
 			if (title.length > 80) {
 			    title = title.substring(0, 80);
