@@ -57,9 +57,12 @@ gem 'pry-rails'
 # pry-debugger
 # gem 'pry-debugger'
 
-# oj
+# Use oj as the JSON parser
 gem 'rails-patch-json-encode'
 gem 'oj'
+
+# Nokogiri
+gem 'nokogiri'
 
 # activerecord-import for bulk insert
 gem 'activerecord-import'
