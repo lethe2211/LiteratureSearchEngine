@@ -23,6 +23,10 @@ module Mscrawler
       @data['search_results'].push(search_result)
     end
 
+    def [](index)
+      return @data[index]
+    end
+
     # Rubyオブジェクトとして整形し返す
     def to_h
       return { 'status' => @status, 'data' => @data } if @status == 'OK'

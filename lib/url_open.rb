@@ -31,14 +31,27 @@ class UrlOpen
     @params = params
     @headers = headers
     @url = compose_url(@base_url, @params)
-    
     @status_code = 0
-    @charset = nil
-    open(@url) do |f|
-      @status_code = f.status[0]
-      @charset = f.charset
-      @content = f.read
+    @content = ''
+    
+    loop do
+      begin 
+        @charset = nil
+        open(@url) do |f|
+          @status_code = f.status[0]
+          @charset = f.charset
+          @content = f.read
+        end
+        break
+      rescue OpenURI::HTTPError => e
+        sleep_time = 5
+        puts "url_open.rb: #{ @url }"
+        puts "sleep #{ sleep_time } sec..."
+        sleep(sleep_time)
+      rescue => e
+      end
     end
+
     return @content
   end
 

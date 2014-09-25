@@ -11,14 +11,16 @@ module Mscrawler
     def self.get_title(id)
       html = get_paper_info(id)
       doc = Nokogiri::HTML.parse(html)
-      title = doc.css('content title').first.text
+      title = ''
+      title = doc.css('content title').first.text if doc.css('content title').first
       return title
     end
 
     def self.get_year(id)
       html = get_paper_info(id)
       doc = Nokogiri::HTML.parse(html)
-      year = doc.css('year').first.text
+      year = ''
+      year = doc.css('year').first.text if doc.css('year').first
       return year
     end
 
@@ -31,9 +33,11 @@ module Mscrawler
     end
 
     def self.get_url(id)
-      html = get_paper_author(id)
+      html = get_paper_url(id)
       doc = Nokogiri::HTML.parse(html)
-      url = url_doc.css('url').first.text
+      Rails.logger.debug(doc)
+      url = ''
+      url = doc.css('url').first.text if doc.css('url').first
       return url
     end
 

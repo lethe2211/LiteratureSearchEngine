@@ -15,10 +15,10 @@ module Mscrawler
     end
 
     def crawl(query, start_num: 1, end_num: 30)
-      msrs = Mscrawler::MsacademicSearchResults.new(query)
-      puts 'crawl'
+      msrs = Mscrawler::MsacademicSearchResults.new(query, start_num, end_num)
       postfix = 'Search'
       url = "#{ @base_url }#{ postfix }"
+      Rails.logger.debug("crawl: #{ query }")
       params = { 'query' => query, 'start' => start_num, 'end' => end_num }
       u = UrlOpen.new
       html = u.get(url, params: params)
@@ -56,11 +56,11 @@ module Mscrawler
     end
 
     def get_citation(id)
-      return Mscrawler::MsacademicApiWrapper.get_citations(id)
+      return Mscrawler::MsacademicApiWrapper.get_citations(id.to_s)
     end
 
     def get_citedby(id)
-      return Mscrawler::MsacademicApiWrapper.get_citedbyes(id)
+      return Mscrawler::MsacademicApiWrapper.get_citedbyes(id.to_s)
     end
 
     def get_bibliography(id)
@@ -71,16 +71,19 @@ module Mscrawler
       bib_html = u.get(bib_url)
       charset = u.charset
       doc = Nokogiri::HTML.parse(bib_html, nil, charset)
-      title = doc.css('.title-span').first.text
+      title = ''
+      title = doc.css('.title-span').first.text if doc.css('.title-span').first
       num_citations = doc.css('#ctl00_MainContent_PaperItem_Citation').first.text.split[1] unless doc.css('#ctl00_MainContent_PaperItem_Citation').empty?
       authors = doc.css('.author-name-tooltip').first.text
-      abstract = doc.css('#ctl00_MainContent_PaperItem_snippet').first.text
-      puts title
-      puts num_citations
-      puts abstract
+      abstract = ''
+      abstract = doc.css('#ctl00_MainContent_PaperItem_snippet').first.text if doc.css('#ctl00_MainContent_PaperItem_snippet').first
+      # puts title
+      # puts num_citations
+      # puts abstract
 
-      year = Mscrawler::MsacademicApiWrapper.get_year
-      url = Mscrawler::MsacademicApiWrapper.get_url
+      year = Mscrawler::MsacademicApiWrapper.get_year(id)
+      url = ''
+      # url = Mscrawler::MsacademicApiWrapper.get_url(id)
 
       msa = Mscrawler::MsacademicArticle.new(id, title: title, year: year, abstract: abstract, authors: authors, url: url, num_citations: num_citations)
       return msa.to_h

@@ -26,9 +26,7 @@ class StaticPagesController < ApplicationController
     gon.query = @query
     
     # 検索結果の取得と整形
-    out = crawl(@query)
-    # @articles = JSON.parse(out)
-    @articles = Oj.load(out)
+    @articles = crawl(@query)
     logger.debug(@articles)
 
     rl = ResearchLogger.new
@@ -43,23 +41,10 @@ class StaticPagesController < ApplicationController
     @query = StringUtil.space_to_plus(params[:search_string])
     
     # 検索結果の取得と整形
-    out = crawl(@query)
-    logger.debug(out)
-    # @articles = JSON.parse(out) 
-    @articles = Oj.load(out)
+    @articles = crawl(@query)
+    logger.debug(@articles)
 
     # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
-    # if @interface == 1
-    #   # render :json => JSON.dump({:nodes => {}, :edges => {}})
-    #   render :json => Oj.dump({:nodes => {}, :edges => {}})
-    # elsif @interface == 2
-    #   render :json => shape_graph_with_relevance(@articles) # グラフを記述したJSONを呼び出す
-    # elsif @interface == 3
-    #   render :json => shape_graph(@articles)
-    # end
-
-    # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
-    # TODO: グラフのクラスを作るべき
     case @interface
     when 1
       render :json => Oj.dump({:nodes => {}, :edges => {}})
@@ -89,12 +74,17 @@ class StaticPagesController < ApplicationController
 
   private
   # クエリを受け取り，google_scholar_crawler.pyを呼び出す
-  def crawl(query)
-    command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py " # コマンド
-    command += query
-    out, err, status = Open3.capture3(command) # 実行(outが結果の標準出力)
+  # def crawl(query)
+  #   command = Rails.root.to_s + "/lib/crawler/google_scholar_crawler.py " # コマンド
+  #   command += query
+  #   out, err, status = Open3.capture3(command) # 実行(outが結果の標準出力)
 
-    return out
+  #   return out
+  # end
+
+  def crawl(query)
+    mm = Mscrawler::MsacademicManager.new
+    return mm.crawl(query, end_num: 5)
   end
 
   # Cluster_idを受け取り，google_scholar_citation.pyを呼び出して引用論文のcluster_idを返す  
