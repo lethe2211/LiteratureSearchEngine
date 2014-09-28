@@ -7,6 +7,8 @@ JSONファイルを用いたファイルキャッシュ
 =end
 class JsonCache
 
+  # dirはこのファイルからの相対パスで指定
+  # TODO: ↑を呼び出し元からの相対パス指定に直したい
   def initialize(dir: "cache/", prefix: "cache_", postfix: ".json")
     @abspath = File.dirname(__FILE__)
     @dir = dir

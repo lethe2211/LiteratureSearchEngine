@@ -4,6 +4,7 @@ require 'citation_controller'
 
 class AbstractRelevanceGraphComposer
   def initialize
+    @mm = Mscrawler::MsacademicManager.new
   end
 
   # アブストラクトの類似度に応じたグラフを作成
