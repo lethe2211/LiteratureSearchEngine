@@ -2,6 +2,7 @@
 
 require 'open-uri'
 require 'uri'
+require 'logger'
 require 'active_support/core_ext'
 
 class UrlOpen
@@ -12,7 +13,6 @@ class UrlOpen
   def get(url, params: {}, headers: {}, try: 0, timeout: 100, sleep_time: 60)
     while try >= 0
       html = get_http_response(url, params, headers, timeout)
-
       if @status_code == 200
         break
       else
@@ -20,7 +20,6 @@ class UrlOpen
         sleep(sleep_time) if try > 0
       end
     end
-
     return @content
   end
 
@@ -58,6 +57,7 @@ class UrlOpen
   def compose_url(base_url, params)
     url = URI(base_url)
     url.query = params.to_param
+    puts url
     return url.to_s
   end
 end
