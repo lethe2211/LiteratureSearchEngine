@@ -164,7 +164,7 @@ class CitationGraphComposer
         (citations[id1] & citations[id2]).each do |cit|
           # b = CitationController.get_bibliography(cit.to_i)
           b = @mm.get_bibliography(cit)
-          bib = b.blank? ? { 'status' => 'NG', 'data' => {}} : b
+          bib = b.blank? ? { 'status' => 'NG', 'data' => {} } : b
           unless used_cids.include?(cit)
             # graph_json[:nodes][cit] = {type: "normal", weight: bib["data"]["num_citations"], title: bib["data"]["title"], year: bib["data"]["year"], color: "#cccccc"}
             node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
