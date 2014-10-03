@@ -16,6 +16,8 @@ module Mscrawler
 
     def crawl(query, start_num: 1, end_num: 30)
       msrs = Mscrawler::MsacademicSearchResults.new(query, start_num, end_num, use_cache: true)
+      return msrs.to_h if msrs['search_results'].length > 0
+
       postfix = 'Search'
       url = "#{ @base_url }#{ postfix }"
       Rails.logger.debug("crawl: #{ query }")

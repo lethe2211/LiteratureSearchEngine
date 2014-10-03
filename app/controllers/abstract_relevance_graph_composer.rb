@@ -12,11 +12,7 @@ class AbstractRelevanceGraphComposer
     query = articles['data']['query']
     search_results = articles['data']['search_results']
 
-    bibliographies = extract_bibliographies(search_results) # 検索結果の各論文の書誌情報
-
-    threshold = 0.1             # 類似度のしきい値
-
-    graph = compute_graph(query, search_results, bibliographies, threshold)
+    graph = compute_graph(query, search_results)
     return graph.to_h['data']
   end
 
@@ -54,20 +50,6 @@ class AbstractRelevanceGraphComposer
 
   private
 
-  # def extract_bibliographies(search_results)
-  #   bibliographies = {}      
-  #   search_results.each do |search_result|
-  #     id  = search_result["id"].to_s
-  #     Rails.logger.debug("abstract: " + id)
-  #     # bib = CitationController.get_bibliography(id.to_i)
-  #     bib = @mm.get_bibliography(id)
-  #     bibliographies[id] = bib.blank? ? [] : bib
-  #   end
-
-  #   Rails.logger.debug(bibliographies)
-  #   return bibliographies
-  # end
-
   def extract_bibliographies(search_results)
     bibliographies = {}
     search_results.each do |search_result|
@@ -80,8 +62,14 @@ class AbstractRelevanceGraphComposer
     return bibliographies
   end
 
-  def compute_graph(query, search_results, bibliographies, threshold)
-    graph = CacheableGraph.new(query)
+  def compute_graph(query, search_results)
+    keyword = "abstract_relevance_#{ query }"
+    graph = CacheableGraph.new(keyword)
+    if graph.count_node != 0
+      return graph
+    end
+    bibliographies = extract_bibliographies(search_results) # 検索結果の各論文の書誌情報
+    threshold = 0.1             # 類似度のしきい値
 
     used_ids = [] # ループ中ですでに1度呼ばれた論文
     used_result_ids = [] # ループ中ですでに1度呼ばれた検索結果論文
