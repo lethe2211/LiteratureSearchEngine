@@ -8,97 +8,20 @@ class AbstractRelevanceGraphComposer
   end
 
   # アブストラクトの類似度に応じたグラフを作成
-  # def compose_graph_(articles)
-  #   graph_cache = JsonCache.new(dir: "../lib/crawler/graph/", prefix: "cache_relevance_")
-    
-  #   @query = articles["data"]["query"]
-  #   cache = graph_cache.get(@query)
+  def compose_graph(articles)
+    query = articles['data']['query']
+    search_results = articles['data']['search_results']
 
-  #   if (not cache.nil?) and cache["status"] == 'OK'
-  #     return cache["data"]
-  #   else
-  #     result = {}               
-  #     #abstrg = Graph.new
-  #     graph_json = {nodes: {}, edges: {}}
-  #     bibliographies = {}
-      
-  #     search_results = articles["data"]["search_results"]
-  #     search_results.each do |search_result|
-  #       id  = search_result["id"].to_s
-  #       Rails.logger.debug("abstract: " + id)
-  #       bib = CitationController.get_bibliography(id.to_i)
-  #       bibliographies[id] = bib.blank? ? [] : Oj.load(bib)
-  #     end
+    bibliographies = extract_bibliographies(search_results) # 検索結果の各論文の書誌情報
 
-  #     Rails.logger.debug(bibliographies)
+    threshold = 0.1             # 類似度のしきい値
 
-  #     used_ids = [] # ループ中ですでに1度呼ばれた論文
-  #     used_result_ids = [] # ループ中ですでに1度呼ばれた検索結果論文
-
-  #     threshold = 0.2           # 類似度のしきい値
-
-  #     # 任意の一対の検索結果論文について
-  #     search_results.each do |search_result1|
-  #       id1 = search_result1["id"].to_s
-  #       search_results.each do |search_result2|
-  #         id2 = search_result2["id"].to_s
-  #         if id1.to_i >= id2.to_i
-  #           next
-  #         end
-
-  #         # 論文ノードの初期化
-  #         unless used_result_ids.include?(id1)
-  #           graph_json[:nodes][id1] = {type: "search_result", weight: bibliographies[id1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[id1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
-  #           used_result_ids.push(id1)
-  #           unless used_ids.include?(id1)
-  #             graph_json[:edges][id1] = {}
-  #             used_ids.push(id1)
-  #           end
-  #         end
-
-  #         unless used_result_ids.include?(id2)
-  #           graph_json[:nodes][id2] = {type: "search_result", weight: bibliographies[id2]["data"]["num_citations"], title: search_result2["title"], year: bibliographies[id2]["data"]["year"], color: "#dd3333", rank: search_result2["rank"]}
-  #           used_result_ids.push(id2)
-  #           unless used_ids.include?(id2)
-  #             graph_json[:edges][id2] = {}
-  #             used_ids.push(id2)
-  #           end
-  #         end
-
-  #         if bibliographies[id1]["data"]["abstract"] and bibliographies[id2]["data"]["abstract"]
-  #           words1 = StringUtil.count_frequency(bibliographies[id1]["data"]["abstract"])
-  #           words2 = StringUtil.count_frequency(bibliographies[id2]["data"]["abstract"])
-
-  #           Rails.logger.debug("id1: " + id1)
-  #           Rails.logger.debug("abst: " + words1.to_s)
-  #           Rails.logger.debug("id2: " + id2)
-  #           Rails.logger.debug("abst: " + words2.to_s)
-
-  #           Rails.logger.debug("similarity: " + SimilarityCalculator.cosine_similarity(words1, words2).to_s)
-  #           if SimilarityCalculator.cosine_similarity(words1, words2) >= threshold
-  #             graph_json[:edges][id1][id2] = {directed: false, weight: 10, color: "#333333"}
-  #             Rails.logger.debug(id1 + " " + id2 + " is connected")
-  #           end
-  #         end
-          
-  #       end
-  #     end
-
-  #     if graph_json[:nodes] != {} and graph_json[:edges] != {}
-  #       result[:data] = graph_json
-  #       result[:status] = "OK"
-  #       graph_cache.set(@query, result)
-  #     else
-  #       result[:status] = "NG"
-  #     end
-
-  #     Rails.logger.debug(result[:data])
-  #     return result[:data]
-  #   end
-  # end
+    graph = compute_graph(query, search_results, bibliographies, threshold)
+    return graph.to_h['data']
+  end
 
   # アブストラクトの類似度に応じたグラフを作成
-  def compose_graph(articles)
+  def compose_graph_(articles)
     graph_cache = JsonCache.new(dir: "../lib/crawler/graph/", prefix: "cache_relevance_")
     
     @query = articles["data"]["query"]
@@ -130,22 +53,35 @@ class AbstractRelevanceGraphComposer
   end
 
   private
+
+  # def extract_bibliographies(search_results)
+  #   bibliographies = {}      
+  #   search_results.each do |search_result|
+  #     id  = search_result["id"].to_s
+  #     Rails.logger.debug("abstract: " + id)
+  #     # bib = CitationController.get_bibliography(id.to_i)
+  #     bib = @mm.get_bibliography(id)
+  #     bibliographies[id] = bib.blank? ? [] : bib
+  #   end
+
+  #   Rails.logger.debug(bibliographies)
+  #   return bibliographies
+  # end
+
   def extract_bibliographies(search_results)
-    bibliographies = {}      
+    bibliographies = {}
     search_results.each do |search_result|
       id  = search_result["id"].to_s
-      Rails.logger.debug("abstract: " + id)
-      # bib = CitationController.get_bibliography(id.to_i)
+      Rails.logger.debug("bibliography: " + id)
       bib = @mm.get_bibliography(id)
       bibliographies[id] = bib.blank? ? [] : bib
     end
-
     Rails.logger.debug(bibliographies)
     return bibliographies
   end
 
-  def compute_graph(search_results, bibliographies, threshold)
-    graph = Graph.new
+  def compute_graph(query, search_results, bibliographies, threshold)
+    graph = CacheableGraph.new(query)
 
     used_ids = [] # ループ中ですでに1度呼ばれた論文
     used_result_ids = [] # ループ中ですでに1度呼ばれた検索結果論文
@@ -161,23 +97,19 @@ class AbstractRelevanceGraphComposer
 
         # 論文ノードの初期化
         unless used_result_ids.include?(id1)
-          # graph_json[:nodes][id1] = {type: "search_result", weight: bibliographies[id1]["data"]["num_citations"], title: search_result1["title"], year: bibliographies[id1]["data"]["year"], color: "#dd3333", rank: search_result1["rank"]}
           search_result_node = SearchResultGraphNode.new(id1, bibliographies[id1]["data"]["num_citations"], bibliographies[id1], search_result1["rank"])            
           graph.append_node(search_result_node)
           used_result_ids.push(id1)
           unless used_ids.include?(id1)
-            # graph_json[:edges][id1] = {}
             used_ids.push(id1)
           end
         end
 
         unless used_result_ids.include?(id2)
-          # graph_json[:nodes][id2] = {type: "search_result", weight: bibliographies[id2]["data"]["num_citations"], title: search_result2["title"], year: bibliographies[id2]["data"]["year"], color: "#dd3333", rank: search_result2["rank"]}
           search_result_node = SearchResultGraphNode.new(id2, bibliographies[id2]["data"]["num_citations"], bibliographies[id2], search_result2["rank"])            
           graph.append_node(search_result_node)
           used_result_ids.push(id2)
           unless used_ids.include?(id2)
-            # graph_json[:edges][id2] = {}
             used_ids.push(id2)
           end
         end
@@ -193,7 +125,6 @@ class AbstractRelevanceGraphComposer
 
           Rails.logger.debug("similarity: " + SimilarityCalculator.cosine_similarity(words1, words2).to_s)
           if SimilarityCalculator.cosine_similarity(words1, words2) >= threshold
-            # graph_json[:edges][id1][id2] = {directed: false, weight: 10, color: "#333333"}
             edge = UndirectedGraphEdge.new(id1, id2, 10, "#cccccc", {})
             graph.append_edge(edge)
             Rails.logger.debug(id1 + " " + id2 + " is connected")
@@ -202,7 +133,7 @@ class AbstractRelevanceGraphComposer
         
       end
     end
-
+    graph.set_cache
     return graph
   end
 end

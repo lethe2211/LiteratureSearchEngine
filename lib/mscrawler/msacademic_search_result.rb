@@ -25,9 +25,8 @@ module Mscrawler
     end
 
     # Rubyオブジェクトとして整形し返す
-    # def to_h
-    #   hash = {'id' => @data['id'], 'bibliography' => @data['bibliography'].to_h, 'snippet' => @data['snippet'], 'rank' => @data['rank']}
-    #   return hash
-    # end
+    def to_h
+      return @data
+    end
   end
 end

@@ -1,6 +1,8 @@
 #! /usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
+# require_relative '../url_open.rb'
+
 # 書誌情報を保持するクラス
 module Mscrawler
   class MsacademicArticle
@@ -10,6 +12,7 @@ module Mscrawler
     # idは必須
     def initialize(id, title: '', year: '', abstract: '', authors: [],
                    url: '', num_citations: 0, use_cache: true)
+      @base_url = 'http://academic.research.microsoft.com/'
       @json_cache = JsonCache.new(dir: './mscrawler/article/', prefix: 'article_cache_')
       cache = @json_cache.get(id)
       p cache
@@ -18,6 +21,20 @@ module Mscrawler
         @data = cache["data"]
       else
         @status = 'NG'
+        postfix = 'Publication'
+        bib_url = "#{ @base_url }#{ postfix }/#{ id }"
+        u = UrlOpen.new
+        bib_html = u.get(bib_url)
+        charset = u.charset
+        doc = Nokogiri::HTML.parse(bib_html, nil, charset)
+        title = ''
+        title = doc.css('.title-span').first.text if doc.css('.title-span').first
+        num_citations = doc.css('#ctl00_MainContent_PaperItem_Citation').first.text.split[1] unless doc.css('#ctl00_MainContent_PaperItem_Citation').empty?
+        authors = doc.css('.author-name-tooltip').first.text
+        abstract = ''
+        abstract = doc.css('#ctl00_MainContent_PaperItem_snippet').first.text if doc.css('#ctl00_MainContent_PaperItem_snippet').first
+        year = Mscrawler::MsacademicApiWrapper.get_year(id)
+        url = ''
         @data = {
           'id' => id,
           'title' => title,

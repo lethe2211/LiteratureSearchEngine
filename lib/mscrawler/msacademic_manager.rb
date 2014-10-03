@@ -15,7 +15,7 @@ module Mscrawler
     end
 
     def crawl(query, start_num: 1, end_num: 30)
-      msrs = Mscrawler::MsacademicSearchResults.new(query, start_num, end_num)
+      msrs = Mscrawler::MsacademicSearchResults.new(query, start_num, end_num, use_cache: true)
       postfix = 'Search'
       url = "#{ @base_url }#{ postfix }"
       Rails.logger.debug("crawl: #{ query }")
@@ -40,7 +40,7 @@ module Mscrawler
           sr_title = item.css('.title-fullwidth > h3 > a').first.text
         end
         sr_authors = item.css('.content').first.text.strip!
-        sr_url = URI.join(@base_url, href)
+        sr_url = URI.join(@base_url, href).to_s
         sr_year_conference = item.css('.conference').text.strip!.gsub(/(\r\n|\r|\n|\s{3,})/, '')
         # puts id
         # puts sr_title
@@ -50,8 +50,10 @@ module Mscrawler
         snippet = item.css('.abstract').text.strip! unless item.css('.abstract').empty?
         rank = (index + 1).to_s
         msr = Mscrawler::MsacademicSearchResult.new(id, sr_title: sr_title, sr_authors: sr_authors, sr_url: sr_url, sr_year_conference: sr_year_conference, snippet: snippet, rank: rank)
+        puts msr.to_h
         msrs.append(msr)
       end
+      msrs.set_cache
       return msrs.to_h
     end
 
@@ -65,27 +67,8 @@ module Mscrawler
 
     def get_bibliography(id)
       # API制限にひっかかるなら書誌情報ページから直接抜いてくる
-      postfix = 'Publication'
-      bib_url = "#{ @base_url }#{ postfix }/#{ id }"
-      u = UrlOpen.new
-      bib_html = u.get(bib_url)
-      charset = u.charset
-      doc = Nokogiri::HTML.parse(bib_html, nil, charset)
-      title = ''
-      title = doc.css('.title-span').first.text if doc.css('.title-span').first
-      num_citations = doc.css('#ctl00_MainContent_PaperItem_Citation').first.text.split[1] unless doc.css('#ctl00_MainContent_PaperItem_Citation').empty?
-      authors = doc.css('.author-name-tooltip').first.text
-      abstract = ''
-      abstract = doc.css('#ctl00_MainContent_PaperItem_snippet').first.text if doc.css('#ctl00_MainContent_PaperItem_snippet').first
-      # puts title
-      # puts num_citations
-      # puts abstract
-
-      year = Mscrawler::MsacademicApiWrapper.get_year(id)
-      url = ''
-      # url = Mscrawler::MsacademicApiWrapper.get_url(id)
-
-      msa = Mscrawler::MsacademicArticle.new(id, title: title, year: year, abstract: abstract, authors: authors, url: url, num_citations: num_citations)
+      msa = Mscrawler::MsacademicArticle.new(id, use_cache: true)
+      msa.set_cache
       return msa.to_h
     end
 

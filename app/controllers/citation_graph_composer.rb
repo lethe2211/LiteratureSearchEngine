@@ -8,6 +8,19 @@ class CitationGraphComposer
   end
 
   def compose_graph(articles)
+    query = articles['data']['query']
+    search_results = articles['data']['search_results']
+
+    bibliographies = extract_bibliographies(search_results)
+    citations = extract_citations(search_results)
+    citedbyes = extract_citedbyes(search_results)
+
+    graph = compute_graph(query, search_results, bibliographies, citations, citedbyes)
+    p graph.to_h['data']
+    return graph.to_h['data']
+  end
+
+  def compose_graph_(articles)
     graph_cache = JsonCache.new(dir: "./crawler/graph/")
 
     @query = articles["data"]["query"]
@@ -55,6 +68,7 @@ class CitationGraphComposer
 
   def extract_bibliographies(search_results)
     bibliographies = {}
+    p search_results
     search_results.each do |search_result|
       id  = search_result["id"].to_s
       Rails.logger.debug("bibliography: " + id)
@@ -113,8 +127,9 @@ class CitationGraphComposer
     return citedbyes
   end
 
-  def compute_graph(search_results, bibliographies, citations, citedbyes)
-    graph = Graph.new
+  def compute_graph(query, search_results, bibliographies, citations, citedbyes)
+    graph = CacheableGraph.new(query)
+    # graph = Graph.new
 
     used_cids = [] # ループ中ですでに1度呼ばれた論文
     used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
@@ -260,6 +275,7 @@ class CitationGraphComposer
         end
       end
     end
+    graph.set_cache
     return graph
   end
   

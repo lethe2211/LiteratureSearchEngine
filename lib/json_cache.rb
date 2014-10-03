@@ -19,6 +19,7 @@ class JsonCache
   end
 
   # 保存したキャッシュファイルをオブジェクトの形で取り出す 
+  # symbolize_nameをtrueにすると，キーをsymbolとしたオブジェクトが返される
   def get(key, def_value: nil, symbolize_names: false)
     relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
 

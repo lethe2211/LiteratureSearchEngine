@@ -38,9 +38,10 @@ module Mscrawler
     # Rubyオブジェクトとして整形し返す
     def to_h
       if @status == 'OK'
-        return { 'status' => @status, 'data' => @data }
+        Rails.logger.debug('hogehogehoge')
+        return { 'status' => @status, 'data' => { 'query' => @data['query'], 'start' => @data['start'], 'end' => @data['end'], 'num' => @data['num'], 'search_results' => @data['search_results'].map { |item| item.to_h } } }
       else
-        return { 'status' => @status, 'data' => { 'query' => query,'start' => start_num, 'end' => end_num, 'num' => end_num - start_num + 1,'search_results' => search_results } }
+        return { 'status' => @status, 'data' => { 'query' => '', 'start' => 0, 'end' => 0, 'num' => 0, 'search_results' => [] } }
       end
     end
     

@@ -29,7 +29,7 @@ class StaticPagesController < ApplicationController
     
     # 検索結果の取得と整形
     @articles = crawl(@query)
-    logger.debug(@articles)
+    # logger.debug(@articles)
 
     rl = ResearchLogger.new
     rl.write_initial_log(@userid, @interface, @query, @articles)
