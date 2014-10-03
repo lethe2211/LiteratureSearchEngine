@@ -19,7 +19,7 @@ class JsonCache
   end
 
   # 保存したキャッシュファイルをオブジェクトの形で取り出す 
-  def get(key, def_value: nil)
+  def get(key, def_value: nil, symbolize_names: false)
     relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
 
     if not File.exists?(@abspath + relpath)
@@ -28,7 +28,11 @@ class JsonCache
 
     f = open(@abspath + relpath, "r")
     json = f.read
-    result = JSON.parse(json)
+    if symbolize_names == true
+      result = JSON.parse(json, symbolize_names: true)
+    else
+      result = JSON.parse(json)
+    end
     f.close
 
     return result
