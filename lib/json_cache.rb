@@ -7,6 +7,8 @@ JSONファイルを用いたファイルキャッシュ
 =end
 class JsonCache
 
+  # dirはこのファイルからの相対パスで指定
+  # TODO: ↑を呼び出し元からの相対パス指定に直したい
   def initialize(dir: "cache/", prefix: "cache_", postfix: ".json")
     @abspath = File.dirname(__FILE__)
     @dir = dir
@@ -17,7 +19,8 @@ class JsonCache
   end
 
   # 保存したキャッシュファイルをオブジェクトの形で取り出す 
-  def get(key, def_value: nil)
+  # symbolize_nameをtrueにすると，キーをsymbolとしたオブジェクトが返される
+  def get(key, def_value: nil, symbolize_names: false)
     relpath = "/#{ @dir }#{ @prefix }#{ key.to_s }#{ @postfix }"
 
     if not File.exists?(@abspath + relpath)
@@ -26,7 +29,11 @@ class JsonCache
 
     f = open(@abspath + relpath, "r")
     json = f.read
-    result = JSON.parse(json)
+    if symbolize_names == true
+      result = JSON.parse(json, symbolize_names: true)
+    else
+      result = JSON.parse(json)
+    end
     f.close
 
     return result

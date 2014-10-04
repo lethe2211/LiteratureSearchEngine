@@ -142,6 +142,8 @@ class UndirectedGraphEdge < GraphEdge
 end
 
 if __FILE__ == $0
+  require_relative './json_cache.rb'
+  require 'active_support/core_ext'
   bib1 = {"status" => "OK", "data" => {"title" => "title1", "year" => "year1"}}
   bib2 = {"status" => "OK", "data" => {"title" => "title2", "year" => "year2"}}
   bib3 = {"status" => "OK", "data" => {"title" => "title3", "year" => "year3"}}

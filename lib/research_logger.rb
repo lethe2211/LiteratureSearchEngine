@@ -10,16 +10,7 @@ class ResearchLogger
   end
 
   # クエリ入力に応じて，検索結果についてのログを書き込む
-  def write_initial_log(userid, interfaceid, query)
-    cc = CrawlController.new
-    out = cc.get_search_results(query)
-    articles = JSON.parse(out)
-
-    # articles["data"]["search_results"].each do |article|
-    #   log = Log.create(userid: userid, interfaceid: interfaceid, query: query, rank: article["rank"], relevance: "none")
-    #   log.save
-    # end
-
+  def write_initial_log(userid, interfaceid, query, articles)
     # バルクインサート
     logs = []
     articles["data"]["search_results"].each_with_index do |article, index|

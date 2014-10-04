@@ -43,6 +43,8 @@ end
 # Use unicorn as the app server
 # gem 'unicorn'
 
+# Use unicorn as the app server
+gem 'puma'
 # Use Capistrano for deployment
 # gem 'capistrano', group: :development
 
@@ -55,9 +57,12 @@ gem 'pry-rails'
 # pry-debugger
 # gem 'pry-debugger'
 
-# oj
+# Use oj as the JSON parser
 gem 'rails-patch-json-encode'
 gem 'oj'
+
+# Nokogiri
+gem 'nokogiri'
 
 # activerecord-import for bulk insert
 gem 'activerecord-import'
