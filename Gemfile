@@ -45,6 +45,7 @@ end
 
 # Use unicorn as the app server
 gem 'puma'
+
 # Use Capistrano for deployment
 # gem 'capistrano', group: :development
 
@@ -69,3 +70,6 @@ gem 'activerecord-import'
 
 # Rails Bootstrap Forms to use forms in rails and bootstrap
 gem 'bootstrap_form'
+
+# parallel for multi threading
+gem 'parallel'

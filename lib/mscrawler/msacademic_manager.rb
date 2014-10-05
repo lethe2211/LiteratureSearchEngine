@@ -68,14 +68,9 @@ module Mscrawler
     end
 
     def get_bibliography(id)
-      # API制限にひっかかるなら書誌情報ページから直接抜いてくる
       msa = Mscrawler::MsacademicArticle.new(id, use_cache: true)
       msa.set_cache
       return msa.to_h
-    end
-
-    def get_pdf(id)
-
     end
   end
 end

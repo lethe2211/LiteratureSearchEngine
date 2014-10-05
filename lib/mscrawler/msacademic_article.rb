@@ -1,10 +1,8 @@
 #! /usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
-# require_relative '../url_open.rb'
-
-# 書誌情報を保持するクラス
 module Mscrawler
+  # 書誌情報を保持するクラス
   class MsacademicArticle
     attr_writer :data
 
@@ -15,10 +13,9 @@ module Mscrawler
       @base_url = 'http://academic.research.microsoft.com/'
       @json_cache = JsonCache.new(dir: './mscrawler/article/', prefix: 'article_cache_')
       cache = @json_cache.get(id)
-      p cache
       if (not cache.nil?) and cache['status'] == 'OK' and use_cache == true
         @status = 'OK'
-        @data = cache["data"]
+        @data = cache['data']
       else
         @status = 'NG'
         postfix = 'Publication'

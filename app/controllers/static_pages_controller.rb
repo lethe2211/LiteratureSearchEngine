@@ -76,7 +76,7 @@ class StaticPagesController < ApplicationController
 
   private
 
-  # クエリを受け取り，google_scholar_crawler.pyを呼び出す
+  # クエリを受け取り，検索結果を返す
   def crawl(query)
     mm = Mscrawler::MsacademicManager.new
     return mm.crawl(query, end_num: 5)

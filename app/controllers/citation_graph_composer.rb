@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'citation_controller'
+require 'parallel'
 
 # 引用グラフを生成するためのクラス
 class CitationGraphComposer
@@ -11,7 +12,7 @@ class CitationGraphComposer
   def compose_graph(articles)
     query = articles['data']['query']
     search_results = articles['data']['search_results']
-
+    puts search_results
     graph = compute_graph(query, search_results)
     p graph.to_h['data']
     return graph.to_h['data']
@@ -53,12 +54,17 @@ class CitationGraphComposer
 
   def extract_bibliographies(search_results)
     bibliographies = {}
-    p search_results
-    search_results.each do |search_result|
-      id  = search_result["id"].to_s
-      Rails.logger.debug("bibliography: " + id)
-      bib = @mm.get_bibliography(id.to_i)
-      bibliographies[id] = bib.blank? ? [] : bib
+    # search_results.each do |search_result|
+    #   id  = search_result["id"].to_s
+    #   Rails.logger.debug("bibliography: " + id)
+    #   bib = @mm.get_bibliography(id.to_i)
+    #   bibliographies[id] = bib.blank? ? [] : bib
+    # end
+    ids = search_results.map { |item| item['id'].to_s }
+    Parallel.each(ids, in_threads: 2) do |id|
+      Rails.logger.debug("bibliography: #{ id }")
+      bibliography = @mm.get_bibliography(id.to_i)
+      bibliographies[id] = bibliography
     end
     Rails.logger.debug(bibliographies)
     return bibliographies
@@ -66,11 +72,17 @@ class CitationGraphComposer
 
   def extract_citations(search_results)
     citations = {}
-    search_results.each do |search_result|
-      id  = search_result["id"].to_s
-      Rails.logger.debug("citation: " + id)
+    # search_results.each do |search_result|
+    #   id  = search_result["id"].to_s
+    #   Rails.logger.debug("citation: " + id)
+    #   citation = @mm.get_citation(id.to_i)
+    #   citations[id] = citation.blank? ? [] : citation
+    # end
+    ids = search_results.map { |item| item['id'].to_s }
+    Parallel.each(ids, in_threads: 2) do |id|
+      Rails.logger.debug("citation: #{ id }")
       citation = @mm.get_citation(id.to_i)
-      citations[id] = citation.blank? ? [] : citation
+      citations[id] = citation
     end
     Rails.logger.debug(citations)
     return citations
@@ -78,19 +90,25 @@ class CitationGraphComposer
 
   def extract_citedbyes(search_results)
     citedbyes = {}
-    search_results.each do |search_result|
-      id  = search_result["id"].to_s
-      Rails.logger.debug("citedby: " + id)
+    # search_results.each do |search_result|
+    #   id  = search_result["id"].to_s
+    #   Rails.logger.debug("citedby: " + id)
+    #   citedby = @mm.get_citedby(id.to_i)
+    #   citedbyes[id] = citedby.blank? ? [] : citedby
+    # end
+    ids = search_results.map { |item| item['id'].to_s }
+    Parallel.each(ids, in_threads: 2) do |id|
+      Rails.logger.debug("citedby: #{ id }")
       citedby = @mm.get_citedby(id.to_i)
-      citedbyes[id] = citedby.blank? ? [] : citedby
+      citedbyes[id] = citedby
     end
-    Rails.logger.debug(citedbyes)        
+    Rails.logger.debug(citedbyes)
     return citedbyes
   end
 
   def compute_graph(query, search_results)
     keyword = "citation_#{ query }"
-    graph = CacheableGraph.new(keyword)
+    graph = CacheableGraph.new(keyword, use_cache: false)
     if graph.count_node != 0
       return graph
     end
@@ -148,7 +166,7 @@ class CitationGraphComposer
             graph.append_node(node)
             used_cids.push(cit)
           end
-          Rails.logger.debug("citation of id1 and id2: " + cit)
+          # Rails.logger.debug("citation of id1 and id2: " + cit)
           edge_id1 = DirectedGraphEdge.new(id1, cit, 10, "#cccccc", {})
           graph.append_edge(edge_id1)
           edge_id2 = DirectedGraphEdge.new(id2, cit, 10, "#cccccc", {})
@@ -164,7 +182,7 @@ class CitationGraphComposer
             graph.append_node(node)
             used_cids.push(cit)
           end
-          Rails.logger.debug("citation of id1 and cited by id2: " + cit)
+          # Rails.logger.debug("citation of id1 and cited by id2: " + cit)
           edge_id1 = DirectedGraphEdge.new(id1, cit, 10, "#cccccc", {})
           graph.append_edge(edge_id1)
           edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", {})
@@ -180,7 +198,7 @@ class CitationGraphComposer
             graph.append_node(node)
             used_cids.push(cit)
           end
-          Rails.logger.debug("cited by id1 and citation of id2: " + cit)
+          # Rails.logger.debug("cited by id1 and citation of id2: " + cit)
           edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", {})
           graph.append_edge(edge_id1)
           edge_id2 = DirectedGraphEdge.new(id2, cit, 10, "#cccccc", {})
@@ -196,7 +214,7 @@ class CitationGraphComposer
             graph.append_node(node)
             used_cids.push(cit)
           end
-          Rails.logger.debug("cited by id1 and id2: " + cit)
+          # Rails.logger.debug("cited by id1 and id2: " + cit)
           edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", {})
           graph.append_edge(edge_id1)
           edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", {})
