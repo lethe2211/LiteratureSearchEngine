@@ -116,7 +116,11 @@
 
 			var x, y;
 
-			x = node.data.bibliography.year ? parseInt(node.data.bibliography.year) - 2000 : 0;
+			if (node.data.bibliography.year) {
+			    if (parseInt(node.data.bibliography.year) == 0) x = 0;
+			    else x = parseInt(node.data.bibliography.year) - 2000;
+			}
+			else x = 0;
 			// x = Math.floor(Math.random() * 600);
 
 			// if (type == "search_result") {
@@ -148,7 +152,7 @@
 		    // ノードの発行年情報を座標軸下に描画
 		    ctx.fillStyle = "black";
 		    ctx.font = "normal 10px sans-serif";
-		    if (node.data.bibliography.year) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 20);
+		    if (node.data.bibliography.year && parseInt(node.data.bibliography.year) != 0) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 20);
 
 		    // 検索結果ノードにランクを描画
 		    if (type == "search_result") {

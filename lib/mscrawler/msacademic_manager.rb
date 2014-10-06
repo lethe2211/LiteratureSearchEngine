@@ -14,6 +14,7 @@ module Mscrawler
       @api_base_url = 'https://api.datamarket.azure.com/MRC/MicrosoftAcademic/v2/'
     end
 
+    # クエリとランクの始点，終点を受け取り，検索結果を返す
     def crawl(query, start_num: 1, end_num: 30)
       msrs = Mscrawler::MsacademicSearchResults.new(query, start_num, end_num, use_cache: true)
       return msrs.to_h if msrs['search_results'].length > 0

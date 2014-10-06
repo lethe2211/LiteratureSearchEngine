@@ -11,7 +11,7 @@ module Mscrawler
     def initialize(id, title: '', year: '', abstract: '', authors: [],
                    url: '', num_citations: 0, use_cache: true)
       @base_url = 'http://academic.research.microsoft.com/'
-      @json_cache = JsonCache.new(dir: './mscrawler/article/', prefix: 'article_cache_')
+      @json_cache = JsonCache.new(dir: './mscrawler/cache/article/', prefix: 'article_cache_')
       cache = @json_cache.get(id)
       if (not cache.nil?) and cache['status'] == 'OK' and use_cache == true
         @status = 'OK'

@@ -7,9 +7,8 @@ require_relative './msacademic_search_result'
 module Mscrawler
   class MsacademicSearchResults
     def initialize(query, start_num, end_num, search_results: [], use_cache: true)
-      @json_cache = JsonCache.new(dir: './mscrawler/search_results/', prefix: 'search_results_cache_')
+      @json_cache = JsonCache.new(dir: './mscrawler/cache/search_results/', prefix: 'search_results_cache_')
       cache = @json_cache.get("#{ query }_#{ start_num }_#{ end_num }")
-      p cache
       if (not cache.nil?) and cache['status'] == 'OK' and use_cache == true
         @status = 'OK'
         @data = cache["data"]

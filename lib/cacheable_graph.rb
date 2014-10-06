@@ -4,13 +4,11 @@
 class CacheableGraph < Graph
   def initialize(keyword, use_cache: true)
     @keyword = keyword
-    @json_cache = JsonCache.new(dir: './mscrawler/graph/', prefix: 'graph_cache_')
+    @json_cache = JsonCache.new(dir: './mscrawler/cache/graph/', prefix: 'graph_cache_')
     cache = @json_cache.get(@keyword)
-    # p cache
     if (not cache.nil?) and cache['status'] == 'OK' and use_cache == true
       @status = 'OK'
       graph_json = cache['data']
-      # p graph_json
       @graph = { nodes: {}, edges: {} }
       graph_json['nodes'].each do |key, node|
         case node['type']
@@ -35,7 +33,6 @@ class CacheableGraph < Graph
           end
         end
       end
-      # p @graph
     else
       @status = 'OK'
       @graph = { nodes: {}, edges: {} }

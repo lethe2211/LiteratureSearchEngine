@@ -7,7 +7,7 @@ require 'logger'
 module Mscrawler
   # Microsoft Academic Search APIを扱うためのクラス
   class MsacademicApiWrapper
-    @@json_cache = JsonCache.new(dir: './mscrawler/msacademic_api/', prefix: 'msacademic_api_cache_')
+    @@json_cache = JsonCache.new(dir: './mscrawler/cache/msacademic_api/', prefix: 'msacademic_api_cache_')
 
     def initialize
       @api_base_url = 'https://api.datamarket.azure.com/MRC/MicrosoftAcademic/v2/'
