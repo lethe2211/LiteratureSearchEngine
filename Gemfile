@@ -52,12 +52,6 @@ gem 'puma'
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
-# pry-rails
-gem 'pry-rails'
-
-# pry-debugger
-# gem 'pry-debugger'
-
 # Use oj as the JSON parser
 gem 'rails-patch-json-encode'
 gem 'oj'
@@ -73,3 +67,19 @@ gem 'bootstrap_form'
 
 # parallel for multi threading
 gem 'parallel'
+
+group :development do
+  gem 'better_errors'
+  gem 'binding_of_caller'
+  gem 'hirb'
+  gem 'hirb-unicode'
+  gem 'pry-byebug'
+  gem 'pry-doc'
+  gem 'pry-rails'
+  gem 'pry-stack_explorer'
+  gem 'quiet_assets'
+  gem 'rack-mini-profiler'
+  gem 'tapp'
+  gem 'view_source_map'
+  gem 'xray-rails'
+end
