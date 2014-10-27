@@ -54,14 +54,8 @@ class CitationGraphComposer
 
   def extract_bibliographies(search_results)
     bibliographies = {}
-    # search_results.each do |search_result|
-    #   id  = search_result["id"].to_s
-    #   Rails.logger.debug("bibliography: " + id)
-    #   bib = @mm.get_bibliography(id.to_i)
-    #   bibliographies[id] = bib.blank? ? [] : bib
-    # end
     ids = search_results.map { |item| item['id'].to_s }
-    Parallel.each(ids, in_threads: 2) do |id|
+    Parallel.each(ids, in_threads: 4) do |id|
       Rails.logger.debug("bibliography: #{ id }")
       bibliography = @mm.get_bibliography(id.to_i)
       bibliographies[id] = bibliography
@@ -72,14 +66,8 @@ class CitationGraphComposer
 
   def extract_citations(search_results)
     citations = {}
-    # search_results.each do |search_result|
-    #   id  = search_result["id"].to_s
-    #   Rails.logger.debug("citation: " + id)
-    #   citation = @mm.get_citation(id.to_i)
-    #   citations[id] = citation.blank? ? [] : citation
-    # end
     ids = search_results.map { |item| item['id'].to_s }
-    Parallel.each(ids, in_threads: 2) do |id|
+    Parallel.each(ids, in_threads: 4) do |id|
       Rails.logger.debug("citation: #{ id }")
       citation = @mm.get_citation(id.to_i)
       citations[id] = citation
@@ -90,14 +78,8 @@ class CitationGraphComposer
 
   def extract_citedbyes(search_results)
     citedbyes = {}
-    # search_results.each do |search_result|
-    #   id  = search_result["id"].to_s
-    #   Rails.logger.debug("citedby: " + id)
-    #   citedby = @mm.get_citedby(id.to_i)
-    #   citedbyes[id] = citedby.blank? ? [] : citedby
-    # end
     ids = search_results.map { |item| item['id'].to_s }
-    Parallel.each(ids, in_threads: 2) do |id|
+    Parallel.each(ids, in_threads: 4) do |id|
       Rails.logger.debug("citedby: #{ id }")
       citedby = @mm.get_citedby(id.to_i)
       citedbyes[id] = citedby
@@ -116,122 +98,131 @@ class CitationGraphComposer
     bibliographies = extract_bibliographies(search_results)
     citations = extract_citations(search_results)
     citedbyes = extract_citedbyes(search_results)
+    citation_contexts = {}
 
     used_cids = [] # ループ中ですでに1度呼ばれた論文
     used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
 
     # 任意の一対の検索結果論文について
-    search_results.each do |search_result1|
+    # search_results.each do |search_result1|
+    #   id1 = search_result1["id"].to_s
+    #   search_results.each do |search_result2|
+    #     id2 = search_result2["id"].to_s
+    #     if id1.to_i >= id2.to_i
+    #       next
+    #     end
+    search_results.combination(2) do |search_result1, search_result2|
       id1 = search_result1["id"].to_s
-      search_results.each do |search_result2|
-        id2 = search_result2["id"].to_s
-        if id1.to_i >= id2.to_i
-          next
+      id2 = search_result2["id"].to_s
+      Rails.logger.debug("id1: " + id1)
+      Rails.logger.debug("id2: " + id2)
+      Rails.logger.debug("")
+
+      # 論文ノードの初期化
+      unless used_result_cids.include?(id1)
+        search_result_node = SearchResultGraphNode.new(id1, bibliographies[id1]["data"]["num_citations"], bibliographies[id1], search_result1["rank"])            
+        graph.append_node(search_result_node)
+        used_result_cids.push(id1)
+        unless used_cids.include?(id1)
+          used_cids.push(id1)
         end
+      end
 
-        Rails.logger.debug("id1: " + id1)
-        Rails.logger.debug("id2: " + id2)
-        Rails.logger.debug("")
-
-        # 論文ノードの初期化
-        unless used_result_cids.include?(id1)
-          search_result_node = SearchResultGraphNode.new(id1, bibliographies[id1]["data"]["num_citations"], bibliographies[id1], search_result1["rank"])            
-          graph.append_node(search_result_node)
-          used_result_cids.push(id1)
-          unless used_cids.include?(id1)
-            used_cids.push(id1)
-          end
+      unless used_result_cids.include?(id2)
+        search_result_node = SearchResultGraphNode.new(id2, bibliographies[id2]["data"]["num_citations"], bibliographies[id2], search_result2["rank"])            
+        graph.append_node(search_result_node)
+        used_result_cids.push(id2)
+        unless used_cids.include?(id2)
+          used_cids.push(id2)
         end
+      end
 
-        unless used_result_cids.include?(id2)
-          search_result_node = SearchResultGraphNode.new(id2, bibliographies[id2]["data"]["num_citations"], bibliographies[id2], search_result2["rank"])            
-          graph.append_node(search_result_node)
-          used_result_cids.push(id2)
-          unless used_cids.include?(id2)
-            used_cids.push(id2)
-          end
+      citation_contexts[id1] = @mm.get_citation_contexts(id1)
+      citation_contexts[id2] = @mm.get_citation_contexts(id2)
+
+      Rails.logger.debug((citations[id1] & citations[id2]).to_s)
+      Rails.logger.debug((citations[id1] & citedbyes[id2]).to_s)
+      Rails.logger.debug((citedbyes[id1] & citations[id2]).to_s)
+      Rails.logger.debug((citedbyes[id1] & citedbyes[id2]).to_s)
+
+      # 両方が(共)引用する論文
+      (citations[id1] & citations[id2]).each do |cit|
+        b = @mm.get_bibliography(cit)
+        bib = b.blank? ? { 'status' => 'NG', 'data' => {} } : b
+        unless used_cids.include?(cit)
+          node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
+          graph.append_node(node)
+          used_cids.push(cit)
         end
+        # Rails.logger.debug("citation of id1 and id2: " + cit)
+        edge_id1 = DirectedGraphEdge.new(id1, cit, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(id1, cit) })
+        graph.append_edge(edge_id1)
+        edge_id2 = DirectedGraphEdge.new(id2, cit, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(id2, cit) })
+        graph.append_edge(edge_id2)
+      end
 
-        Rails.logger.debug((citations[id1] & citations[id2]).to_s)
-        Rails.logger.debug((citations[id1] & citedbyes[id2]).to_s)
-        Rails.logger.debug((citedbyes[id1] & citations[id2]).to_s)
-        Rails.logger.debug((citedbyes[id1] & citedbyes[id2]).to_s)
-
-        # 両方が(共)引用する論文
-        (citations[id1] & citations[id2]).each do |cit|
-          b = @mm.get_bibliography(cit)
-          bib = b.blank? ? { 'status' => 'NG', 'data' => {} } : b
-          unless used_cids.include?(cit)
-            node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
-            graph.append_node(node)
-            used_cids.push(cit)
-          end
-          # Rails.logger.debug("citation of id1 and id2: " + cit)
-          edge_id1 = DirectedGraphEdge.new(id1, cit, 10, "#cccccc", {})
-          graph.append_edge(edge_id1)
-          edge_id2 = DirectedGraphEdge.new(id2, cit, 10, "#cccccc", {})
-          graph.append_edge(edge_id2)
+      # 片方が引用し，もう片方が被引用する論文
+      (citations[id1] & citedbyes[id2]).each do |cit|
+        b = @mm.get_bibliography(cit)
+        bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
+        unless used_cids.include?(cit)
+          node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
+          graph.append_node(node)
+          used_cids.push(cit)
         end
+        # Rails.logger.debug("citation of id1 and cited by id2: " + cit)
+        edge_id1 = DirectedGraphEdge.new(id1, cit, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(id1, cit) })
+        graph.append_edge(edge_id1)
+        edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(cit, id2) })
+        graph.append_edge(edge_id2)
+      end
 
-        # 片方が引用し，もう片方が被引用する論文
-        (citations[id1] & citedbyes[id2]).each do |cit|
-          b = @mm.get_bibliography(cit)
-          bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
-          unless used_cids.include?(cit)
-            node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
-            graph.append_node(node)
-            used_cids.push(cit)
-          end
-          # Rails.logger.debug("citation of id1 and cited by id2: " + cit)
-          edge_id1 = DirectedGraphEdge.new(id1, cit, 10, "#cccccc", {})
-          graph.append_edge(edge_id1)
-          edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", {})
-          graph.append_edge(edge_id2)
+      # 片方が被引用し，もう片方が引用する論文
+      (citedbyes[id1] & citations[id2]).each do |cit|
+        b = @mm.get_bibliography(cit)
+        bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
+        unless used_cids.include?(cit)
+          node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
+          graph.append_node(node)
+          used_cids.push(cit)
         end
+        # Rails.logger.debug("cited by id1 and citation of id2: " + cit)
+        edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(cit, id1) })
+        graph.append_edge(edge_id1)
+        edge_id2 = DirectedGraphEdge.new(id2, cit, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(id2, cit) })
+        graph.append_edge(edge_id2)  
+      end 
+      
+      # 両方が被引用される論文
+      (citedbyes[id1] & citedbyes[id2]).each do |cit|
+        b = @mm.get_bibliography(cit)
+        bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
+        unless used_cids.include?(cit)
+          node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
+          graph.append_node(node)
+          used_cids.push(cit)
+        end
+        # Rails.logger.debug("cited by id1 and id2: " + cit)
+        citation_context_cit_id1 = @mm.get_citation_context(cit, id1)
+        citation_context_cit_id2 = @mm.get_citation_context(cit, id2)
+        edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", { 'citation_context' => citation_context_cit_id1, 'co-citation_context' => (citation_context_cit_id1 & citation_context_cit_id2) })
+        graph.append_edge(edge_id1)
+        edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", { 'citation_context' => citation_context_cit_id2, 'co-citation_context' => (citation_context_cit_id1 & citation_context_cit_id2) })
+        graph.append_edge(edge_id2)
+      end
 
-        # 片方が被引用し，もう片方が引用する論文
-        (citedbyes[id1] & citations[id2]).each do |cit|
-          b = @mm.get_bibliography(cit)
-          bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
-          unless used_cids.include?(cit)
-            node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
-            graph.append_node(node)
-            used_cids.push(cit)
-          end
-          # Rails.logger.debug("cited by id1 and citation of id2: " + cit)
-          edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", {})
-          graph.append_edge(edge_id1)
-          edge_id2 = DirectedGraphEdge.new(id2, cit, 10, "#cccccc", {})
-          graph.append_edge(edge_id2)  
-        end 
-        
-        # 両方が被引用される論文
-        (citedbyes[id1] & citedbyes[id2]).each do |cit|
-          b = @mm.get_bibliography(cit)
-          bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
-          unless used_cids.include?(cit)
-            node = GraphNode.new(cit, bib["data"]["num_citations"], bib)
-            graph.append_node(node)
-            used_cids.push(cit)
-          end
-          # Rails.logger.debug("cited by id1 and id2: " + cit)
-          edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", {})
-          graph.append_edge(edge_id1)
-          edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", {})
-          graph.append_edge(edge_id2)  
-        end
+      # id1の論文がid2の論文を引用している
+      if (citedbyes[id2]).include?(id1) or (citations[id1]).include?(id2)
+        citation_context = @mm.get_citation_context(id1, id2)
+        edge = DirectedGraphEdge.new(id1, id2, 10, "#333333", { 'citation_context' => citation_context })
+        graph.append_edge(edge)
+      end
 
-        # id1の論文がid2の論文を引用している
-        if (citedbyes[id2]).include?(id1) or (citations[id1]).include?(id2)
-          edge = DirectedGraphEdge.new(id1, id2, 10, "#333333", {})
-          graph.append_edge(edge)
-        end
-
-        # id2の論文がid1の論文を引用している
-        if (citations[id2]).include?(id1) or (citedbyes[id1]).include?(id2)
-          edge = DirectedGraphEdge.new(id2, id1, 10, "#333333", {})
-          graph.append_edge(edge)
-        end
+      # id2の論文がid1の論文を引用している
+      if (citations[id2]).include?(id1) or (citedbyes[id1]).include?(id2)
+        citation_context = @mm.get_citation_context(id2, id1)
+        edge = DirectedGraphEdge.new(id2, id1, 10, "#333333", { 'citation_context' => citation_context })
+        graph.append_edge(edge)
       end
     end
     graph.set_cache

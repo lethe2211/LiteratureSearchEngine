@@ -74,7 +74,7 @@ class Graph
         unless rubyobj[:edges].has_key?(src_key)
           rubyobj[:edges][src_key] = {}
         end
-        rubyobj[:edges][src_key][dest_key] = {source: edge.source, destination: edge.destination, directed: edge.directed, weight: edge.weight, color: edge.color}
+        rubyobj[:edges][src_key][dest_key] = {source: edge.source, destination: edge.destination, directed: edge.directed, weight: edge.weight, color: edge.color, bibliography: edge.bibliography }
       end
     end
     return rubyobj

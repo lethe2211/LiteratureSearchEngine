@@ -22,12 +22,14 @@ module Mscrawler
         bib_url = "#{ @base_url }#{ postfix }/#{ id }"
         u = UrlOpen.new
         bib_html = u.get(bib_url)
+        
         charset = u.charset
         doc = Nokogiri::HTML.parse(bib_html, nil, charset)
         title = ''
         title = doc.css('.title-span').first.text if doc.css('.title-span').first
         num_citations = doc.css('#ctl00_MainContent_PaperItem_Citation').first.text.split[1] unless doc.css('#ctl00_MainContent_PaperItem_Citation').empty?
-        authors = doc.css('.author-name-tooltip').first.text
+        authors = ''
+        authors = doc.css('.author-name-tooltip').first.text if doc.css('.author-name-tooltip').first
         abstract = ''
         abstract = doc.css('#ctl00_MainContent_PaperItem_snippet').first.text if doc.css('#ctl00_MainContent_PaperItem_snippet').first
         year = Mscrawler::MsacademicApiWrapper.get_year(id)

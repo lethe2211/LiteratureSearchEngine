@@ -144,7 +144,7 @@ module Mscrawler
         http_proxy = 'http://proxy.kuins.net:8080/'
         url = "#{ api_base_url }#{ api_postfix }#{ filter }"
         xml = open(url, proxy: http_proxy).read
-        set_cache(key, {'xml' => xml })
+        set_cache(key, { 'xml' => xml })
         return xml
       end
     end

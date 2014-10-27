@@ -42,11 +42,18 @@ class UrlOpen
           @content = f.read
         end
         break
-      rescue OpenURI::HTTPError => e
-        sleep_time = 5
-        puts "url_open.rb: #{ @url }"
-        puts "sleep #{ sleep_time } sec..."
-        sleep(sleep_time)
+      rescue OpenURI::HTTPError => ex
+        @status_code = ex.io.status[0]
+        if @status_code == '404'
+          puts "url_open.rb: #{ @url }"
+          puts 'file not found...'
+          break
+        else
+          sleep_time = rand(5) + 3
+          puts "url_open.rb: #{ @url }"
+          puts "sleep #{ sleep_time } sec..."
+          sleep(sleep_time)
+        end
       rescue => e
       end
     end
