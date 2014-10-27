@@ -219,9 +219,13 @@ class CitationGraphComposer
             used_cids.push(cit)
           end
           # Rails.logger.debug("cited by id1 and id2: " + cit)
-          edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(cit, id1) })
+          citation_context_cit_id1 = @mm.get_citation_context(cit, id1)
+          citation_context_cit_id2 = @mm.get_citation_context(cit, id2)
+          Rails.logger.debug(citation_context_cit_id1)
+          Rails.logger.debug(citation_context_cit_id2)
+          edge_id1 = DirectedGraphEdge.new(cit, id1, 10, "#cccccc", { 'citation_context' => citation_context_cit_id1, 'co-citation_context' => (citation_context_cit_id1 & citation_context_cit_id2) })
           graph.append_edge(edge_id1)
-          edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", { 'citation_context' => @mm.get_citation_context(cit, id2)})
+          edge_id2 = DirectedGraphEdge.new(cit, id2, 10, "#cccccc", { 'citation_context' => citation_context_cit_id2, 'co-citation_context' => (citation_context_cit_id1 & citation_context_cit_id2) })
           graph.append_edge(edge_id2)
         end
 

@@ -43,7 +43,7 @@ class UrlOpen
         end
         break
       rescue OpenURI::HTTPError => e
-        sleep_time = 5
+        sleep_time = rand(5) + 3
         puts "url_open.rb: #{ @url }"
         puts "sleep #{ sleep_time } sec..."
         sleep(sleep_time)

@@ -2,6 +2,7 @@
 
 require 'uri'
 require 'nokogiri'
+require 'parallel'
 require_relative '../json_cache.rb'
 require_relative '../url_open.rb'
 require_relative './msacademic_search_results.rb'
@@ -69,7 +70,7 @@ module Mscrawler
       if citation_contexts.key?(src_id)
         return citation_contexts[src_id]
       else
-        return ''
+        return []
       end
     end
 
@@ -82,19 +83,23 @@ module Mscrawler
       hash = { 'dest_id' => dest_id, 'citation_contexts' => {} }
       postfix = 'Detail'
       url = "#{ @base_url }#{ postfix }"
+      params_array = []
       num = 0
       until num > end_num
         if num + 100 > end_num
-          params = { 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => end_num }
+          params_array.push({ 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => end_num })
         else
-          params = { 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => start_num + num + 99 }
+          params_array.push({ 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => start_num + num + 99 })
         end
+        num += 100
+      end
+      Parallel.each(params_array, in_threads: 2) do |params|
         u = UrlOpen.new
         html = u.get(url, params: params)
         charset = u.charset
         doc = Nokogiri::HTML.parse(html, nil, charset)
         header = doc.css('.bing-summary > .declare > span').first.text if doc.css('.bing-summary > .declare > span') and doc.css('.bing-summary > .declare > span').first
-        break unless header
+        next unless header
         end_num = header.split()[2].gsub(/\(|\)/, '').to_i
         doc.css('.paper-citation-item').each do |item|
           citation_context = item.css('.content > .quot > li').map { |i| i.text }
@@ -104,8 +109,30 @@ module Mscrawler
             hash['citation_contexts'][sid] = citation_context
           end
         end
-        num += 100
       end
+      # until num > end_num
+      #   if num + 100 > end_num
+      #     params = { 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => end_num }
+      #   else
+      #     params = { 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => start_num + num + 99 }
+      #   end
+      #   u = UrlOpen.new
+      #   html = u.get(url, params: params)
+      #   charset = u.charset
+      #   doc = Nokogiri::HTML.parse(html, nil, charset)
+      #   header = doc.css('.bing-summary > .declare > span').first.text if doc.css('.bing-summary > .declare > span') and doc.css('.bing-summary > .declare > span').first
+      #   break unless header
+      #   end_num = header.split()[2].gsub(/\(|\)/, '').to_i
+      #   doc.css('.paper-citation-item').each do |item|
+      #     citation_context = item.css('.content > .quot > li').map { |i| i.text }
+      #     if item.css('h3 > .title').first
+      #       href = item.css('h3 > .title').first['href']
+      #       sid = href.split('/')[1]
+      #       hash['citation_contexts'][sid] = citation_context
+      #     end
+      #   end
+      #   num += 100
+      # end
       json_cache.set(key, hash)
       return hash['citation_contexts']
     end
