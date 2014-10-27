@@ -83,19 +83,40 @@ module Mscrawler
       hash = { 'dest_id' => dest_id, 'citation_contexts' => {} }
       postfix = 'Detail'
       url = "#{ @base_url }#{ postfix }"
-      params_array = []
-      num = 0
-      until num > end_num
-        if num + 100 > end_num
-          params_array.push({ 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => end_num })
-        else
-          params_array.push({ 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => start_num + num, 'end' => start_num + num + 99 })
+
+      u = UrlOpen.new
+      html = u.get(url, params: { 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => 1, 'end' => 100 })
+      return hash['citation_contexts'] if html == ''
+      charset = u.charset
+      doc = Nokogiri::HTML.parse(html, nil, charset)
+      header = doc.css('.bing-summary > .declare > span').first.text if doc.css('.bing-summary > .declare > span') and doc.css('.bing-summary > .declare > span').first
+      return hash['citation_contexts'] unless header
+      end_num = header.split()[2].gsub(/\(|\)/, '').to_i
+      doc.css('.paper-citation-item').each do |item|
+        citation_context = item.css('.content > .quot > li').map { |i| i.text }
+        if item.css('h3 > .title').first
+          href = item.css('h3 > .title').first['href']
+          sid = href.split('/')[1]
+          hash['citation_contexts'][sid] = citation_context
         end
-        num += 100
       end
-      Parallel.each(params_array, in_threads: 2) do |params|
+      
+      params_array = []
+      s = 101
+      e = 200
+      while s <= end_num
+        if e > end_num
+          params_array.push({ 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => s, 'end' => end_num })
+        else
+          params_array.push({ 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => s, 'end' => e })
+        end
+        s += 100
+        e += 100
+      end
+      Parallel.each(params_array, in_threads: 4) do |params|
         u = UrlOpen.new
         html = u.get(url, params: params)
+        next if html == ''
         charset = u.charset
         doc = Nokogiri::HTML.parse(html, nil, charset)
         header = doc.css('.bing-summary > .declare > span').first.text if doc.css('.bing-summary > .declare > span') and doc.css('.bing-summary > .declare > span').first
