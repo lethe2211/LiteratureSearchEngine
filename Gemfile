@@ -68,7 +68,8 @@ gem 'bootstrap_form'
 # parallel for multi threading
 gem 'parallel'
 
-group :development do
+group :test, :development do
+  gem 'awesome_print'
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'hirb'
