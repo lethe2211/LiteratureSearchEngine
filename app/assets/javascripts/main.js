@@ -308,12 +308,7 @@
 	    		ctx.fill();
 	    		ctx.restore()
 		    }
-		    
 		})
-
-	
-		
-		
 	    },
 	    
 	    // マウスハンドラの初期化
@@ -323,7 +318,6 @@
 
 		var mouseDownTime;
 		var mouseUpTime;
-
 		
 		var handler = {
 		    

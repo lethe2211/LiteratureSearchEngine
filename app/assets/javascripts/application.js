@@ -15,6 +15,5 @@
 //= require turbolinks
 //= require arbor
 //= require arbor-tween
-//= require main
-//= require_tree .
+//= require graphics
 
