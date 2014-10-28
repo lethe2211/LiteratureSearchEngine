@@ -37,6 +37,7 @@ class UrlOpen
       begin 
         @charset = nil
         open(@url) do |f|
+          puts "url_open.rb: #{ @url }"
           @status_code = f.status[0]
           @charset = f.charset
           @content = f.read
@@ -45,12 +46,10 @@ class UrlOpen
       rescue OpenURI::HTTPError => ex
         @status_code = ex.io.status[0]
         if @status_code == '404'
-          puts "url_open.rb: #{ @url }"
           puts 'file not found...'
           break
         else
           sleep_time = rand(5) + 3
-          puts "url_open.rb: #{ @url }"
           puts "sleep #{ sleep_time } sec..."
           sleep(sleep_time)
         end
@@ -64,7 +63,6 @@ class UrlOpen
   def compose_url(base_url, params)
     url = URI(base_url)
     url.query = params.to_param
-    puts url
     return url.to_s
   end
 end
