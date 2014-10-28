@@ -83,7 +83,6 @@ module Mscrawler
       hash = { 'dest_id' => dest_id, 'citation_contexts' => {} }
       postfix = 'Detail'
       url = "#{ @base_url }#{ postfix }"
-
       u = UrlOpen.new
       html = u.get(url, params: { 'id' => dest_id, 'entitytype' => 1, 'searchtype' => 7, 'start' => 1, 'end' => 100 })
       return hash['citation_contexts'] if html == ''
@@ -100,7 +99,6 @@ module Mscrawler
           hash['citation_contexts'][sid] = citation_context
         end
       end
-      
       params_array = []
       s = 101
       e = 200
@@ -114,6 +112,7 @@ module Mscrawler
         e += 100
       end
       Parallel.each(params_array, in_threads: 4) do |params|
+        url = "#{ @base_url }#{ postfix }"
         u = UrlOpen.new
         html = u.get(url, params: params)
         next if html == ''
