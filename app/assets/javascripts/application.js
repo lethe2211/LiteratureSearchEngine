@@ -16,4 +16,4 @@
 //= require arbor
 //= require arbor-tween
 //= require graphics
-
+//= require static_pages

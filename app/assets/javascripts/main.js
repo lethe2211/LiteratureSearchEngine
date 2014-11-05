@@ -10,14 +10,15 @@
 	var canvas = $(canvas).get(0);
 
 	if (!canvas || !canvas.getContext) {
-
 	    return false;
-
 	}
 
 	var ctx = canvas.getContext("2d");
 	var gfx = arbor.Graphics(canvas);
 	var particleSystem;
+
+	var pos = arbor.Point(0, 0);
+	var _mouseP = arbor.Point(0, 0);
 
 	var position = {};	     // 各ノードの座標
 	var hovered = null;	// 現在マウスホバーされているノードを表す
@@ -54,30 +55,41 @@
 		// which allow you to step through the actual node objects but also pass an
 		// x,y point in the screen's coordinate system
 		//
-		ctx.fillStyle = "white"
-		ctx.fillRect(0,0, canvas.width, canvas.height)
+
+		// console.log(_mouseP);
+		// console.log(_mouseP.x);
+		// console.log(_mouseP.y);
+
+		var init_canvas = function() {
+		    ctx.fillStyle = "white";
+		    ctx.fillRect(0,0, canvas.width, canvas.height);
+		}();
 
 		// グラフの囲み線の描画
-		ctx.strokeStyle = "#99aaaa";
-		ctx.lineWidth = 3;
-		ctx.strokeRect(3, 50, canvas.width - 10, canvas.height - 55);
-		ctx.fillStyle = "#EEFFFF"
-		ctx.fillRect(3, 50, canvas.width - 10, canvas.height - 55);
+		var draw_surrouding_line = function() {
+		    ctx.strokeStyle = "#99aaaa";
+		    ctx.lineWidth = 3;
+		    ctx.strokeRect(3, 50, canvas.width - 10, canvas.height - 55);
+		    ctx.fillStyle = "#EEFFFF"
+		    ctx.fillRect(3, 50, canvas.width - 10, canvas.height - 55);
+		}();
 
 		// 時系列を表す矢印の描画
-		ctx.strokeStyle = "#99aaaa";
-		ctx.beginPath();
-		ctx.moveTo(10, canvas.height - 50);
-		ctx.lineTo(540, canvas.height - 50);
-		ctx.lineWidth = 5;
-		ctx.closePath()
-		ctx.stroke();
-		ctx.fillStyle = "#99aaaa";
-		ctx.moveTo(550, canvas.height - 50);
-		ctx.lineTo(540, canvas.height - 40);
-		ctx.lineTo(540, canvas.height - 60);
-		ctx.closePath();
-		ctx.fill();
+		var draw__time_arrow = function(x, y, width) {
+		    ctx.strokeStyle = "#99aaaa";
+		    ctx.beginPath();
+		    ctx.moveTo(10, canvas.height - 50);
+		    ctx.lineTo(540, canvas.height - 50);
+		    ctx.lineWidth = 5;
+		    ctx.closePath()
+		    ctx.stroke();
+		    ctx.fillStyle = "#99aaaa";
+		    ctx.moveTo(550, canvas.height - 50);
+		    ctx.lineTo(540, canvas.height - 40);
+		    ctx.lineTo(540, canvas.height - 60);
+		    ctx.closePath();
+		    ctx.fill();
+		}(10, canvas.height - 50, 540 - 10);
 
 		// すべてのノードについて
 		particleSystem.eachNode(function(node, pt){
@@ -87,90 +99,81 @@
 		    var type = node.data.type; // ノードタイプ
 		    var rank = node.data.rank; // 検索結果ノードのランキング
 
-		    // ノードの重み決定(関数化すべき)
-		    var r;	// ノード(円で表す)の半径
-		    var r_type;	// ノードタイプによる重み
-		    var r_rank;	// 検索結果ノードのランクによる(逆)重み
+		    // ノードの半径を計算
+		    var r = function(node, type, rank) {
+			var r;	// ノード(円で表す)の半径
+			var weight_type;	// ノードタイプによる半径の重み
+			var weight_rank;	// 検索結果ノードのランクによる(逆)重み
 
-		    if (type == "search_result") {
-
-			r_type = 20;
-			r_rank = -0.8 * node.data.rank;
-
-		    }
-		    else {
-
-			r_type = 5;
-			ctx.beginPath();
-			ctx.moveTo(10, 10);
-			ctx.lineTo(90, 90);
-			r_rank = 0;
-
-		    }
-
-		    r = r_type + r_rank;
-		    node.data.r = r; // プロパティrはノードの半径を表す
+			if (type == "search_result") {
+			    weight_type = 20;
+			    weight_rank = -0.8 * node.data.rank;
+			}
+			else {
+			    weight_type = 5;
+			    ctx.beginPath();
+			    ctx.moveTo(10, 10);
+			    ctx.lineTo(90, 90);
+			    weight_rank = 0;
+			}
+			r = weight_type + weight_rank;
+			node.data.r = r; // プロパティrはノードの半径を表す
+			return r;
+		    }(node, type, rank);
 
 		    // ノードの位置決定
-		    if (!(node.name in position)) {
-
-			var x, y;
-
-			if (node.data.bibliography.year) {
-			    if (parseInt(node.data.bibliography.year) == 0) x = 0;
-			    else x = parseInt(node.data.bibliography.year) - 2000;
+		    var calculate_node_position = function(node, position) {
+			if (!(node.name in position)) {
+			    var x, y;
+			    if (node.data.bibliography.year) {
+				if (parseInt(node.data.bibliography.year) == 0) x = 0;
+				else x = parseInt(node.data.bibliography.year) - 2000;
+			    }
+			    else x = 0;
+			    // x = Math.floor(Math.random() * 600);
+			    // if (type == "search_result") {
+			    //     (rank % 2 == 1)? y = 120 : y = 200;
+			    // }
+			    // else {
+			    //     y = 120 + Math.floor(Math.random() * 80);
+			    // }
+			    y = 120 + Math.floor(Math.random() * 80);
+		    	    position[node.name] = arbor.Point(x, y);
+		    	    node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
 			}
-			else x = 0;
-			// x = Math.floor(Math.random() * 600);
-
-			// if (type == "search_result") {
-
-			//     (rank % 2 == 1)? y = 120 : y = 200;
-
-			// }
-			// else {
-
-			//     y = 120 + Math.floor(Math.random() * 80);
-
-			// }
-
-			y = 120 + Math.floor(Math.random() * 80);
-
-		    	position[node.name] = arbor.Point(x, y);
-		    	node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
-
-		    	// console.log(node.data.rank + " x: " + x + " " + position[node.name].x + " y: " + y + " " + position[node.name].y);
-
-		    }
+		    }(node, position);
 
 		    // ノードの円を描画
-		    ctx.fillStyle = node.data.color;
-		    ctx.beginPath();
-		    ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
-		    ctx.fill();
+		    var draw_circle_of_node = function() {
+			ctx.fillStyle = node.data.color;
+			ctx.beginPath();
+			ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
+			ctx.fill();
+		    }();
 
 		    // ノードの発行年情報を座標軸下に描画
-		    ctx.fillStyle = "black";
-		    ctx.font = "normal 10px sans-serif";
-		    if (node.data.bibliography.year && parseInt(node.data.bibliography.year) != 0) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 20);
+		    var draw_published_year = function(node) {
+			ctx.fillStyle = "black";
+			ctx.font = "normal 10px sans-serif";
+			if (node.data.bibliography.year && parseInt(node.data.bibliography.year) != 0) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 20);
+		    }(node);
 
 		    // 検索結果ノードにランクを描画
-		    if (type == "search_result") {
-
-			ctx.fillStyle = "white";
-			ctx.font = "normal " + (15 - 0.5 * rank) + "px sans-serif";
-			
-			if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
-			else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
-
-		    }
+		    var overdraw_search_result_node = function(node, type) {
+			if (type == "search_result") {
+			    ctx.fillStyle = "white";
+			    ctx.font = "normal " + (15 - 0.5 * rank) + "px sans-serif";
+			    
+			    if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
+			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
+			}
+		    }(node, type);
 
 		    // あるノードがホバーされている時に
 		    if(hovered != null && hovered.node.name == node.name) {
 
 			// ノードを強調
 			if (type == "search_result") {
-
 			    ctx.fillStyle = "#3333EE";
 			    ctx.beginPath();
 			    ctx.arc(pt.x, pt.y, r + 3, 0, 2 * Math.PI, false);
@@ -181,15 +184,12 @@
 			    
 			    if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
 			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
-
 			}
 			else {
-
 			    ctx.fillStyle = "#333333";
 			    ctx.beginPath();
 			    ctx.arc(pt.x, pt.y, r + 3, 0, 2 * Math.PI, false);
 			    ctx.fill();
-
 			}
 
 			// 発行年情報を強調
@@ -199,39 +199,48 @@
 
 
 			// 論文タイトルと発行年を吹き出しにして描画
-			ctx.strokeStyle = "#8888EE";
-			ctx.fillStyle = "#CCCCFF";
-			ctx.beginPath();
-			ctx.lineWidth = 5;
-			ctx.moveTo(10, 0);
-			ctx.lineTo(canvas.width - 10, 0);
-			ctx.lineTo(canvas.width - 10, 40);
-			ctx.lineTo(80, 40);
-			ctx.lineTo(pt.x - 5, pt.y);
-			ctx.lineTo(50, 40);
-			ctx.lineTo(10, 40);
-			ctx.lineTo(10, 0);
-			ctx.closePath()
-			ctx.fill();
-			ctx.stroke();
+			var draw_node_bibliography = function(x, y, width, height, hovered) {
 
+			    ctx.strokeStyle = "#8888EE";
+			    ctx.fillStyle = "#CCCCFF";
+			    ctx.beginPath();
+			    ctx.lineWidth = 5;
+			    ctx.moveTo(x, y);
+			    ctx.lineTo(x + width, y);
+			    ctx.lineTo(x + width, y + height);
+			    ctx.lineTo(x + 80, y + height);
+			    ctx.lineTo(pt.x - 5, pt.y);
+			    ctx.lineTo(x + 50, y + height);
+			    ctx.lineTo(x, y + height);
+			    ctx.lineTo(x, y + height);
+			    ctx.closePath()
+			    ctx.fill();
+			    ctx.stroke();
+			    
+			    ctx.fillStyle = "black";
+			    ctx.font = "normal 14px sans-serif";
+			    
+			    var title = hovered.node.data.bibliography.title;
+			    var year = hovered.node.data.bibliography.year;
+
+			    if (title.length > 80) {
+				title = title.substring(0, 80);
+				ctx.fillText("...", x + width - 15, 20);
+			    }
+
+			    ctx.fillText("Title: " + title, x + 5, y + 20, x + width - 15);
+			    (year) ? ctx.fillText("Year: " + year, x + 5, y + 35) : ctx.fillText("Year: No information", 15, 35);
+			}(10, 0, canvas.width - 10 - 10, 40, hovered);
 			
-			ctx.fillStyle = "black";
-			ctx.font = "normal 14px sans-serif";
-			
-			var title = hovered.node.data.bibliography.title;
-			var year = hovered.node.data.bibliography.year;
-
-			if (title.length > 80) {
-			    title = title.substring(0, 80);
-			    ctx.fillText("...", canvas.width - 25, 20);
-			}
-
-			ctx.fillText("Title: " + title, 15, 20);
-			(year) ? ctx.fillText("Year: " + year, 15, 35) : ctx.fillText("Year: No information", 15, 35);
 		    }
 		    		    
 		})
+
+		var nearest_edge = null;
+		var dist_nearest_edge = Infinity;
+		var dist_edge_threshold = 10;
+
+		// エッジに線を引く
 
 		// すべてのエッジについて
 		particleSystem.eachEdge(function(edge, pt1, pt2){
@@ -244,37 +253,28 @@
 		    
 		    if (!color || (""+color).match(/^[ \t]*$/)) color = null;
 
-		    var tail = arbor.Point(0, 0); // 有向枝の末尾座標
+		    tail = arbor.Point(0, 0); // 有向枝の末尾座標
 
 		    // ノードの大きさに応じて矢印の長さを変更する
 		    if (edge.source.data.type == "search_result") {
-
-		    	tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
-
+			tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
 		    }
 		    else {
-
-		    	tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
-
+			tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
 		    }
 
-		    var head = arbor.Point(0, 0); // 有向枝の先頭座標
+		    head = arbor.Point(0, 0); // 有向枝の先頭座標
 
 		    if (edge.target.data.type == "search_result") {
-
-		    	head = intersect_line_circle(tail, pt2, edge.target.data.r);
-
+			head = intersect_line_circle(tail, pt2, edge.target.data.r);
 		    }
 		    else {
-
-		    	head = intersect_line_circle(tail, pt2, edge.target.data.r);
-
+			head = intersect_line_circle(tail, pt2, edge.target.data.r);
 		    }
 
 		    // console.log("tail: " + tail.x + " " + tail.y);
 		    // console.log("head: " + head.x + " " + head.y);
 
-		    // エッジに線を引く
 		    // draw a line from head to tail
 		    ctx.strokeStyle = "rgba(0,0,0, .333)"
 		    ctx.lineWidth = 1
@@ -282,7 +282,7 @@
 		    ctx.moveTo(tail.x,tail.y)
 		    ctx.lineTo(head.x, head.y)
 		    ctx.stroke()
-		    
+
 		    // そのエッジが有向である場合，矢印の頭を書く
 		    // draw an arrowhead if this is a -> style edge
 		    if (edge.data.directed){
@@ -308,12 +308,75 @@
 	    		ctx.fill();
 	    		ctx.restore()
 		    }
+
+		    // 点p1，p2からなる線分と，点pとの距離を求める
+		    // 点pが点p1，p2からなる長方形の外にある場合は，計算の対象外とする
+		    var distance_point_line_segment = function(p, p1, p2) {
+		    	return (include_point_rect(p, p1, p2))? distance_point_line(p, p1, p2) : Infinity;
+		    }
+
+		    // マウスカーソルに最も近いエッジを計算する
+		    var dist_edge = distance_point_line_segment(_mouseP, pt1, pt2);
+		    if (dist_edge < dist_edge_threshold && dist_edge < dist_nearest_edge) {
+		    	// console.log("near");			
+			nearest_edge = edge;
+			nearest_edge.data.head = head;
+			nearest_edge.data.tail = tail;
+			dist_nearest_edge = dist_edge;
+		    } else {
+		    	// console.log("not near");
+		    }
+		    
 		})
+
+		// マウスカーソルに最も近いエッジを強調する
+		console.log(nearest_edge);
+		// console.log(nearest_edge.data);
+		console.log(nearest_edge.data.head);
+		console.log(nearest_edge.data.tail);
+
+		ctx.strokeStyle = "#000000";
+		ctx.lineWidth = 5;
+		ctx.beginPath();
+		ctx.moveTo(nearest_edge.data.tail.x, nearest_edge.data.tail.y);
+		ctx.lineTo(nearest_edge.data.head.x, nearest_edge.data.head.y);
+		ctx.stroke();
+		
+		// そのエッジが有向である場合，矢印の頭を書く
+		// draw an arrowhead if this is a -> style edge
+		if (nearest_edge.data.directed){
+	    	    ctx.save()
+		    // move to the head position of the edge we just drew
+	    	    var wt = !isNaN(nearest_edge.data.weight) ? parseFloat(nearest_edge.data.weight) : 1
+	    	    var arrowLength = 2 + wt
+	    	    var arrowWidth = 0 + wt
+	    	    ctx.fillStyle = "#000000";
+	    	    ctx.translate(nearest_edge.data.head.x, nearest_edge.data.head.y); // 座標変換？
+	    	    ctx.rotate(Math.atan2(nearest_edge.data.head.y - nearest_edge.data.tail.y, nearest_edge.data.head.x - nearest_edge.data.tail.x));
+		    
+		    // delete some of the edge that's already there (so the point isn't hidden)
+	    	    ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt)
+		    
+		    // draw the chevron
+	    	    ctx.beginPath();
+	    	    ctx.moveTo(-arrowLength, arrowWidth);
+	    	    ctx.lineTo(0, 0);
+	    	    ctx.lineTo(-arrowLength, -arrowWidth);
+	    	    ctx.lineTo(-arrowLength * 0.8, -0);
+	    	    ctx.closePath();
+	    	    ctx.fill();
+	    	    ctx.restore()
+		}
+		
+		ctx.fillStyle = "#000000";
+		ctx.font = "normal 10px sans-serif";
+		ctx.fillText(nearest_edge.data.bibliography.citation_context[0], 10, 10)
+		
+		
 	    },
 	    
 	    // マウスハンドラの初期化
 	    initMouseHandling:function(){
-
 		var dragged = null; // ドラッグされているかどうか
 
 		var mouseDownTime;
@@ -323,9 +386,8 @@
 		    
 		    // マウスホバー
 		    hovered:function(e) {
-
-			var pos = $(canvas).offset(); // canvasの左上の位置
-			var _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top); // 現在のマウスの相対位置
+			pos = $(canvas).offset(); // canvasの左上の位置
+			_mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top); // 現在のマウスの相対位置
 			// マウス位置から最も近いノードまでの距離が一定以下なら，そのノードをホバーしていることとする
 			var dist = 20;
 			hovered = particleSystem.nearest(_mouseP);
@@ -338,7 +400,7 @@
 		    clicked:function(e){
 			mouseDownTime = new Date($.now()); // マウスが押された時の時刻
 			
-			var pos = $(canvas).offset();
+			pos = $(canvas).offset();
 			_mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
 
 			// マウス位置から最も近いノードをドラッグする
@@ -359,12 +421,12 @@
 
 		    // ドラッグ
 		    dragged:function(e){
-			var pos = $(canvas).offset();
-			var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
-			
+			pos = $(canvas).offset();
+			_mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+
 			// あるノードがドラッグされているとき，そのノードはマウスを追う
 			if (dragged && dragged.node !== null){
-			    var p = particleSystem.fromScreen(s) // 画面左上からの距離
+			    var p = particleSystem.fromScreen(_mouseP) // 画面左上からの距離
 			    dragged.node.p = p
 			}
 			
@@ -378,7 +440,7 @@
 
 			if (dragged.node.data.type == "search_result") {
 
-			    mouseUpTime = new Date($.now()); // マウスが話された時の時刻
+			    mouseUpTime = new Date($.now()); // マウスが離された時の時刻
 			    // マウスが100ミリ秒以下の時間でクリックされたら(ドラッグされていなければ)
 			    if (mouseUpTime - mouseDownTime < 100) {
 
@@ -394,7 +456,7 @@
 			dragged = null
 			$(canvas).unbind('mousemove', handler.dragged)
 			$(window).unbind('mouseup', handler.dropped)
-			_mouseP = null
+			// _mouseP = null
 
 			return false
 		    }
@@ -408,14 +470,15 @@
 	    },
 	    
 	}
-	return that
+	return that;
+
     }
     
     $(document).ready(function(){
 
-	// アクションがresultでなければ関数を出ることで，ノードを読み込もうとするエラーを消す
-	// FIXME: できるならアクションごとに読み込むJavaScriptを変えるべき
-	if (gon.action != "result") return;
+	// // アクションがresultでなければ関数を出ることで，ノードを読み込もうとするエラーを消す
+	// // FIXME: できるならアクションごとに読み込むJavaScriptを変えるべき
+	// if (gon.action != "result") return;
 
 	// 従来の検索エンジンが選択されている場合は，canvas要素を不可視化する必要がある
 	if (parseInt(gon.interface) == 1) {
@@ -457,7 +520,63 @@
 	    });
 
     })
-    
+
+    // 2点間の距離を求める
+    var distance_point_point = function(p1, p2) {
+	return Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+    }
+
+    // 2点間の内積を求める
+    var inner_product = function(p1, p2) {
+	return p1.x * p2.x + p1.y * p2.y;
+    }
+
+    // 2点間の外積を求める
+    var cross_product = function(p1, p2) {
+	return p1.x * p2.y - p1.y * p2.x;
+    }
+
+    // 点p1とp2を通る直線と点pの距離を求める
+    var distance_point_line = function(p, p1, p2) {
+	var p1_p2 = {x: 0, y: 0};
+	var p1_p = {x: 0, y: 0};
+
+	p1_p2.x = p2.x - p1.x;
+	p1_p2.y = p2.y - p1.y;
+	p1_p.x = p.x - p1.x;
+	p1_p.y = p.y - p1.y;
+
+	var d = Math.abs(cross_product(p1_p2, p1_p));
+	var l = distance_point_point(p1, p2);
+	// console.log(d);
+	// console.log(l);
+
+	if (l > 0) {
+	    return d / l;
+	} else {
+	    return 0;
+	}
+    }
+
+    // 点p1とp2からなる長方形に点pが含まれているかどうかを返す
+    // 対応しているのはx軸，y軸に平行な長方形のみ．p1，p2の位置は問わない
+    var include_point_rect = function(p, p1, p2) {
+	if (p1.x == p2.x && p1.y == p2.y) return 0;
+	else {
+	    var p1_p = {x: 0, y: 0};
+	    var p1_p2 = {x: 0, y: 0};
+
+	    p1_p.x = p.x - p1.x;
+	    p1_p.y = p.y - p1.y;
+	    p1_p2.x = p2.x - p1.x;
+	    p1_p2.y = 0;
+
+	    var intersect = inner_product(p1_p2, p1_p) / inner_product(p1_p2, p1_p2);
+
+	    return (intersect >= 0 && intersect <= 1)? true : false;
+	}
+    }
+
     // 矢印の描画に必要
     // helpers for figuring out where to draw arrows (thanks springy.js)
     // 点p1, p2からなる直線(線分？)とp3, p4からなる直線の交点を求める
@@ -522,5 +641,14 @@
 	}
 
     }
+
+    // (function($){
+    // 	$.cloneObject = function(source,isDeep) {
+    //         if(isDeep){
+    // 		return $.extend(true,{},source);
+    //         }
+    //         return $.extend({},source);
+    // 	}
+    // })(jQuery);
     
 })(this.jQuery)
