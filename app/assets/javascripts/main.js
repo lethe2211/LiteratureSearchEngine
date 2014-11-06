@@ -217,40 +217,42 @@
 		    // console.log("tail: " + tail.x + " " + tail.y);
 		    // console.log("head: " + head.x + " " + head.y);
 
-		    // draw a line from head to tail
-		    ctx.strokeStyle = "rgba(0,0,0, .333)";
-		    ctx.lineWidth = 1;
-		    ctx.beginPath();
-		    ctx.moveTo(tail.x,tail.y);
-		    ctx.lineTo(head.x, head.y);
-		    ctx.stroke();
+		    // // draw a line from head to tail
+		    // // ctx.strokeStyle = "rgba(0,0,0, .333)";
+		    // ctx.strokeStyle = "#cccccc";
+		    // ctx.lineWidth = 1;
+		    // ctx.beginPath();
+		    // ctx.moveTo(tail.x,tail.y);
+		    // ctx.lineTo(head.x, head.y);
+		    // ctx.stroke();
 
-		    // そのエッジが有向である場合，矢印の頭を書く
-		    // draw an arrowhead if this is a -> style edge
-		    if (edge.data.directed){
-	    		ctx.save();
-			// move to the head position of the edge we just drew
-	    		var wt = !isNaN(weight) ? parseFloat(weight) : 1;
-	    		var arrowLength = 2 + wt;
-	    		var arrowWidth = 0 + wt;
-	    		ctx.fillStyle = (color) ? color : "#cccccc";
-	    		ctx.translate(head.x, head.y); // 座標変換？
-	    		ctx.rotate(Math.atan2(head.y - tail.y, head.x - tail.x));
+		    // // そのエッジが有向である場合，矢印の頭を書く
+		    // // draw an arrowhead if this is a -> style edge
+		    // if (edge.data.directed){
+	    	    // 	ctx.save();
+		    // 	// move to the head position of the edge we just drew
+	    	    // 	var wt = !isNaN(weight) ? parseFloat(weight) : 1;
+	    	    // 	var arrowLength = 2 + wt;
+	    	    // 	var arrowWidth = 0 + wt;
+	    	    // 	ctx.fillStyle = (color) ? color : "#cccccc";
+	    	    // 	ctx.translate(head.x, head.y); // 座標変換？
+	    	    // 	ctx.rotate(Math.atan2(head.y - tail.y, head.x - tail.x));
 			
-			// delete some of the edge that's already there (so the point isn't hidden)
-	    		ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt);
+		    // 	// delete some of the edge that's already there (so the point isn't hidden)
+	    	    // 	ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt);
 			
-			// draw the chevron
-	    		ctx.beginPath();
-	    		ctx.moveTo(-arrowLength, arrowWidth);
-	    		ctx.lineTo(0, 0);
-	    		ctx.lineTo(-arrowLength, -arrowWidth);
-	    		ctx.lineTo(-arrowLength * 0.8, -0);
-	    		ctx.closePath();
-	    		ctx.fill();
-	    		ctx.restore();
-		    }
+		    // 	// draw the chevron
+	    	    // 	ctx.beginPath();
+	    	    // 	ctx.moveTo(-arrowLength, arrowWidth);
+	    	    // 	ctx.lineTo(0, 0);
+	    	    // 	ctx.lineTo(-arrowLength, -arrowWidth);
+	    	    // 	ctx.lineTo(-arrowLength * 0.8, -0);
+	    	    // 	ctx.closePath();
+	    	    // 	ctx.fill();
+	    	    // 	ctx.restore();
+		    // }
 
+		    drawEdge(ctx, head, tail, edge, color, weight);
 		    // マウスカーソルに最も近いエッジを計算する
 
 		    // 点p1，p2からなる線分と，点pとの距離を求める
@@ -358,16 +360,18 @@
 		    var year = hovered.node.data.bibliography.year;
 		    var bibliography = [title, year];
 		    
+		    // 書誌情報を描画する
 		    var drawTexts = function(ctx, texts, x, y, width, point) {
 			ctx.fillStyle = "#000000";
 			ctx.font = "normal 12px sans-serif";
 
-			var lineCount = countTextLines(ctx, texts, width);
-			var lineHeight = ctx.measureText("あ").width + 1.0;
+			var lineCount = countTextLines(ctx, texts, width); // 実際に用いる行数の先読み
+			var lineHeight = ctx.measureText("あ").width + 1.0; // 1行に用いる文字の高さ
 			//console.log(lineCount);
 			
-			var balloonPos = arbor.Point(x, y - 5 * texts.length - lineHeight * lineCount - 20);
+			var balloonPos = arbor.Point(x, y - 5 * texts.length - lineHeight * lineCount - 20); // 吹き出しの左上座標
 
+			// 吹き出しを描画する
 			var drawBalloon = function(ctx, x, y, width, height, point) {
 			    ctx.strokeStyle = "#A4A4A4";
 			    ctx.fillStyle = "#FFFFFF";
@@ -387,8 +391,9 @@
 			}(ctx, balloonPos.x, balloonPos.y, width,  5 * texts.length + lineHeight * lineCount + 20, point);
 			// console.log(lineHeight);
 			// console.log(lineCount);
-
-			var fillCitationContexts = function(ctx, texts, x, y) {
+			
+			// 書誌情報の描画
+			var fillBibliography = function(ctx, texts, x, y) {
 			    // console.log(texts);
 			    // console.log(x);
 			    // console.log(y);
@@ -409,7 +414,7 @@
 					ctx.fillStyle = "#000000";
 					ctx.font = "normal 12px sans-serif";
 				    }
-				    var textSegments = multiLineText(ctx, text, width - 20);
+				    var textSegments = multiLineText(ctx, text, width - 20); // 吹き出しに収めるため，1つのCitation contextを数行に分解したもの
 				    textSegments.forEach(function(textSegment, j) {
 					ctx.fillText(textSegment, x + 10, y + 5 * i + lineHeight * count);
 					count += 1;
@@ -426,8 +431,6 @@
 			    }
 			}(ctx, texts, balloonPos.x + 10, balloonPos.y + 15);
 		    }(ctx, bibliography, pt.x - 250, pt.y - 20, 500, pt);
-
-
 		}
 
 		// エッジがホバーされている時の処理
@@ -437,47 +440,53 @@
 		    // console.log(nearestEdge.data.head);
 		    // console.log(nearestEdge.data.tail);
 
+		    var head = nearestEdge.data.head;
+		    var tail = nearestEdge.data.tail;
+		    var weight = nearestEdge.data.weight;
+
 		    // マウスカーソルに最も近いエッジを強調する
-		    ctx.strokeStyle = "#000000";
-		    ctx.lineWidth = 5;
-		    ctx.beginPath();
-		    ctx.moveTo(nearestEdge.data.tail.x, nearestEdge.data.tail.y);
-		    ctx.lineTo(nearestEdge.data.head.x, nearestEdge.data.head.y);
-		    ctx.stroke();
+		    drawEdge(ctx, head, tail, nearestEdge, "#FF7E00", 2 * weight);
+
+		    // ctx.strokeStyle = "#000000";
+		    // ctx.lineWidth = 5;
+		    // ctx.beginPath();
+		    // ctx.moveTo(nearestEdge.data.tail.x, nearestEdge.data.tail.y);
+		    // ctx.lineTo(nearestEdge.data.head.x, nearestEdge.data.head.y);
+		    // ctx.stroke();
 		    
-		    // そのエッジが有向である場合，矢印の頭を書く
-		    // draw an arrowhead if this is a -> style edge
-		    if (nearestEdge.data.directed){
-	    		ctx.save();
+		    // // そのエッジが有向である場合，矢印の頭を書く
+		    // // draw an arrowhead if this is a -> style edge
+		    // if (nearestEdge.data.directed){
+	    	    // 	ctx.save();
 
-			// move to the head position of the edge we just drew
-	    		var wt = !isNaN(nearestEdge.data.weight) ? parseFloat(nearestEdge.data.weight) : 1;
-	    		var arrowLength = 2 + wt;
-	    		var arrowWidth = 0 + wt;
-	    		ctx.fillStyle = "#000000";
+		    // 	// move to the head position of the edge we just drew
+	    	    // 	var wt = !isNaN(nearestEdge.data.weight) ? parseFloat(nearestEdge.data.weight) : 1;
+	    	    // 	var arrowLength = 2 + wt;
+	    	    // 	var arrowWidth = 0 + wt;
+	    	    // 	ctx.fillStyle = "#000000";
 
-			// 座標変換
-	    		ctx.translate(nearestEdge.data.head.x, nearestEdge.data.head.y);
-	    		ctx.rotate(Math.atan2(nearestEdge.data.head.y - nearestEdge.data.tail.y, nearestEdge.data.head.x - nearestEdge.data.tail.x));
+		    // 	// 座標変換
+	    	    // 	ctx.translate(nearestEdge.data.head.x, nearestEdge.data.head.y);
+	    	    // 	ctx.rotate(Math.atan2(nearestEdge.data.head.y - nearestEdge.data.tail.y, nearestEdge.data.head.x - nearestEdge.data.tail.x));
 			
-			// delete some of the edge that's already there (so the point isn't hidden)
-	    		ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt);
+		    // 	// delete some of the edge that's already there (so the point isn't hidden)
+	    	    // 	ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt);
 			
-			// draw the chevron
-	    		ctx.beginPath();
-	    		ctx.moveTo(-arrowLength, arrowWidth);
-	    		ctx.lineTo(0, 0);
-	    		ctx.lineTo(-arrowLength, -arrowWidth);
-	    		ctx.lineTo(-arrowLength * 0.8, -0);
-	    		ctx.closePath();
-	    		ctx.fill();
-	    		ctx.restore();
-		    }
+		    // 	// draw the chevron
+	    	    // 	ctx.beginPath();
+	    	    // 	ctx.moveTo(-arrowLength, arrowWidth);
+	    	    // 	ctx.lineTo(0, 0);
+	    	    // 	ctx.lineTo(-arrowLength, -arrowWidth);
+	    	    // 	ctx.lineTo(-arrowLength * 0.8, -0);
+	    	    // 	ctx.closePath();
+	    	    // 	ctx.fill();
+	    	    // 	ctx.restore();
+		    // }
 
 		    // Citation contextがある場合，吹き出しの上に描画
 		    var citationContexts = nearestEdge.data.bibliography.citation_context;
 		    var middlePoint = particleSystem.toScreen(nearestEdge.source.p.add(nearestEdge.target.p).divide(2.0)); // 矢印の中点
-		    
+
 		    var drawCitationContexts = function(ctx, citationContexts, x, y, width, point) {
 			ctx.fillStyle = "#000000";
 			ctx.font = "normal 12px sans-serif";
@@ -488,6 +497,7 @@
 			
 			var balloonPos = arbor.Point(x, y - 5 * citationContexts.length - lineHeight * lineCount - 20); // 吹き出しの左上座標
 
+			// 吹き出しの描画
 			var drawBalloon = function(ctx, x, y, width, height, point) {
 			    ctx.strokeStyle = "#A4A4A4";
 			    ctx.fillStyle = "#FFFFFF";
@@ -506,6 +516,7 @@
 			    ctx.stroke();
 			}(ctx, balloonPos.x, balloonPos.y, width, 5 * citationContexts.length + lineHeight * lineCount + 20, point);
 			
+			// Citation contextの描画
 			var fillCitationContexts = function(ctx, texts, x, y) {
 			    ctx.fillStyle = "#3F9933";
 			    ctx.font = "normal 12px sans-serif";
@@ -530,6 +541,7 @@
 			}(ctx, citationContexts, balloonPos.x + 10, balloonPos.y + 15);
 		    }(ctx, citationContexts, middlePoint.x - 250, middlePoint.y - 20, 500, middlePoint);
 		}
+
 	    },
 	    
 	    // マウスハンドラの初期化
@@ -624,9 +636,48 @@
 		$(canvas).mousemove(handler.hovered);
 		$(canvas).mousedown(handler.clicked);
 		
-	    },
+	    }
 	    
 	};
+
+	// 有向グラフの矢印を引く
+	var drawEdge = function(ctx, head, tail, edge, color, weight) {
+	    var wt = !isNaN(weight) ? parseFloat(weight) : 1;
+
+	    // draw a line from head to tail
+	    ctx.strokeStyle = (color) ? color : "#cccccc";
+	    ctx.lineWidth = wt / 5.0;
+	    ctx.beginPath();
+	    ctx.moveTo(tail.x,tail.y);
+	    ctx.lineTo(head.x, head.y);
+	    ctx.stroke();
+
+	    // そのエッジが有向である場合，矢印の頭を書く
+	    // draw an arrowhead if this is a -> style edge
+	    if (edge.data.directed){
+	    	ctx.save();
+		// move to the head position of the edge we just drew
+	    	var arrowLength = 2 + wt;
+	    	var arrowWidth = 0 + wt;
+	    	ctx.fillStyle = (color) ? color : "#cccccc";
+	    	ctx.translate(head.x, head.y); // 座標変換？
+	    	ctx.rotate(Math.atan2(head.y - tail.y, head.x - tail.x));
+		
+		// delete some of the edge that's already there (so the point isn't hidden)
+	    	ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt);
+		
+		// draw the chevron
+	    	ctx.beginPath();
+	    	ctx.moveTo(-arrowLength, arrowWidth);
+	    	ctx.lineTo(0, 0);
+	    	ctx.lineTo(-arrowLength, -arrowWidth);
+	    	ctx.lineTo(-arrowLength * 0.8, -0);
+	    	ctx.closePath();
+	    	ctx.fill();
+	    	ctx.restore();
+	    }
+	}
+
 	return that;
 
     };
