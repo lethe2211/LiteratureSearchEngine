@@ -19,7 +19,10 @@ module Mscrawler
     # クエリとランクの始点，終点を受け取り，検索結果を返す
     def crawl(query, start_num: 1, end_num: 30)
       msrs = Mscrawler::MsacademicSearchResults.new(query, start_num, end_num, use_cache: true)
-      return msrs.to_h if msrs['search_results'].length > 0
+      if msrs['search_results'].length > 0
+        Rails.logger.debug("returned cached value: MsacademicSearchResults")
+        return msrs.to_h 
+      end
 
       postfix = 'Search'
       url = "#{ @base_url }#{ postfix }"
@@ -43,7 +46,7 @@ module Mscrawler
           id = href.split('/')[1]
           sr_title = item.css('.title-fullwidth > h3 > a').first.text
         end
-        sr_authors = item.css('.content').first.text.strip!
+        sr_authors = item.css('.content > .author-name-tooltip').map { |elem| elem.text }
         sr_url = URI.join(@base_url, href).to_s
         sr_year_conference = item.css('.conference').text.strip!.gsub(/(\r\n|\r|\n|\s{3,})/, '')
         snippet = item.css('.abstract').text.strip! unless item.css('.abstract').empty?
