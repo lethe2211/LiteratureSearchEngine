@@ -364,8 +364,11 @@
 		    // }(10, 0, canvas.width - 10 - 10, 40, hovered);
 
 		    var title = hovered.node.data.bibliography.title;
+		    console.log(title);
+		    console.log(hovered.node.data.bibliography.authors);
+		    var authors = hovered.node.data.bibliography.authors.join(", ");
 		    var year = hovered.node.data.bibliography.year;
-		    var bibliography = [title, year];
+		    var bibliography = [title, authors, year];
 		    
 		    // 書誌情報を描画する
 		    var drawTexts = function(ctx, texts, x, y, width, point) {
@@ -382,8 +385,8 @@
 			    x = canvas.width - width;
 			}
 
-			if (y < 0) {
-			    y = 0;
+			if (y - 5 * texts.length - lineHeight * lineCount - 20 < 0) {
+			    y = 5 * texts.length + lineHeight * lineCount + 20;
 			}
  
 			var balloonPos = arbor.Point(x, y - 5 * texts.length - lineHeight * lineCount - 20); // 吹き出しの左上座標
@@ -427,6 +430,9 @@
 				    if (i === 0) {
 					ctx.fillStyle = "#1155CC";
 					ctx.font = "normal 12px sans-serif";
+				    } else if (i == 1) {
+					ctx.fillStyle = "#000000";
+					ctx.font = "normal 10px sans-serif";
 				    } else {
 					ctx.fillStyle = "#000000";
 					ctx.font = "normal 12px sans-serif";

@@ -45,7 +45,7 @@ module Mscrawler
           href = item.css('.title-fullwidth > h3 > a')[0]['href']
           id = href.split('/')[1]
           sr_title = item.css('.title-fullwidth > h3 > a').first.text
-        end
+        end        
         sr_authors = item.css('.content > .author-name-tooltip').map { |elem| elem.text }
         sr_url = URI.join(@base_url, href).to_s
         sr_year_conference = item.css('.conference').text.strip!.gsub(/(\r\n|\r|\n|\s{3,})/, '')
@@ -161,7 +161,7 @@ module Mscrawler
     end
 
     def get_bibliography(id)
-      msa = Mscrawler::MsacademicArticle.new(id, use_cache: true)
+      msa = Mscrawler::MsacademicArticle.new(id, use_cache: false)
       msa.set_cache
       return msa.to_h
     end

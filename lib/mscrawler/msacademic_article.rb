@@ -26,14 +26,23 @@ module Mscrawler
         charset = u.charset
         doc = Nokogiri::HTML.parse(bib_html, nil, charset)
         title = ''
-        title = doc.css('.title-span').first.text if doc.css('.title-span').first
-        num_citations = doc.css('#ctl00_MainContent_PaperItem_Citation').first.text.split[1] unless doc.css('#ctl00_MainContent_PaperItem_Citation').empty?
-        authors = ''
-        authors = doc.css('.author-name-tooltip').map { |elem| elem.text } if doc.css('.author-name-tooltip').first
+        if doc.css('.title-span').first
+          title = doc.css('.title-span').first.text
+        else
+          title = Mscrawler::MsacademicApiWrapper.get_title(id)
+        end
+        year = Mscrawler::MsacademicApiWrapper.get_year(id)
         abstract = ''
         abstract = doc.css('#ctl00_MainContent_PaperItem_snippet').first.text if doc.css('#ctl00_MainContent_PaperItem_snippet').first
-        year = Mscrawler::MsacademicApiWrapper.get_year(id)
+        authors = []
+        if doc.css('#ctl00_MainContent_PaperItem_divPaper .author-name-tooltip').first
+          authors = doc.css('#ctl00_MainContent_PaperItem_divPaper .author-name-tooltip').map { |elem| elem.text }
+        else
+          authors = Mscrawler::MsacademicApiWrapper.get_authors(id)
+        end
         url = ''
+        url = doc.css('#ctl00_MainContent_PaperItem_downLoadList a').first['href'] if doc.css('#ctl00_MainContent_PaperItem_downLoadList a').first
+        num_citations = doc.css('#ctl00_MainContent_PaperItem_Citation').first.text.split[1] unless doc.css('#ctl00_MainContent_PaperItem_Citation').empty?
         @data = {
           'id' => id,
           'title' => title,
@@ -52,7 +61,7 @@ module Mscrawler
       if @status == 'OK'
         return { 'status' => @status, 'data' => @data }
       else
-        return { 'status' => 'NG', 'data' => { 'id' => '', 'title' => '', 'year' => '', 'authors' => '', 'abstract' => '', 'url' => '', 'num_citations' => '' } }
+        return { 'status' => 'NG', 'data' => { 'id' => '', 'title' => '', 'year' => '', 'authors' => [], 'abstract' => '', 'url' => '', 'num_citations' => '' } }
       end
     end
 
