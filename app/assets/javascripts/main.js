@@ -20,8 +20,15 @@
 	var pos = arbor.Point(0, 0);
 	var _mouseP = arbor.Point(0, 0);
 
+	// グラフを描画するところのパディング
+	var topPadding = 80;
+	var rightPadding = 160;
+	var bottomPadding = 80;
+	var leftPadding = 160;
+
 	var position = {};	     // 各ノードの座標
 	var hovered = null;	// 現在マウスホバーされているノードを表す
+
 	
 	var that = {
 	    init:function(system){
@@ -37,7 +44,7 @@
 		// if the canvas is ever resized, screenSize should be called again with
 		// the new dimensions
 		particleSystem.screenSize(canvas.width, canvas.height);
-		particleSystem.screenPadding(80, 160, 80, 160);
+		particleSystem.screenPadding(topPadding, rightPadding, bottomPadding, leftPadding);
 		
 		// マウスハンドラの初期化
 		// set up some event handlers to allow for node-dragging
@@ -368,7 +375,17 @@
 			var lineCount = countTextLines(ctx, texts, width); // 実際に用いる行数の先読み
 			var lineHeight = ctx.measureText("あ").width + 1.0; // 1行に用いる文字の高さ
 			//console.log(lineCount);
-			
+
+			if (x < 0) {
+			    x = 0;
+			} else if (x > canvas.width - width) {
+			    x = canvas.width - width;
+			}
+
+			if (y < 0) {
+			    y = 0;
+			}
+ 
 			var balloonPos = arbor.Point(x, y - 5 * texts.length - lineHeight * lineCount - 20); // 吹き出しの左上座標
 
 			// 吹き出しを描画する
