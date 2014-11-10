@@ -161,7 +161,7 @@ module Mscrawler
     end
 
     def get_bibliography(id)
-      msa = Mscrawler::MsacademicArticle.new(id, use_cache: false)
+      msa = Mscrawler::MsacademicArticle.new(id, use_cache: true)
       msa.set_cache
       return msa.to_h
     end

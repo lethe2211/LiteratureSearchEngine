@@ -12,9 +12,9 @@ class CitationGraphComposer
   def compose_graph(articles)
     query = articles['data']['query']
     search_results = articles['data']['search_results']
-    puts search_results
+    Rails.logger.debug(search_results)
     graph = compute_graph(query, search_results)
-    p graph.to_h['data']
+    Rails.logger.debug(graph.to_h['data'])
     return graph.to_h['data']
   end
 
@@ -36,7 +36,6 @@ class CitationGraphComposer
       citedbyes = extract_citedbyes(search_results)
 
       graph = compute_graph(search_results, bibliographies, citations, citedbyes)
-      Rails.logger.debug(graph.inspect)
       if graph.count_node != 0
         result[:data] = graph.to_h
         result[:status] = "OK"
@@ -55,7 +54,7 @@ class CitationGraphComposer
   def extract_bibliographies(search_results)
     bibliographies = {}
     ids = search_results.map { |item| item['id'].to_s }
-    Parallel.each(ids, in_threads: 4) do |id|
+    Parallel.each(ids, in_threads: ids.length) do |id|
       Rails.logger.debug("bibliography: #{ id }")
       bibliography = @mm.get_bibliography(id.to_i)
       bibliographies[id] = bibliography
@@ -67,7 +66,7 @@ class CitationGraphComposer
   def extract_citations(search_results)
     citations = {}
     ids = search_results.map { |item| item['id'].to_s }
-    Parallel.each(ids, in_threads: 4) do |id|
+    Parallel.each(ids, in_threads: ids.length) do |id|
       Rails.logger.debug("citation: #{ id }")
       citation = @mm.get_citation(id.to_i)
       citations[id] = citation
@@ -79,7 +78,7 @@ class CitationGraphComposer
   def extract_citedbyes(search_results)
     citedbyes = {}
     ids = search_results.map { |item| item['id'].to_s }
-    Parallel.each(ids, in_threads: 4) do |id|
+    Parallel.each(ids, in_threads: ids.length) do |id|
       Rails.logger.debug("citedby: #{ id }")
       citedby = @mm.get_citedby(id.to_i)
       citedbyes[id] = citedby
