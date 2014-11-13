@@ -90,7 +90,7 @@ class GraphNode
     @weight = weight
     @bibliography = bibliography
     @type = "normal"
-    @color = "#cccccc"
+    @color = "#666666"
     @rank = "-"
   end
 end

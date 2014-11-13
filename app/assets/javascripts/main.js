@@ -119,7 +119,7 @@
 			    weight_rank = -0.8 * node.data.rank;
 			}
 			else {
-			    weight_type = 5;
+			    weight_type = 8;
 			    ctx.beginPath();
 			    ctx.moveTo(10, 10);
 			    ctx.lineTo(90, 90);
@@ -294,7 +294,7 @@
 			    weight_rank = -0.8 * node.data.rank;
 			}
 			else {
-			    weight_type = 5;
+			    weight_type = 8;
 			    ctx.beginPath();
 			    ctx.moveTo(10, 10);
 			    ctx.lineTo(90, 90);
@@ -302,6 +302,7 @@
 			}
 			r = weight_type + weight_rank;
 			node.data.r = r; // プロパティrはノードの半径を表す
+			console.log(node.data.r);
 			return r;
 		    }(hovered.node, type, rank);
 
@@ -725,6 +726,12 @@
 	ctx.fillStyle = "black";
 	ctx.font = "normal 24px sans-serif";
 	ctx.fillText("Now Loading...", canvas.width / 2 - 100, canvas.height / 2);
+
+	// var loadingImage = new Image();
+	// loadingImage.src = '/assets/loading.gif';
+	// loadingImage.onload = function () {
+	//     ctx.drawImage(loadingImage, 100, 100);
+	// };
 
 	// Arbor.jsの初期化
 	var sys = arbor.ParticleSystem(0, 0, 0); // create the system with sensible repulsion/stiffness/friction

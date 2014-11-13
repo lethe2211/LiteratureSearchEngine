@@ -213,14 +213,14 @@ class CitationGraphComposer
       # id1の論文がid2の論文を引用している
       if (citedbyes[id2]).include?(id1) or (citations[id1]).include?(id2)
         citation_context = @mm.get_citation_context(id1, id2)
-        edge = DirectedGraphEdge.new(id1, id2, 10, "#333333", { 'citation_context' => citation_context })
+        edge = DirectedGraphEdge.new(id1, id2, 10, "#ff6666", { 'citation_context' => citation_context })
         graph.append_edge(edge)
       end
 
       # id2の論文がid1の論文を引用している
       if (citations[id2]).include?(id1) or (citedbyes[id1]).include?(id2)
         citation_context = @mm.get_citation_context(id2, id1)
-        edge = DirectedGraphEdge.new(id2, id1, 10, "#333333", { 'citation_context' => citation_context })
+        edge = DirectedGraphEdge.new(id2, id1, 10, "#ff6666", { 'citation_context' => citation_context })
         graph.append_edge(edge)
       end
     end
