@@ -95,16 +95,6 @@ class GraphNode
   end
 end
 
-# 検索結果ノードに相当するクラス
-class SearchResultGraphNode < GraphNode
-  def initialize(id, weight, bibliography, rank)
-    super(id, weight, bibliography)
-    @type = "search_result"
-    @color = "#dd3333"
-    @rank = rank
-  end
-end
-
 # グラフのエッジに相当するクラス
 # このクラスではインスタンスを生成せず，サブクラスを用いる
 class GraphEdge
