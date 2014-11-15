@@ -18,37 +18,6 @@ class CitationGraphComposer
     return graph.to_h['data']
   end
 
-  def compose_graph_(articles)
-    graph_cache = JsonCache.new(dir: "./crawler/graph/")
-
-    @query = articles["data"]["query"]
-    cache = graph_cache.get(@query)
-
-    if (not cache.nil?) and cache["status"] == 'OK'
-      return cache["data"]
-    else
-      result = {status: "NG", data: {}}
-
-      search_results = articles["data"]["search_results"]
-
-      bibliographies = extract_bibliographies(search_results)
-      citations = extract_citations(search_results)
-      citedbyes = extract_citedbyes(search_results)
-
-      graph = compute_graph(search_results, bibliographies, citations, citedbyes)
-      if graph.count_node != 0
-        result[:data] = graph.to_h
-        result[:status] = "OK"
-        graph_cache.set(@query, result)
-      else
-        result[:status] = "NG"
-      end
-
-      Rails.logger.debug(result[:data])
-      return result[:data]
-    end
-  end
-
   private
 
   def extract_bibliographies(search_results)
@@ -104,7 +73,7 @@ class CitationGraphComposer
 
     # 任意の一対の検索結果論文について
     search_results_combination = search_results.combination(2)
-    # Parallel.each(search_results_combination, in_threads: search_results_combination.length) do |search_result1, search_result2| 
+    # Parallel.each(search_results_combination.to_a, in_threads: 2) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
     search_results.combination(2) do |search_result1, search_result2|
       id1 = search_result1["id"].to_s
       id2 = search_result2["id"].to_s
@@ -243,7 +212,9 @@ class CitationGraphComposer
 
   # 両方が(共)引用する論文
   def append_co_citation_node(id1, id2, citations, graph)
-    (citations[id1] & citations[id2]).each do |cit|
+    co_citation = citations[id1] & citations[id2]
+    Parallel.each(co_citation, in_threads: co_citation.length) do |cit|
+    # (citations[id1] & citations[id2]).each do |cit|
       b = @mm.get_bibliography(cit)
       bib = b.blank? ? { 'status' => 'NG', 'data' => {} } : b
 
@@ -258,7 +229,9 @@ class CitationGraphComposer
   end
 
   def append_citation_and_citedby_node(id1, id2, citations, citedbyes, graph)
-    (citedbyes[id1] & citations[id2]).each do |cit|
+    citation_and_citedby = citedbyes[id1] & citations[id2]
+    # (citedbyes[id1] & citations[id2]).each do |cit|
+    Parallel.each(citation_and_citedby, in_threads: citation_and_citedby.length) do |cit|
       b = @mm.get_bibliography(cit)
       bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
 
@@ -268,12 +241,14 @@ class CitationGraphComposer
       edge_id1 = NormalDirectedGraphEdge.new(cit, id1, 10, { 'citation_context' => @mm.get_citation_context(cit, id1) })
       graph.append_edge(edge_id1)
       edge_id2 = NormalDirectedGraphEdge.new(id2, cit, 10, { 'citation_context' => @mm.get_citation_context(id2, cit) })
-      graph.append_edge(edge_id2)  
+      graph.append_edge(edge_id2)
     end 
   end
 
   def append_co_citedby_node(id1, id2, citedbyes, graph)
-    (citedbyes[id1] & citedbyes[id2]).each do |cit|
+    co_citedby = citedbyes[id1] & citedbyes[id2]
+    # (citedbyes[id1] & citedbyes[id2]).each do |cit|
+    Parallel.each(co_citedby, in_threads: co_citedby.length) do |cit|
       b = @mm.get_bibliography(cit)
       bib = b.blank? ?  { 'status' => 'NG', 'data' => {} } : b
 
@@ -313,13 +288,6 @@ class CitationGraphComposer
     used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
 
     # 任意の一対の検索結果論文について
-    # search_results.each do |search_result1|
-    #   id1 = search_result1["id"].to_s
-    #   search_results.each do |search_result2|
-    #     id2 = search_result2["id"].to_s
-    #     if id1.to_i >= id2.to_i
-    #       next
-    #     end
     search_results.combination(2) do |search_result1, search_result2|
       id1 = search_result1["id"].to_s
       id2 = search_result2["id"].to_s
