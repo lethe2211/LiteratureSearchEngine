@@ -59,9 +59,9 @@ class CitationGraphComposer
   def compute_graph(query, search_results)
     keyword = "citation_#{ query }"
     graph = SearchResultGraph.new(keyword, use_cache: false)
-    if graph.count_node != 0
-      return graph
-    end
+    # if graph.count_node != 0
+    #   return graph
+    # end
 
     bibliographies = extract_bibliographies(search_results)
     citations = extract_citations(search_results)
@@ -73,8 +73,8 @@ class CitationGraphComposer
 
     # 任意の一対の検索結果論文について
     search_results_combination = search_results.combination(2)
-    Parallel.each(search_results_combination.to_a, in_threads: search_results_combination.to_a.length) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
-    # search_results.combination(2) do |search_result1, search_result2|
+    # Parallel.each(search_results_combination.to_a, in_processes: search_results_combination.to_a.length) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
+    search_results.combination(2) do |search_result1, search_result2|
       id1 = search_result1["id"].to_s
       id2 = search_result2["id"].to_s
       Rails.logger.debug("id1: " + id1)
@@ -247,6 +247,7 @@ class CitationGraphComposer
 
   def append_co_citedby_node(id1, id2, citedbyes, graph)
     co_citedby = citedbyes[id1] & citedbyes[id2]
+    Rails.logger.debug(co_citedby.to_s)
     # (citedbyes[id1] & citedbyes[id2]).each do |cit|
     Parallel.each(co_citedby, in_threads: co_citedby.length) do |cit|
       b = @mm.get_bibliography(cit)
