@@ -73,8 +73,8 @@ class CitationGraphComposer
 
     # 任意の一対の検索結果論文について
     search_results_combination = search_results.combination(2)
-    # Parallel.each(search_results_combination.to_a, in_threads: 2) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
-    search_results.combination(2) do |search_result1, search_result2|
+    Parallel.each(search_results_combination.to_a, in_threads: 2) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
+    # search_results.combination(2) do |search_result1, search_result2|
       id1 = search_result1["id"].to_s
       id2 = search_result2["id"].to_s
       Rails.logger.debug("id1: " + id1)
@@ -275,9 +275,9 @@ class CitationGraphComposer
   def compute_graph_(query, search_results)
     keyword = "citation_#{ query }"
     graph = CacheableGraph.new(keyword, use_cache: false)
-    if graph.count_node != 0
-      return graph
-    end
+    # if graph.count_node != 0
+    #   return graph
+    # end
 
     bibliographies = extract_bibliographies(search_results)
     citations = extract_citations(search_results)
