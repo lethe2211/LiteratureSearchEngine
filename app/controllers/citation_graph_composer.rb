@@ -68,12 +68,12 @@ class CitationGraphComposer
     citedbyes = extract_citedbyes(search_results)
     citation_contexts = {}
 
-    used_cids = [] # ループ中ですでに1度呼ばれた論文
-    used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
+    # used_cids = [] # ループ中ですでに1度呼ばれた論文
+    # used_result_cids = [] # ループ中ですでに1度呼ばれた検索結果論文
 
     # 任意の一対の検索結果論文について
     search_results_combination = search_results.combination(2)
-    Parallel.each(search_results_combination.to_a, in_threads: 2) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
+    Parallel.each(search_results_combination.to_a, in_threads: search_results_combination.to_a.length) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
     # search_results.combination(2) do |search_result1, search_result2|
       id1 = search_result1["id"].to_s
       id2 = search_result2["id"].to_s

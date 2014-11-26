@@ -28,7 +28,6 @@
 
 	var position = {};	     // 各ノードの座標
 	var hovered = null;	// 現在マウスホバーされているノードを表す
-
 	
 	var that = {
 	    init:function(system){
@@ -64,6 +63,7 @@
 		//
 		
 		var isNodeHovered = false;
+		var publishedYears = new Set(); // 発行年
 
 		// console.log(_mouseP);
 		// console.log(_mouseP.x);
@@ -99,6 +99,8 @@
 		    ctx.closePath();
 		    ctx.fill();
 		}(ctx, 50, canvas.height - 50, canvas.width - 80);
+
+
 
 		// すべてのノードについて
 		particleSystem.eachNode(function(node, pt){
@@ -139,13 +141,6 @@
 				else x = parseInt(node.data.bibliography.year) - 2000;
 			    }
 			    else x = 0;
-			    // x = Math.floor(Math.random() * 600);
-			    // if (type == "search_result") {
-			    //     (rank % 2 == 1)? y = 120 : y = 200;
-			    // }
-			    // else {
-			    //     y = 120 + Math.floor(Math.random() * 80);
-			    // }
 			    y = 120 + Math.floor(Math.random() * 80);
 		    	    position[node.name] = arbor.Point(x, y);
 		    	    node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
@@ -162,9 +157,13 @@
 
 		    // ノードの発行年情報を座標軸下に描画
 		    var draw_published_year = function(node) {
-			ctx.fillStyle = "black";
-			ctx.font = "normal 10px sans-serif";
-			if (node.data.bibliography.year && parseInt(node.data.bibliography.year) != 0) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 20);
+			var year = node.data.bibliography.year;
+			if (!(publishedYears.has(parseInt(year))) && year && parseInt(year) !== 0) {
+			    ctx.fillStyle = "black";
+			    ctx.font = "normal 9px sans-serif";
+			    ctx.fillText(year, pt.x, canvas.height - 20);
+			    publishedYears.add(parseInt(year));
+			}
 		    }(node);
 		    
 		    // 検索結果ノードにランクを描画
