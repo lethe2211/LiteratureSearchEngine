@@ -113,21 +113,37 @@
 		    // ノードの半径を計算
 		    var r = function(node, type, rank) {
 			var r;	// ノード(円で表す)の半径
-			var weight_type;	// ノードタイプによる半径の重み
-			var weight_rank;	// 検索結果ノードのランクによる(逆)重み
+			var weightType;	// ノードタイプによる半径の重み
+			var weightCitation;	// 被引用数による重み
+			var weightRank;	// 検索結果ノードのランクによる(逆)重み
 
 			if (type == "search_result") {
-			    weight_type = 20;
-			    weight_rank = -0.8 * node.data.rank;
+			    weightType = 20;
+			    if (weightCitation < 100) {
+				weightCitation = 0.0;
+			    } else if (weightCitation < 1000) {
+				weightCitation = 2.0;
+			    } else {
+				weightCitation = 4.0;
+			    }
+			    // weightRank = -0.8 * node.data.rank;
+			    weightRank = 0;
 			}
 			else {
-			    weight_type = 8;
-			    ctx.beginPath();
-			    ctx.moveTo(10, 10);
-			    ctx.lineTo(90, 90);
-			    weight_rank = 0;
+			    weightType = 6;
+			    // ctx.beginPath();
+			    // ctx.moveTo(10, 10);
+			    // ctx.lineTo(90, 90);
+			    if (weightCitation < 100) {
+				weightCitation = 0.0;
+			    } else if (weightCitation < 1000) {
+				weightCitation = 1.0;
+			    } else {
+				weightCitation = 2.0;
+			    }			    
+			    weightRank = 0;
 			}
-			r = weight_type + weight_rank;
+			r = weightType + weightCitation + weightRank;
 			node.data.r = r; // プロパティrはノードの半径を表す
 			return r;
 		    }(node, type, rank);
@@ -285,21 +301,40 @@
 		    // ノードの半径を計算
 		    var r = function(node, type, rank) {
 			var r;	// ノード(円で表す)の半径
-			var weight_type;	// ノードタイプによる半径の重み
-			var weight_rank;	// 検索結果ノードのランクによる(逆)重み
+			var weightType;	// ノードタイプによる半径の重み
+			var weightCitation;
+			var weightRank;	// 検索結果ノードのランクによる(逆)重み
 
 			if (type == "search_result") {
-			    weight_type = 20;
-			    weight_rank = -0.8 * node.data.rank;
+			    weightType = 20;
+			    if (weightCitation < 100) {
+				weightCitation = 0.0;
+			    } else if (weightCitation < 1000) {
+				weightCitation = 2.0;
+			    } else {
+				weightCitation = 4.0;
+			    }
+			    // weightRank = -0.8 * node.data.rank;
+			    weightRank = 0;
 			}
 			else {
-			    weight_type = 8;
-			    ctx.beginPath();
-			    ctx.moveTo(10, 10);
-			    ctx.lineTo(90, 90);
-			    weight_rank = 0;
+			    weightType = 6;
+			    // ctx.beginPath();
+			    // ctx.moveTo(10, 10);
+			    // ctx.lineTo(90, 90);
+			    // ctx.beginPath();
+			    // ctx.moveTo(10, 10);
+			    // ctx.lineTo(90, 90);
+			    if (weightCitation < 100) {
+				weightCitation = 0.0;
+			    } else if (weightCitation < 1000) {
+				weightCitation = 1.0;
+			    } else {
+				weightCitation = 2.0;
+			    }			    
+			    weightRank = 0;
 			}
-			r = weight_type + weight_rank;
+			r = weightType + weightRank;
 			node.data.r = r; // プロパティrはノードの半径を表す
 			console.log(node.data.r);
 			return r;
