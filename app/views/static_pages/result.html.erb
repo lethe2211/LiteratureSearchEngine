@@ -1,7 +1,11 @@
 <% # グラフを付与するインタフェースの検索結果を提示するときのみmain.jsを読み込む %>
 <% if @userid != 1 %>
+  <%= javascript_include_tag 'arbor' %>
+  <%= javascript_include_tag 'arbor-tween' %>
+  <%= javascript_include_tag 'graphics' %>
   <%= javascript_include_tag 'main' %>
 <% end %>
+
 <%= "userid: #{ @userid } " + "interface: #{ @interface }" %>
 <%= bootstrap_form_tag url: "/static_pages/result/#{ @userid }/#{ @interface }", method: :get, layout: :inline do |f| %>
   <%= f.text_field :search_string, value: @text_field_val, hide_label: :true %>

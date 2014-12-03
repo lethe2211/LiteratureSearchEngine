@@ -13,7 +13,4 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
-//= require arbor
-//= require arbor-tween
-//= require graphics
 //= require static_pages
