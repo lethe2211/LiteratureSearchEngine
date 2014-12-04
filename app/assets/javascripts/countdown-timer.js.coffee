@@ -24,31 +24,33 @@ ready = ->
 
 
         exports = this          # グローバル変数
-        exports.experiment_seconds = 300
+        exports.experimentSeconds = 300
         countdown = {}
 
-        remaining_seconds = Cookie.getCookie 'remaining_seconds'
-        if remaining_seconds? and remaining_seconds != 'null'
-                countdown = {until: remaining_seconds}
+        remainingSeconds = Cookie.getCookie 'remaining_seconds'
+        if remainingSeconds? and remainingSeconds != 'null'
+                countdown = {until: remainingSeconds}
         else
-                countdown = {until: exports.experiment_seconds}
+                countdown = {until: exports.experimentSeconds}
         # alert countdown['until']
         $('#countdown_timer').countdown(countdown)
         $('#countdown_timer').countdown('pause')
 
         $(window).on 'beforeunload', ->
                 periods = $('#countdown_timer').countdown('getTimes')
-                remaining_seconds = $.countdown.periodsToSeconds(periods)
-                Cookie.setCookie 'remaining_seconds', remaining_seconds, 1
-                return null
+                remainingSeconds = $.countdown.periodsToSeconds(periods)
+                Cookie.setCookie 'remaining_seconds', remainingSeconds, 1
+                # return null
+                return
 
         $('#start_countdown_timer_button').click ->
                 $('#countdown_timer').countdown('resume')
                 
         $('#reload_countdown_timer_button').click ->
-                # $('#countdown_timer').countdown('until', exports.experiment_seconds)
+                # $('#countdown_timer').countdown('until', exports.experimentSeconds)
                 $('#countdown_timer').countdown('destroy')
-                $('#countdown_timer').countdown({'until': exports.experiment_seconds})
+                $('#countdown_timer').countdown({'until': exports.experimentSeconds})
+
 $(document).ready(ready)
 $(document).on('page:load', ready)
 
