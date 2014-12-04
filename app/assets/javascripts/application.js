@@ -12,5 +12,8 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery.plugin
 //= require turbolinks
+//= require jquery.countdown
+//= require countdown-timer
 //= require static_pages
