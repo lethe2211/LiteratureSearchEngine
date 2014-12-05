@@ -15,6 +15,8 @@
 //= require jquery.plugin
 //= require turbolinks
 //= require jquery.countdown
+//= require log
+//= require read-paper-log
 //= require checkbox-experimental-mode
 //= require countdown-timer
 //= require static_pages

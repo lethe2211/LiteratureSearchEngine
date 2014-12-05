@@ -2,6 +2,8 @@
 
 $(document).ready(function() {
 
+    var url = '../../change_relevance/' + gon.userid + '/' + gon.interface;
+
     // 「適合」ボタン
     $(".relevant").click(function() {
 
@@ -15,8 +17,9 @@ $(document).ready(function() {
 	    if (siblings.attr("disabled")) siblings.attr("disabled", false);
 	    
 	    // ログを書き換えて「適合」にする
-	    $.get('../../change_relevance/' + gon.userid + '/' + gon.interface, {search_string: gon.query, rank: rank, relevance: 'relevant'}, function(json) {
+	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'relevant'}, function(json) {
 		// alert("odd");
+		console.log(url);
 	    });
 
 	    // 使えなくしておく
@@ -46,7 +49,8 @@ $(document).ready(function() {
 	    if (siblings.attr("disabled")) siblings.attr("disabled", false);
 	    
 	    // ログを書き換えて「非適合」にする
-	    $.get('../../change_relevance/' + gon.userid + '/' + gon.interface, {search_string: gon.query, rank: rank, relevance: 'irrelevant'}, function(json) {
+	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'irrelevant'}, function(json) {
+		console.log(url);
 		//alert("odd");
 	    });
 

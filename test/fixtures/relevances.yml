@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  session_id: 
+  rank: 1
+  relevance: MyString
+
+two:
+  session_id: 
+  rank: 1
+  relevance: MyString

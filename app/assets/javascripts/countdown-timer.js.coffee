@@ -22,7 +22,6 @@ ready = ->
                 @deleteCookie = (name) ->
                         setCookie name, '', -1
 
-
         exports = this          # グローバル変数
         exports.experimentSeconds = 300
         countdown = {}

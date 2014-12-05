@@ -1,19 +1,22 @@
 Search::Application.routes.draw do
-  root controller: "static_pages", action: "search", interface: 1
+  root controller: 'static_pages', action: 'search', interface: 1
 
-  get "static_pages/search" => redirect("/static_pages/search/1")
-  get "static_pages/search/:interface" => "static_pages#search"
-  get "static_pages/search/:userid/:interface" => "static_pages#search"
-  get "static_pages/result/:interface" => "static_pages#result"
-  get "static_pages/result/:userid/:interface" => "static_pages#result"
-  get "static_pages/graph/:interface" => "static_pages#graph"
-  get "static_pages/change_relevance/:userid/:interfaceid" => "static_pages#change_relevance"
+  get 'static_pages/search' => redirect('/static_pages/search/1')
+  get 'static_pages/search/:interface' => 'static_pages#search'
+  get 'static_pages/search/:userid/:interface' => 'static_pages#search'
+  get 'static_pages/result/:interface' => 'static_pages#result'
+  get 'static_pages/result/:userid/:interface' => 'static_pages#result'
+  get 'static_pages/graph/:interface' => 'static_pages#graph'
+  get 'static_pages/change_relevance/:userid/:interfaceid' => 'static_pages#change_relevance'
 
-  get "citation/citation/:cluster_id" => "citation#citation"
-  get "citation/citedby/:cluster_id" => "citation#citedby"
-  get "citation/bibliography/:cluster_id" => "citation#bibliography"
+  get 'logs/read_paper' => 'logs#read_paper'
+  get 'logs/update_relevance' => 'logs#update_relevance'
 
-  get "crawl/search_results/:query" => "crawl#search_results"
+  get 'citation/citation/:cluster_id' => 'citation#citation'
+  get 'citation/citedby/:cluster_id' => 'citation#citedby'
+  get 'citation/bibliography/:cluster_id' => 'citation#bibliography'
+
+  get 'crawl/search_results/:query' => 'crawl#search_results'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

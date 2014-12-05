@@ -10,6 +10,11 @@ class StaticPagesController < ApplicationController
     @interface = params[:interface].to_i # インタフェースの番号
     gon.interface = @interface
     gon.action = "search"
+
+    rl = ResearchLogger.new
+    rl.add_session(@userid, @interface, @query)
+    rl.add_access('retrieve')
+    rl.initialize_relevances
   end
 
   def result
@@ -22,17 +27,19 @@ class StaticPagesController < ApplicationController
     @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
 
     # クエリの正規化
-    # @query = StringUtil.space_to_plus(params[:search_string])
-    # gon.query = @query
     @query = params[:search_string]
     gon.query = @query
     
     # 検索結果の取得と整形
     @articles = crawl(@query)
-    # logger.debug(@articles)
 
+    # ログ取得
     rl = ResearchLogger.new
     rl.write_initial_log(@userid, @interface, @query, @articles)
+
+    rl.add_session(@userid, @interface, @query)
+    rl.add_access('retrieve')
+    rl.initialize_relevances
   end
 
   # グラフを記述したJSONをJavaScript側に送る
@@ -71,6 +78,7 @@ class StaticPagesController < ApplicationController
     relevance = params[:relevance]
     
     rl = ResearchLogger.new
+    rl.update_relevance(rank, relevance)
     render :text => rl.rewrite_log(userid, interfaceid, query, rank, relevance)        
   end
 
