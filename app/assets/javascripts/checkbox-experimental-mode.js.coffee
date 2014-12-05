@@ -6,5 +6,6 @@ ready = ->
                         $('#experimental_mode').show()
                 else
                         $('#experimental_mode').hide()
+                        $('#countdown_timer').countdown('pause')
 $(document).ready(ready)
 $(document).on('page:load', ready)
