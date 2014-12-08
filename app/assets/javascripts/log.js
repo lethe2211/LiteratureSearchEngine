@@ -12,9 +12,11 @@ $(document).ready(function() {
 
 	switch (iteration) {
 	case 1:
-	    // 隣の「非適合」ボタンがdisabledなら戻しておく
-	    var siblings = $(this).siblings(".irrelevant");
-	    if (siblings.attr("disabled")) siblings.attr("disabled", false);
+	    // 他のボタンがdisabledなら戻しておく
+	    var siblingsNeither = $(this).siblings(".neither");
+	    var siblingsIrrelevant = $(this).siblings(".irrelevant");
+	    if (siblingsNeither.attr("disabled")) siblingsNeither.attr("disabled", false);
+	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「適合」にする
 	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'relevant'}, function(json) {
@@ -31,7 +33,40 @@ $(document).ready(function() {
 	iteration++;
 	if (iteration > 2) iteration = 1;
 
-	$(this).data('iteration',iteration)
+	$(this).data('iteration',iteration);
+
+    });
+
+    // 「どちらでもない」ボタン
+    $(".neither").click(function() {
+
+	var rank = $(".neither").index(this) + 1;
+	var iteration = $(this).data('iteration') || 1;
+
+	switch (iteration) {
+	case 1:
+	    // 他のボタンがdisabledなら戻しておく
+	    var siblingsRelevant = $(this).siblings(".relevant");
+	    var siblingsIrrelevant = $(this).siblings(".irrelevant");
+	    if (siblingsRelevant.attr("disabled")) siblingsRelevant.attr("disabled", false);
+	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);	    
+
+	    // ログを書き換えて「非適合」にする
+	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'neither'}, function(json) {
+		console.log(url);
+	    });
+
+	    // 使えなくしておく
+	    $(this).attr('disabled', true);
+	    break;
+	    
+	case 2:
+	    break;
+	}
+	iteration++;
+	if (iteration > 2) iteration = 1;
+
+	$(this).data('iteration', iteration);
 
     });
 
@@ -43,9 +78,11 @@ $(document).ready(function() {
 
 	switch (iteration) {
 	case 1:
-	    // 隣の「適合」ボタンがdisabledなら戻しておく
-	    var siblings = $(this).siblings(".relevant");
-	    if (siblings.attr("disabled")) siblings.attr("disabled", false);
+	    // 他のボタンがdisabledなら戻しておく
+	    var siblingsNeither = $(this).siblings(".neither");
+	    var siblingsRelevant = $(this).siblings(".relevant");
+	    if (siblingsNeither.attr("disabled")) siblingsNeither.attr("disabled", false);
+	    if (siblingsRelevant.attr("disabled")) siblingsRelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「非適合」にする
 	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'irrelevant'}, function(json) {
@@ -62,7 +99,7 @@ $(document).ready(function() {
 	iteration++;
 	if (iteration > 2) iteration = 1;
 
-	$(this).data('iteration',iteration)
+	$(this).data('iteration',iteration);
 
     });
 

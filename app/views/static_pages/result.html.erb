@@ -29,9 +29,10 @@ experimental mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {
 	  <%= index + 1 %>
 	</div>
 	<div class="relevance">
-	  <button type="button" class="btn btn-success relevant">Relevant</button>
-	  <button type="button" class="btn btn-danger irrelevant">Irrelevant</button>
-	  <button type="button" class="btn btn-default undo">Undo</button>
+	  <button type="button" class="btn btn-success btn-sm relevant">Relevant</button>
+	  <button type="button" class="btn btn-warning btn-sm neither">Neither</button>
+	  <button type="button" class="btn btn-danger btn-sm irrelevant">Irrelevant</button>
+	  <button type="button" class="btn btn-default btn-sm undo">Undo</button>
 	</div>
 	<div class="search_result">
 	  <div class="search_result_title" ><%= link_to "#{ search_result['sr_title'] }", "#{ search_result['sr_url'] }", :target => "_blank" %> </div>
