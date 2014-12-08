@@ -3,6 +3,11 @@ class LogsController < ApplicationController
     @rl = ResearchLogger.new
   end
 
+  def page_loaded
+    @rl.add_access('page_loaded')
+    render :text => 'OK'
+  end
+
   def update_relevance
     rank = params[:rank]
     relevance = params[:relevance]

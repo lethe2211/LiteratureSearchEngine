@@ -1,21 +1,18 @@
 <% # グラフを付与するインタフェースの検索結果を提示するときのみmain.jsを読み込む %>
-<% if @userid != 1 %>
+<% if @interface == 1 %>
+  <%= javascript_include_tag 'show-search-results' %>
+<% else %>
   <%= javascript_include_tag 'arbor' %>
   <%= javascript_include_tag 'arbor-tween' %>
   <%= javascript_include_tag 'graphics' %>
   <%= javascript_include_tag 'main' %>
 <% end %>
-
-<%= "userid: #{ @userid } " + "interface: #{ @interface }" %>
-<!-- <div id="experimental_mode" class="checkbox">
-<label>
-<input type="checkbox" />Debug Mode
-</label>
-</div> -->
 experimental mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {} %>
 <div id="experimental_mode">
+  <%= "userid: #{ @userid } " + "interface: #{ @interface }" %><br>
+  status: <span id="status">Retreving search results</span>
   <div id="countdown_timer"></div>
-  <button id="start_countdown_timer_button" type="button" class="btn">Restart</button>
+  <!-- <button id="start_countdown_timer_button" type="button" class="btn">Restart</button> -->
   <button id="reload_countdown_timer_button" type="button" class="btn">Reset</button>
 </div>
 <%= bootstrap_form_tag url: "/static_pages/result/#{ @userid }/#{ @interface }", method: :get, layout: :inline do |f| %>
@@ -24,9 +21,7 @@ experimental mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {
 <% end %>
 
 <% if @articles %>
-
   <canvas id="citation_graph" width="800" height="600"></canvas>
-
   <div id="search_results">
     <% @articles["data"]["search_results"].each_with_index do |search_result, index| %>
       <div class="search_result_row">

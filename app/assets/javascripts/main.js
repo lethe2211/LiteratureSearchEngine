@@ -748,15 +748,15 @@
 
 	// 従来の検索エンジンが選択されている場合は，canvas要素を不可視化する必要がある
 	if (parseInt(gon.interface) == 1) {
-
 	    $("#citation_graph").hide();
 	    return;
-
 	}
+
 
 	var canvas = $("canvas").get(0);
 	var ctx = canvas.getContext("2d");
 
+        $('#status').text('Composing graph');
 	ctx.fillStyle = "black";
 	ctx.font = "normal 24px sans-serif";
 	ctx.fillText("Now Loading...", canvas.width / 2 - 100, canvas.height / 2);
@@ -779,7 +779,18 @@
 	    sys.graft(json);
 	})
 	    .success(function(json) {
-		console.log("success");
+		console.log("success");		
+		// 実験モード
+		isExperimentalMode = Cookie.getCookie('is_experimental_mode');
+		if (isExperimentalMode === 'true') {
+		    alert('Ready to search'); 		// ユーザへの通知
+		    $('#citation_graph').show();
+		    $('#search_results').show();
+		    $('#countdown_timer').countdown('resume');
+		} else {
+		    $('.relevance').hide();
+		}
+		$('#status').text('Search completed');
 	    })
 	    .error(function(jqXHR, textStatus, errorThrown) {
 		console.log("error: " + textStatus);
