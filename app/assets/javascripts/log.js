@@ -2,7 +2,7 @@
 
 $(document).ready(function() {
 
-    var url = '../../change_relevance/' + gon.userid + '/' + gon.interface;
+    var url = '../../../logs/update_relevance/' + gon.userid + '/' + gon.interface;
 
     // 「適合」ボタン
     $(".relevant").click(function() {
@@ -18,7 +18,6 @@ $(document).ready(function() {
 	    
 	    // ログを書き換えて「適合」にする
 	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'relevant'}, function(json) {
-		// alert("odd");
 		console.log(url);
 	    });
 
@@ -51,7 +50,6 @@ $(document).ready(function() {
 	    // ログを書き換えて「非適合」にする
 	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'irrelevant'}, function(json) {
 		console.log(url);
-		//alert("odd");
 	    });
 
 	    // 使えなくしておく
@@ -76,7 +74,8 @@ $(document).ready(function() {
 
 	siblings.data('iteration', 1);
 	
-	$.get('../../change_relevance/' + gon.userid + '/' + gon.interface, {search_string: gon.query, rank: rank, relevance: 'none'}, function(json) {
+	$.get(url, {search_string: gon.query, rank: rank, relevance: 'none'}, function(json) {
+	    console.log(url);
 	});
 
 	siblings.attr("disabled", false);

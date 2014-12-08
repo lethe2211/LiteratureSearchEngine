@@ -1,3 +1,4 @@
+# 実験モードへ移行するためのチェックボックス
 ready = ->
         exports = this
         exports.isExperimentalMode = Cookie.getCookie 'is_experimental_mode'
@@ -9,8 +10,7 @@ ready = ->
                 $('#experimental_mode').show()
                 $('#countdown_timer').countdown 'pause'
                 $('#citation_graph').hide()
-                $('#search_results').hide()
-                
+                $('#search_results').hide()                
         else
                 checkBox = $('#checkbox_experimental_mode')
                 checkBox.prop 'checked', false

@@ -13,8 +13,8 @@ class StaticPagesController < ApplicationController
 
     rl = ResearchLogger.new
     rl.add_session(@userid, @interface, @query)
-    rl.add_access('retrieve')
-    rl.initialize_relevances
+    rl.add_access(@userid, @interface, @query, 'search')
+    # rl.initialize_relevances(@userid, @interface, @query)
   end
 
   def result
@@ -38,8 +38,8 @@ class StaticPagesController < ApplicationController
     rl.write_initial_log(@userid, @interface, @query, @articles)
 
     rl.add_session(@userid, @interface, @query)
-    rl.add_access('retrieve')
-    rl.initialize_relevances
+    rl.add_access(@userid, @interface, @query, 'result')
+    rl.initialize_relevances(@userid, @interface, @query)
   end
 
   # グラフを記述したJSONをJavaScript側に送る
@@ -78,7 +78,7 @@ class StaticPagesController < ApplicationController
     relevance = params[:relevance]
     
     rl = ResearchLogger.new
-    rl.update_relevance(rank, relevance)
+    # rl.update_relevance(rank, relevance)
     render :text => rl.rewrite_log(userid, interfaceid, query, rank, relevance)        
   end
 

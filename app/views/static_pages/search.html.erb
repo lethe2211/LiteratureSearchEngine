@@ -3,7 +3,7 @@ experimental mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {
   <%= "userid: #{ @userid } " + "interface: #{ @interface }" %>
   status: <span id="status">Idol</span>
   <div id="countdown_timer"></div>
-  <!-- <button id="start_countdown_timer_button" type="button" class="btn">Start</button> -->
+  <button id="start_countdown_timer_button" type="button" class="btn">Start</button>
   <button id="reload_countdown_timer_button" type="button" class="btn">Reset</button>
 </div>
 <%= bootstrap_form_tag url: "/static_pages/result/#{ @userid }/#{ @interface }", method: :get, layout: :inline do |f| %>

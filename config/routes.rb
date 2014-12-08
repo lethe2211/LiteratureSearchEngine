@@ -9,8 +9,9 @@ Search::Application.routes.draw do
   get 'static_pages/graph/:interface' => 'static_pages#graph'
   get 'static_pages/change_relevance/:userid/:interfaceid' => 'static_pages#change_relevance'
 
-  get 'logs/read_paper' => 'logs#read_paper'
-  get 'logs/update_relevance' => 'logs#update_relevance'
+  get 'logs/page_loaded/:userid/:interface' => 'logs#page_loaded'
+  get 'logs/read_paper/:userid/:interface' => 'logs#read_paper'
+  get 'logs/update_relevance/:userid/:interface' => 'logs#update_relevance'
 
   get 'citation/citation/:cluster_id' => 'citation#citation'
   get 'citation/citedby/:cluster_id' => 'citation#citedby'

@@ -32,21 +32,28 @@ class ResearchLogger
     log.save
   end
 
+  # sessionsに新たなセッション情報を追加
   def add_session(userid, interfaceid, query)
     session = Session.new(userid: userid, interfaceid: interfaceid, query: query)
     session.save
   end
 
-  def add_access(type)
-    session = Session.last
+  # accessesに新たなアクセス情報を追加
+  def add_access(userid, interfaceid, query, type, options: {})
+    session = Session.where(userid: userid, interfaceid: interfaceid, query: query).last
     session_id = session.id
 
-    access = Access.new(session_id: session_id, access_type: type)
+    if options.key?('rank')
+      access = Access.new(session_id: session_id, access_type: type, rank: options['rank'])
+    else
+      access = Access.new(session_id: session_id, access_type: type)
+    end
     access.save
   end
 
-  def initialize_relevances
-    session = Session.last
+  # クエリが投入された際に適合性のログを初期化
+  def initialize_relevances(userid, interfaceid, query)    
+    session = Session.where(userid: userid, interfaceid: interfaceid, query: query).last
     session_id = session.id
     if Relevance.where(session_id: session_id, rank: 1).empty?
       relevances = []
@@ -57,8 +64,9 @@ class ResearchLogger
     end
   end
 
-  def update_relevance(rank, relev)
-    session = Session.last
+  # フィードバックに応じてログを書き換える
+  def update_relevance(userid, interfaceid, query, rank, relev)
+    session = Session.where(userid: userid, interfaceid: interfaceid, query: query).last
     session_id = session.id
     relevance = Relevance.where(session_id: session_id, rank: rank).last
     relevance.update(relevance: relev)

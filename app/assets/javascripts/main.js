@@ -790,7 +790,14 @@
 		} else {
 		    $('.relevance').hide();
 		}
+
 		$('#status').text('Search completed');
+		var url = '../../../logs/page_loaded/' + gon.userid + '/' + gon.interface;
+		$.get(
+		    url, 
+		    {search_string: gon.query},
+		    function(json) {console.log(url);}
+		);
 	    })
 	    .error(function(jqXHR, textStatus, errorThrown) {
 		console.log("error: " + textStatus);

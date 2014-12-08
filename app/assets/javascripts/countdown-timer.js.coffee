@@ -1,3 +1,4 @@
+# 実験用のタイマーの設定
 ready = ->
         exports = this          # グローバル変数
         exports.experimentSeconds = 300
