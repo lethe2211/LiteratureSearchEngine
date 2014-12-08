@@ -43,11 +43,16 @@ class ResearchLogger
     session = Session.where(userid: userid, interfaceid: interfaceid, query: query).last
     session_id = session.id
 
-    if options.key?('rank')
-      access = Access.new(session_id: session_id, access_type: type, rank: options['rank'])
-    else
-      access = Access.new(session_id: session_id, access_type: type)
+    a = {session_id: session_id, access_type: type}
+    options.each do |key, value|
+      a[key] = value
     end
+    access = Access.new(a)
+    # if options.key?('rank')
+    #   access = Access.new(session_id: session_id, access_type: type, rank: options['rank'])
+    # else
+    #   access = Access.new(session_id: session_id, access_type: type)
+    # end
     access.save
   end
 

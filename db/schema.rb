@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141205130055) do
+ActiveRecord::Schema.define(version: 20141208190338) do
 
   create_table "accesses", force: true do |t|
     t.integer  "session_id"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20141205130055) do
     t.integer  "rank"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "literature_id"
   end
 
   add_index "accesses", ["session_id"], name: "index_accesses_on_session_id"

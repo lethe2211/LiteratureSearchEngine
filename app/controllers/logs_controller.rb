@@ -33,7 +33,8 @@ class LogsController < ApplicationController
     interfaceid = params[:interface]
     query = params[:search_string]
     rank = params[:rank]
-    @rl.add_access(userid, interfaceid, query, 'read_paper', options: { 'rank' => rank })
+    literature_id = params[:literature_id]
+    @rl.add_access(userid, interfaceid, query, 'read_paper', options: { 'rank' => rank, 'literature_id' => literature_id })
     render :text => 'OK'
   end
 end
