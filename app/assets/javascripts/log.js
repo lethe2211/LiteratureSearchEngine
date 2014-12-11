@@ -13,9 +13,9 @@ $(document).ready(function() {
 	switch (iteration) {
 	case 1:
 	    // 他のボタンがdisabledなら戻しておく
-	    var siblingsNeither = $(this).siblings(".neither");
+	    var siblingsPartiallyRelevant = $(this).siblings(".partially_relevant");
 	    var siblingsIrrelevant = $(this).siblings(".irrelevant");
-	    if (siblingsNeither.attr("disabled")) siblingsNeither.attr("disabled", false);
+	    if (siblingsPartiallyRelevant.attr("disabled")) siblingsPartiallyRelevant.attr("disabled", false);
 	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「適合」にする
@@ -37,10 +37,10 @@ $(document).ready(function() {
 
     });
 
-    // 「どちらでもない」ボタン
-    $(".neither").click(function() {
+    // 「部分的に適合」ボタン
+    $(".partially_relevant").click(function() {
 
-	var rank = $(".neither").index(this) + 1;
+	var rank = $(".partially_relevant").index(this) + 1;
 	var iteration = $(this).data('iteration') || 1;
 
 	switch (iteration) {
@@ -52,7 +52,7 @@ $(document).ready(function() {
 	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);	    
 
 	    // ログを書き換えて「非適合」にする
-	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'neither'}, function(json) {
+	    $.get(url, {search_string: gon.query, rank: rank, relevance: 'partially_relevant'}, function(json) {
 		console.log(url);
 	    });
 
@@ -79,9 +79,9 @@ $(document).ready(function() {
 	switch (iteration) {
 	case 1:
 	    // 他のボタンがdisabledなら戻しておく
-	    var siblingsNeither = $(this).siblings(".neither");
+	    var siblingsPartiallyRelevant = $(this).siblings(".partially_relevant");
 	    var siblingsRelevant = $(this).siblings(".relevant");
-	    if (siblingsNeither.attr("disabled")) siblingsNeither.attr("disabled", false);
+	    if (siblingsPartiallyRelevant.attr("disabled")) siblingsPartiallyRelevant.attr("disabled", false);
 	    if (siblingsRelevant.attr("disabled")) siblingsRelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「非適合」にする
