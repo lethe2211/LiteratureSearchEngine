@@ -25,6 +25,14 @@ ActiveRecord::Schema.define(version: 20141213043124) do
   add_index "accesses", ["literature_id"], name: "index_accesses_on_literature_id"
   add_index "accesses", ["session_id"], name: "index_accesses_on_session_id"
 
+  create_table "articles", force: true do |t|
+    t.string   "title"
+    t.string   "url"
+    t.integer  "cluster_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "events", force: true do |t|
     t.integer  "task_id"
     t.string   "event_type"
@@ -49,7 +57,6 @@ ActiveRecord::Schema.define(version: 20141213043124) do
     t.string   "relevance"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "type"
   end
 
   create_table "relevances", force: true do |t|
