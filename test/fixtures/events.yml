@@ -2,8 +2,8 @@
 
 one:
   task_id: 
-  query: MyString
+  event_type: MyString
 
 two:
   task_id: 
-  query: MyString
+  event_type: MyString

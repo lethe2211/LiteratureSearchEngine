@@ -787,6 +787,11 @@
 		    $('#citation_graph').show();
 		    $('#search_results').show();
 		    $('#countdown_timer').countdown('resume');
+		    $.get(
+			'../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface,
+			{},
+			function(json) {console.log('../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface);}
+		    );
 		} else {
 		    $('.relevance').hide();
 		}

@@ -6,6 +6,7 @@ ready = ->
                 alert 'Ready to search' 		# ユーザへの通知
                 $('#search_results').show()
                 $('#countdown_timer').countdown 'resume'
+                $.get '../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface, {}, json = -> console.log('../../../logs/resume_countdown' + gon.userid + '/' + gon.interface)
         else
                 $('.relevance').hide()
         $('#status').text('Search completed')

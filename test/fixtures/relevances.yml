@@ -4,8 +4,10 @@ one:
   session_id: 
   rank: 1
   relevance: MyString
+  literature_id: 
 
 two:
   session_id: 
   rank: 1
   relevance: MyString
+  literature_id: 

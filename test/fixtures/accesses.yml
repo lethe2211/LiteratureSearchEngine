@@ -4,8 +4,10 @@ one:
   session_id: 
   access_type: MyString
   rank: 1
+  literature_id: 
 
 two:
   session_id: 
   access_type: MyString
   rank: 1
+  literature_id: 

@@ -32,33 +32,55 @@ class ResearchLogger
     log.save
   end
 
+  def start_task(userid, interfaceid)
+    task = Task.where(userid: userid, interfaceid: interfaceid).last
+    if task.nil?
+      task = Task.new(userid: userid, interfaceid: interfaceid)
+      task.save
+    else
+      task.touch
+    end
+  end
+
+  def add_event(userid, interfaceid, event_type, options: {})
+    task = Task.where(userid: userid, interfaceid: interfaceid).last
+    task_id = task.id
+    record = { task_id: task_id, event_type: event_type }
+    options.each do |key, value|
+      record[key] = value
+    end
+    event = Event.new(record)
+    event.save
+  end
+
   # sessionsに新たなセッション情報を追加
   def add_session(userid, interfaceid, query)
-    session = Session.new(userid: userid, interfaceid: interfaceid, query: query)
+    task = Task.where(userid: userid, interfaceid: interfaceid).last
+    task_id = task.id
+    session = Session.new(task_id: task_id, query: query)
     session.save
   end
 
   # accessesに新たなアクセス情報を追加
-  def add_access(userid, interfaceid, query, type, options: {})
-    session = Session.where(userid: userid, interfaceid: interfaceid, query: query).last
+  def add_access(userid, interfaceid, query, access_type, options: {})
+    task = Task.where(userid: userid, interfaceid: interfaceid).last
+    task_id = task.id
+    session = Session.where(task_id: task_id, query: query).last
     session_id = session.id
 
-    a = {session_id: session_id, access_type: type}
+    record = { session_id: session_id, access_type: access_type }
     options.each do |key, value|
-      a[key] = value
+      record[key] = value
     end
-    access = Access.new(a)
-    # if options.key?('rank')
-    #   access = Access.new(session_id: session_id, access_type: type, rank: options['rank'])
-    # else
-    #   access = Access.new(session_id: session_id, access_type: type)
-    # end
+    access = Access.new(record)
     access.save
   end
 
   # クエリが投入された際に適合性のログを初期化
   def initialize_relevances(userid, interfaceid, query)    
-    session = Session.where(userid: userid, interfaceid: interfaceid, query: query).last
+    task = Task.where(userid: userid, interfaceid: interfaceid).last
+    task_id = task.id
+    session = Session.where(task_id: task_id, query: query).last
     session_id = session.id
     if Relevance.where(session_id: session_id, rank: 1).empty?
       relevances = []
@@ -70,10 +92,17 @@ class ResearchLogger
   end
 
   # フィードバックに応じてログを書き換える
-  def update_relevance(userid, interfaceid, query, rank, relev)
-    session = Session.where(userid: userid, interfaceid: interfaceid, query: query).last
+  def update_relevance(userid, interfaceid, query, rank, relev, options: {})
+    task = Task.where(userid: userid, interfaceid: interfaceid).last
+    task_id = task.id
+    session = Session.where(task_id: task_id, query: query).last
     session_id = session.id
     relevance = Relevance.where(session_id: session_id, rank: rank).last
-    relevance.update(relevance: relev)
+
+    record = { relevance: relev }
+    options.each do |key, value|
+      record[key] = value
+    end
+    relevance.update(record)
   end
 end

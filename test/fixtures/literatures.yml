@@ -1,9 +1,9 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  task_id: 
-  query: MyString
+  title: MyString
+  authors: MyString
 
 two:
-  task_id: 
-  query: MyString
+  title: MyString
+  authors: MyString

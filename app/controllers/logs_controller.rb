@@ -22,8 +22,9 @@ class LogsController < ApplicationController
     query = params[:search_string]
     rank = params[:rank]
     relevance = params[:relevance]
+    literature_id = params[:literature_id]
     
-    @rl.update_relevance(userid, interfaceid, query, rank, relevance)
+    @rl.update_relevance(userid, interfaceid, query, rank, relevance, options: { 'literature_id' => literature_id })
     render :text => 'OK'
   end
 
@@ -35,6 +36,48 @@ class LogsController < ApplicationController
     rank = params[:rank]
     literature_id = params[:literature_id]
     @rl.add_access(userid, interfaceid, query, 'read_paper', options: { 'rank' => rank, 'literature_id' => literature_id })
+    render :text => 'OK'
+  end
+
+  def reload_countdown
+    userid = params[:userid]
+    interfaceid = params[:interface]
+    @rl.add_event(userid, interfaceid, 'reload_countdown')
+    render :text => 'OK'
+  end
+
+  def load_countdown
+    userid = params[:userid]
+    interfaceid = params[:interface]
+    @rl.add_event(userid, interfaceid, 'load_countdown')
+    render :text => 'OK'
+  end
+
+  def start_countdown
+    userid = params[:userid]
+    interfaceid = params[:interface]
+    @rl.add_event(userid, interfaceid, 'start_countdown')
+    render :text => 'OK'
+  end
+
+  def pause_countdown
+    userid = params[:userid]
+    interfaceid = params[:interface]
+    @rl.add_event(userid, interfaceid, 'pause_countdown')
+    render :text => 'OK'
+  end
+
+  def resume_countdown
+    userid = params[:userid]
+    interfaceid = params[:interface]
+    @rl.add_event(userid, interfaceid, 'resume_countdown')
+    render :text => 'OK'
+  end
+
+  def expire_countdown
+    userid = params[:userid]
+    interfaceid = params[:interface]
+    @rl.add_event(userid, interfaceid, 'expire_countdown')
     render :text => 'OK'
   end
 end

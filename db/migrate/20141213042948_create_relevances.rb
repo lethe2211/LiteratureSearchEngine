@@ -4,6 +4,7 @@ class CreateRelevances < ActiveRecord::Migration
       t.references :session, index: true
       t.integer :rank
       t.string :relevance
+      t.references :literature, index: true
 
       t.timestamps
     end

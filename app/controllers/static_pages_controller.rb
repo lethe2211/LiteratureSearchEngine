@@ -12,9 +12,8 @@ class StaticPagesController < ApplicationController
     gon.action = "search"
 
     rl = ResearchLogger.new
-    rl.add_session(@userid, @interface, @query)
-    rl.add_access(@userid, @interface, @query, 'search')
-    # rl.initialize_relevances(@userid, @interface, @query)
+    rl.start_task(@userid, @interface)
+    rl.add_event(@userid, @interface, 'search')
   end
 
   def result
@@ -37,6 +36,7 @@ class StaticPagesController < ApplicationController
     rl = ResearchLogger.new
     rl.write_initial_log(@userid, @interface, @query, @articles)
 
+    rl.start_task(@userid, @interface)
     rl.add_session(@userid, @interface, @query)
     rl.add_access(@userid, @interface, @query, 'result')
     rl.initialize_relevances(@userid, @interface, @query)

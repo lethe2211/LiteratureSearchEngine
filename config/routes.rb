@@ -13,6 +13,13 @@ Search::Application.routes.draw do
   get 'logs/read_paper/:userid/:interface' => 'logs#read_paper'
   get 'logs/update_relevance/:userid/:interface' => 'logs#update_relevance'
 
+  get 'logs/load_countdown/:userid/:interface' => 'logs#load_countdown'
+  get 'logs/reload_countdown/:userid/:interface' => 'logs#reload_countdown'
+  get 'logs/start_countdown/:userid/:interface' => 'logs#start_countdown'
+  get 'logs/pause_countdown/:userid/:interface' => 'logs#pause_countdown'
+  get 'logs/resume_countdown/:userid/:interface' => 'logs#resume_countdown'
+  get 'logs/expire_countdown/:userid/:interface' => 'logs#expire_countdown'
+
   get 'citation/citation/:cluster_id' => 'citation#citation'
   get 'citation/citedby/:cluster_id' => 'citation#citedby'
   get 'citation/bibliography/:cluster_id' => 'citation#bibliography'
