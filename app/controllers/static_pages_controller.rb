@@ -87,6 +87,6 @@ class StaticPagesController < ApplicationController
   # クエリを受け取り，検索結果を返す
   def crawl(query)
     mm = Mscrawler::MsacademicManager.new
-    return mm.crawl(query, end_num: 5)
+    return mm.crawl(query, end_num: 10)
   end
 end
