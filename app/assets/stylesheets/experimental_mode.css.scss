@@ -1,0 +1,21 @@
+@import "bootstrap";
+
+#experimental_mode {
+  max-width: 480px;		   
+  /* margin: 10px 0px; */
+  margin: auto;
+  padding: 10px;
+  background-color: #EEEEFF;
+}
+
+#countdown_timer {
+  margin: 5px 0px;
+}
+
+#start_countdown_timer_button {
+  /* float: right; */
+}
+
+#reload_countdown_timer_button {
+  /*float: left;*/
+}

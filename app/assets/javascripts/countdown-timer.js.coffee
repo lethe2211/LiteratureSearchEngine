@@ -17,7 +17,8 @@ ready = ->
                         compact: true
                         onExpiry: ->
                                 expire()
-                                $(this).css({"fontSize": '28px', "textAlign": 'center'}).text('終了!').css({"fontSize": '20px', "textAlign": 'center'})
+                                # $(this).css({"fontSize": '28px', "textAlign": 'center'}).text('終了!').css({"fontSize": '20px', "textAlign": 'center'})
+                                $(this).text('Finished!')
 
         start = ->
                 $.get "#{ url }start_countdown/#{ gon.userid }/#{ gon.interface }", {search_string: gon.query}, json = -> console.log "#{ url }start_countdown/#{ gon.userid }/#{ gon.interface }"
@@ -42,7 +43,8 @@ ready = ->
                         compact: true
                         onExpiry: ->
                                 expire()
-                                $(this).css({"fontSize": '28px', "textAlign": 'center'}).text('終了!').css({"fontSize": '20px', "textAlign": 'center'})
+                                # $(this).css({"fontSize": '28px', "textAlign": 'center'}).text('終了!').css({"fontSize": '20px', "textAlign": 'center'})
+                                $(this).text('Finished!')
         else
                 countdown =
                         until: exports.experimentSeconds
@@ -50,7 +52,8 @@ ready = ->
                         compact: true
                         onExpiry: ->
                                 expire()
-                                $(this).css({"fontSize": '28px', "textAlign": 'center'}).text('終了!').css({"fontSize": '20px', "textAlign": 'center'})
+                                # $(this).css({"fontSize": '28px', "textAlign": 'center'}).text('終了!').css({"fontSize": '20px', "textAlign": 'center'})
+                                $(this).text('Finished!')
         $('#countdown_timer').countdown countdown
         load()
         pause()
