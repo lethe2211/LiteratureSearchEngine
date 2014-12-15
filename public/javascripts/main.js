@@ -108,42 +108,40 @@
 		    // pt:   {x:#, y:#}  node position in screen coords
 		    
 		    var type = node.data.type; // ノードタイプ
+		    var num_citations = node.data.bibliography.num_citations;
 		    var rank = node.data.rank; // 検索結果ノードのランキング
 
 		    // ノードの半径を計算
 		    var r = function(node, type, rank) {
 			var r;	// ノード(円で表す)の半径
 			var weightType;	// ノードタイプによる半径の重み
-			var weightCitation;	// 被引用数による重み
-			var weightRank;	// 検索結果ノードのランクによる(逆)重み
+			var weightCitation = parseInt(num_citations);	// 被引用数による重み
+			var weightRank = parseInt(rank);	// 検索結果ノードのランクによる(逆)重み
 
 			if (type == "search_result") {
-			    weightType = 20;
+			    weightType = 24;
 			    if (weightCitation < 100) {
 				weightCitation = 0.0;
 			    } else if (weightCitation < 1000) {
-				weightCitation = 2.0;
-			    } else {
 				weightCitation = 4.0;
+			    } else {
+				weightCitation = 8.0;
 			    }
 			    // weightRank = -0.8 * node.data.rank;
-			    weightRank = 0;
+			    // weightRank = 0;
 			}
 			else {
-			    weightType = 6;
-			    // ctx.beginPath();
-			    // ctx.moveTo(10, 10);
-			    // ctx.lineTo(90, 90);
+			    weightType = 8;
 			    if (weightCitation < 100) {
 				weightCitation = 0.0;
 			    } else if (weightCitation < 1000) {
-				weightCitation = 1.0;
+				weightCitation = 4.0;
 			    } else {
-				weightCitation = 2.0;
+				weightCitation = 8.0;
 			    }			    
 			    weightRank = 0;
 			}
-			r = weightType + weightCitation + weightRank;
+			r = weightType + weightCitation;
 			node.data.r = r; // プロパティrはノードの半径を表す
 			return r;
 		    }(node, type, rank);
@@ -164,12 +162,13 @@
 		    }(node, position);
 
 		    // ノードの円を描画
-		    var draw_circle_of_node = function() {
+		    var draw_circle_of_node = function(node, pt, r) {
 			ctx.fillStyle = node.data.color;
 			ctx.beginPath();
 			ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
+			// console.log(r);
 			ctx.fill();
-		    }();
+		    }(node, pt, r);
 
 		    // ノードの発行年情報を座標軸下に描画
 		    var draw_published_year = function(node) {
@@ -186,10 +185,10 @@
 		    var overdraw_search_result_node = function(node, type) {
 			if (type == "search_result") {
 			    ctx.fillStyle = "white";
-			    ctx.font = "normal " + (15 - 0.5 * rank) + "px sans-serif";
+			    ctx.font = "normal 20px sans-serif";
 			    
 			    if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
-			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
+			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 8.0, pt.y + r / 4.0);
 			}
 		    }(node, type);
 
@@ -295,49 +294,44 @@
 		// ノードがホバーされている時の処理
 		if (isNodeHovered) {
 		    var type = hovered.node.data.type;
+		    var num_citations = hovered.node.data.bibliography.num_citations;
 		    var rank = hovered.node.data.rank;
 		    var pt = particleSystem.toScreen(hovered.point); // ホバーされたノードのある座標
 
 		    // ノードの半径を計算
 		    var r = function(node, type, rank) {
-			var r;	// ノード(円で表す)の半径
-			var weightType;	// ノードタイプによる半径の重み
-			var weightCitation;
-			var weightRank;	// 検索結果ノードのランクによる(逆)重み
+		    	var r;	// ノード(円で表す)の半径
+		    	var weightType;	// ノードタイプによる半径の重み
+		    	var weightCitation = num_citations;
+		    	var weightRank = rank;	// 検索結果ノードのランクによる(逆)重み
 
-			if (type == "search_result") {
-			    weightType = 20;
-			    if (weightCitation < 100) {
-				weightCitation = 0.0;
-			    } else if (weightCitation < 1000) {
-				weightCitation = 2.0;
-			    } else {
-				weightCitation = 4.0;
-			    }
-			    // weightRank = -0.8 * node.data.rank;
-			    weightRank = 0;
-			}
-			else {
-			    weightType = 6;
-			    // ctx.beginPath();
-			    // ctx.moveTo(10, 10);
-			    // ctx.lineTo(90, 90);
-			    // ctx.beginPath();
-			    // ctx.moveTo(10, 10);
-			    // ctx.lineTo(90, 90);
-			    if (weightCitation < 100) {
-				weightCitation = 0.0;
-			    } else if (weightCitation < 1000) {
-				weightCitation = 1.0;
-			    } else {
-				weightCitation = 2.0;
-			    }			    
-			    weightRank = 0;
-			}
-			r = weightType + weightRank;
-			node.data.r = r; // プロパティrはノードの半径を表す
-			console.log(node.data.r);
-			return r;
+		    	if (type == "search_result") {
+		    	    weightType = 24;
+		    	    if (weightCitation < 100) {
+		    		weightCitation = 0.0;
+		    	    } else if (weightCitation < 1000) {
+		    		weightCitation = 4.0;
+		    	    } else {
+		    		weightCitation = 8.0;
+		    	    }
+		    	    // weightRank = -0.8 * node.data.rank;
+		    	    // weightRank = 0;
+		    	}
+		    	else {
+		    	    weightType = 8;
+		    	    if (weightCitation < 100) {
+		    		weightCitation = 0.0;
+		    	    } else if (weightCitation < 1000) {
+		    		weightCitation = 4.0;
+		    	    } else {
+		    		weightCitation = 8.0;
+		    	    }			    
+		    	    // weightRank = 0;
+		    	}
+		    	r = weightType + weightCitation;
+		    	node.data.r = r; // プロパティrはノードの半径を表す
+		    	// console.log('hovered node: ' + node.data.r);
+		    	return r;
 		    }(hovered.node, type, rank);
 
 		    // ノードを強調
@@ -348,10 +342,10 @@
 			ctx.fill();
 
 			ctx.fillStyle = "white";
-			ctx.font = "normal " + (16 - 0.5 * rank) + "px sans-serif";
+			ctx.font = "normal 20px sans-serif";
 			
 			if (rank <= 9) ctx.fillText(hovered.node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
-			else ctx.fillText(hovered.node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
+			else ctx.fillText(hovered.node.data.rank, pt.x - r / 4.0 - 8.0, pt.y + r / 4.0);
 		    }
 		    else {
 			ctx.fillStyle = "#333333";
@@ -399,8 +393,8 @@
 		    // }(10, 0, canvas.width - 10 - 10, 40, hovered);
 
 		    var title = hovered.node.data.bibliography.title;
-		    console.log(title);
-		    console.log(hovered.node.data.bibliography.authors);
+		    // console.log(title);
+		    // console.log(hovered.node.data.bibliography.authors);
 		    var authors = hovered.node.data.bibliography.authors.join(", ");
 		    var year = hovered.node.data.bibliography.year;
 		    var bibliography = [title, authors, year];

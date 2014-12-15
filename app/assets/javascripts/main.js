@@ -185,10 +185,10 @@
 		    var overdraw_search_result_node = function(node, type) {
 			if (type == "search_result") {
 			    ctx.fillStyle = "white";
-			    ctx.font = "normal " + (15 - 0.5 * rank) + "px sans-serif";
+			    ctx.font = "normal 20px sans-serif";
 			    
 			    if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
-			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
+			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 8.0, pt.y + r / 4.0);
 			}
 		    }(node, type);
 
@@ -342,10 +342,10 @@
 			ctx.fill();
 
 			ctx.fillStyle = "white";
-			ctx.font = "normal " + (16 - 0.5 * rank) + "px sans-serif";
+			ctx.font = "normal 20px sans-serif";
 			
 			if (rank <= 9) ctx.fillText(hovered.node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
-			else ctx.fillText(hovered.node.data.rank, pt.x - r / 4.0 - 3.0, pt.y + r / 4.0);
+			else ctx.fillText(hovered.node.data.rank, pt.x - r / 4.0 - 8.0, pt.y + r / 4.0);
 		    }
 		    else {
 			ctx.fillStyle = "#333333";
