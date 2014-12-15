@@ -39,7 +39,7 @@ class StaticPagesController < ApplicationController
     rl.start_task(@userid, @interface)
     rl.add_session(@userid, @interface, @query)
     rl.add_access(@userid, @interface, @query, 'result')
-    rl.initialize_relevances(@userid, @interface, @query)
+    rl.initialize_relevances(@userid, @interface, @query, @articles)
   end
 
   # グラフを記述したJSONをJavaScript側に送る
@@ -52,7 +52,7 @@ class StaticPagesController < ApplicationController
     
     # 検索結果の取得と整形
     @articles = crawl(@query)
-    logger.debug(@articles)
+    Rails.logger.debug(@articles)
 
     # 1: 従来の検索エンジン，2: 類似度に基づいたグラフを付与，3: 引用関係に基づいたグラフを付与
     case @interface

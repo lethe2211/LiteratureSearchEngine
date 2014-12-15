@@ -9,8 +9,6 @@ $(document).ready(function() {
 
 	var rank = $(".relevant").index(this) + 1;
 	var $search_result_row = $(this).parents('.search_result_row');
-	var a = $search_result_row.find('.search_result_title > a');
-	var literature_id = parseInt(a.attr('href').split('/')[4]);
 
 	var iteration = $(this).data('iteration') || 1;
 	
@@ -23,7 +21,7 @@ $(document).ready(function() {
 	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「適合」にする
-	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'relevant', literature_id: literature_id }, function(json) {
+	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'relevant' }, function(json) {
 		console.log(url);
 	    });
 
@@ -46,8 +44,6 @@ $(document).ready(function() {
 
 	var rank = $(".partially_relevant").index(this) + 1;
 	var $search_result_row = $(this).parents('.search_result_row');
-	var a = $search_result_row.find('.search_result_title > a');
-	var literature_id = parseInt(a.attr('href').split('/')[4]);
 
 	var iteration = $(this).data('iteration') || 1;
 
@@ -60,7 +56,7 @@ $(document).ready(function() {
 	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);	    
 
 	    // ログを書き換えて「非適合」にする
-	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'partially_relevant', literature_id: literature_id }, function(json) {
+	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'partially_relevant' }, function(json) {
 		console.log(url);
 	    });
 
@@ -83,8 +79,6 @@ $(document).ready(function() {
 
 	var rank = $(".irrelevant").index(this) + 1;
 	var $search_result_row = $(this).parents('.search_result_row');
-	var a = $search_result_row.find('.search_result_title > a');
-	var literature_id = parseInt(a.attr('href').split('/')[4]);
 
 	var iteration = $(this).data('iteration') || 1;
 
@@ -97,7 +91,7 @@ $(document).ready(function() {
 	    if (siblingsRelevant.attr("disabled")) siblingsRelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「非適合」にする
-	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'irrelevant', literature_id: literature_id }, function(json) {
+	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'irrelevant' }, function(json) {
 		console.log(url);
 	    });
 
@@ -123,7 +117,7 @@ $(document).ready(function() {
 
 	siblings.data('iteration', 1);
 	
-	$.get(url, { search_string: gon.query, rank: rank, relevance: 'none', literature_id: 0 }, function(json) {
+	$.get(url, { search_string: gon.query, rank: rank, relevance: 'none' }, function(json) {
 	    console.log(url);
 	});
 

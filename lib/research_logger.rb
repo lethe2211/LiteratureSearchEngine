@@ -77,7 +77,7 @@ class ResearchLogger
   end
 
   # クエリが投入された際に適合性のログを初期化
-  def initialize_relevances(userid, interfaceid, query)    
+  def initialize_relevances(userid, interfaceid, query, articles)
     task = Task.where(userid: userid, interfaceid: interfaceid).last
     task_id = task.id
     session = Session.where(task_id: task_id, query: query).last
@@ -85,7 +85,8 @@ class ResearchLogger
     if Relevance.where(session_id: session_id, rank: 1).empty?
       relevances = []
       for i in 1..10
-        relevances.push(Relevance.new(session_id: session_id, rank: i, relevance: 'none'))
+        literature_id = articles['data']['search_results'][i-1]['id']
+        relevances.push(Relevance.new(session_id: session_id, rank: i, relevance: 'none', literature_id: literature_id))
       end
       Relevance.import relevances
     end

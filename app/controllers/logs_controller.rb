@@ -22,9 +22,8 @@ class LogsController < ApplicationController
     query = params[:search_string]
     rank = params[:rank]
     relevance = params[:relevance]
-    literature_id = params[:literature_id]
     
-    @rl.update_relevance(userid, interfaceid, query, rank, relevance, options: { 'literature_id' => literature_id })
+    @rl.update_relevance(userid, interfaceid, query, rank, relevance, options: {} )
     render :text => 'OK'
   end
 
