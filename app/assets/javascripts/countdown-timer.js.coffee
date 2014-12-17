@@ -1,7 +1,7 @@
 # 実験用のタイマーの設定
 ready = ->
         exports = this          # グローバル変数
-        exports.experimentSeconds = 1800
+        exports.experimentSeconds = 3600
         countdown = {}
         url = '../../../logs/'
 

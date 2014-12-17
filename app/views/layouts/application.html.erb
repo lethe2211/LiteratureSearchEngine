@@ -18,8 +18,11 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
             <li><%= link_to "interface 1", "/static_pages/search/#{ @userid }/1", data: { no_turbolink: true } %></li>
+	    <% if false # hotfix for experiment %>
             <li><%= link_to "interface 2", "/static_pages/search/#{ @userid }/2", data: { no_turbolink: true } %></li>
             <li><%= link_to "interface 3", "/static_pages/search/#{ @userid }/3", data: { no_turbolink: true } %></li>
+	    <% end %>
+            <li><%= link_to "interface 2", "/static_pages/search/#{ @userid }/3", data: { no_turbolink: true } %></li>
           </ul>
         </div>
       </div>
