@@ -1,6 +1,6 @@
 #search_results {
     width: 900px;
-    height: 1600px;
+    max-height: 1600px;
     z-index: 1;			/* 背面に表示 */
 }
 
@@ -54,4 +54,9 @@
 .search_result_url {
     font-size: 13px;
     color: #009933;
+}
+
+#other_search_results a {
+    margin: 5px 10px;
+    font-size: 18px;
 }

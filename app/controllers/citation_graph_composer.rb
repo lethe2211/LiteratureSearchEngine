@@ -128,7 +128,7 @@ class CitationGraphComposer
       if bib['data']['num_citations'].to_i > @citation_threshold
         node = NormalGraphNode.new(cit, bib["data"]["num_citations"], bib)
         if search_results_top.include?(cit)
-          node.color = '#00FF00'
+          node.color = '#00ff00'
         end
 
         graph.append_node(node)
@@ -154,7 +154,7 @@ class CitationGraphComposer
       if bib['data']['num_citations'].to_i > @citation_threshold
         node = NormalGraphNode.new(cit, bib["data"]["num_citations"], bib)
         if search_results_top.include?(cit)
-          node.color = '#00FF00'
+          node.color = '#00ff00'
         end
 
         graph.append_node(node)
@@ -181,7 +181,7 @@ class CitationGraphComposer
       if bib['data']['num_citations'].to_i > @citation_threshold
         node = NormalGraphNode.new(cit, bib["data"]["num_citations"], bib)
         if search_results_top.include?(cit)
-          node.color = '#00FF00'
+          node.color = '#00ff00'
         end
 
         graph.append_node(node)

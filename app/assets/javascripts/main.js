@@ -284,6 +284,7 @@
 		// ノードがホバーされている時の処理
 		if (isNodeHovered) {
 		    var type = hovered.node.data.type;
+		    var color = hovered.node.data.color;
 		    var numCitations = hovered.node.data.bibliography.num_citations;
 		    var rank = hovered.node.data.rank;
 		    var pt = particleSystem.toScreen(hovered.point); // ホバーされたノードのある座標
@@ -338,49 +339,11 @@
 			else ctx.fillText(hovered.node.data.rank, pt.x - r / 4.0 - 8.0, pt.y + r / 4.0);
 		    }
 		    else {
-			ctx.fillStyle = "#333333";
+			ctx.fillStyle = (color == '#00ff00') ? color : "#333333";
 			ctx.beginPath();
 			ctx.arc(pt.x, pt.y, r + 3, 0, 2 * Math.PI, false);
 			ctx.fill();
 		    }
-
-		    // 発行年情報を強調
-		    // ctx.fillStyle = "black";
-		    // ctx.font = "normal 24px sans-serif";
-		    // if (node.data.bibliography.year) ctx.fillText(node.data.bibliography.year, pt.x, canvas.height - 30);
-
-		    // 論文タイトルと発行年を吹き出しにして描画
-		    // var draw_node_bibliography = function(x, y, width, height, hovered) {
-		    // 	ctx.strokeStyle = "#8888EE";
-		    // 	ctx.fillStyle = "#CCCCFF";
-		    // 	ctx.beginPath();
-		    // 	ctx.lineWidth = 5;
-		    // 	ctx.moveTo(x, y);
-		    // 	ctx.lineTo(x + width, y);
-		    // 	ctx.lineTo(x + width, y + height);
-		    // 	ctx.lineTo(x + 80, y + height);
-		    // 	ctx.lineTo(pt.x - 5, pt.y);
-		    // 	ctx.lineTo(x + 50, y + height);
-		    // 	ctx.lineTo(x, y + height);
-		    // 	ctx.lineTo(x, y + height);
-		    // 	ctx.closePath();
-		    // 	ctx.fill();
-		    // 	ctx.stroke();
-			
-		    // 	ctx.fillStyle = "black";
-		    // 	ctx.font = "normal 14px sans-serif";
-			
-		    // 	var title = hovered.node.data.bibliography.title;
-		    // 	var year = hovered.node.data.bibliography.year;
-
-		    // 	if (title.length > 80) {
-		    // 	    title = title.substring(0, 80);
-		    // 	    ctx.fillText("...", x + width - 15, 20);
-		    // 	}
-
-		    // 	ctx.fillText("Title: " + title, x + 5, y + 20, x + width - 15);
-		    // 	(year) ? ctx.fillText("Year: " + year, x + 5, y + 35) : ctx.fillText("Year: No information", 15, 35);
-		    // }(10, 0, canvas.width - 10 - 10, 40, hovered);
 
 		    var title = hovered.node.data.bibliography.title;
 		    // console.log(title);
@@ -462,14 +425,6 @@
 					count += 1;
 				    });
 				});
-				// for (var key in texts) {
-				//     ctx.fillText(key, x, y + lineHeight * lineCount);
-				//     // var textSegments = multiLineText(ctx, texts[key], width - 20);
-				//     // textSegments.forEach(function(textSegment, j) {
-				//     // 	ctx.fillText(textSegment, x + 10, y + lineHeight * lineCount);
-				//     // 	lineCount += 1;
-				//     // });
-				// }
 			    }
 			}(ctx, texts, balloonPos.x + 10, balloonPos.y + 15);
 		    }(ctx, bibliography, pt.x - 250, pt.y - 20, 500, pt);
@@ -488,42 +443,6 @@
 
 		    // マウスカーソルに最も近いエッジを強調する
 		    drawEdge(ctx, head, tail, nearestEdge, "#FF7E00", 2 * weight);
-
-		    // ctx.strokeStyle = "#000000";
-		    // ctx.lineWidth = 5;
-		    // ctx.beginPath();
-		    // ctx.moveTo(nearestEdge.data.tail.x, nearestEdge.data.tail.y);
-		    // ctx.lineTo(nearestEdge.data.head.x, nearestEdge.data.head.y);
-		    // ctx.stroke();
-		    
-		    // // そのエッジが有向である場合，矢印の頭を書く
-		    // // draw an arrowhead if this is a -> style edge
-		    // if (nearestEdge.data.directed){
-	    	    // 	ctx.save();
-
-		    // 	// move to the head position of the edge we just drew
-	    	    // 	var wt = !isNaN(nearestEdge.data.weight) ? parseFloat(nearestEdge.data.weight) : 1;
-	    	    // 	var arrowLength = 2 + wt;
-	    	    // 	var arrowWidth = 0 + wt;
-	    	    // 	ctx.fillStyle = "#000000";
-
-		    // 	// 座標変換
-	    	    // 	ctx.translate(nearestEdge.data.head.x, nearestEdge.data.head.y);
-	    	    // 	ctx.rotate(Math.atan2(nearestEdge.data.head.y - nearestEdge.data.tail.y, nearestEdge.data.head.x - nearestEdge.data.tail.x));
-			
-		    // 	// delete some of the edge that's already there (so the point isn't hidden)
-	    	    // 	ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt);
-			
-		    // 	// draw the chevron
-	    	    // 	ctx.beginPath();
-	    	    // 	ctx.moveTo(-arrowLength, arrowWidth);
-	    	    // 	ctx.lineTo(0, 0);
-	    	    // 	ctx.lineTo(-arrowLength, -arrowWidth);
-	    	    // 	ctx.lineTo(-arrowLength * 0.8, -0);
-	    	    // 	ctx.closePath();
-	    	    // 	ctx.fill();
-	    	    // 	ctx.restore();
-		    // }
 
 		    // Citation contextがある場合，吹き出しの上に描画
 		    var citationContexts = nearestEdge.data.bibliography.citation_context;
@@ -770,6 +689,7 @@
 		    alert('Ready to search'); 		// ユーザへの通知
 		    $('#citation_graph').show();
 		    $('#search_results').show();
+		    $('#other_search_results').show();
 		    $('#countdown_timer').countdown('resume');
 		    $.get(
 			'../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface,
@@ -796,6 +716,10 @@
 		ctx.fillStyle = "black";
 		ctx.font = "normal 24px sans-serif";
 		ctx.fillText("Graph Loading Failed...", 150, 150);
+		$('#status').text('Graph Loading Failed...');
+
+		// TODO: グラフのロードが失敗した時のログ
+		
 	    });
 
     });
@@ -975,7 +899,7 @@
     };
 
     // 現在のURLからパラメータのハッシュを生成する
-    function getUrlVars() { 
+    var getUrlVars = function() { 
 	var vars = {}, hash; 
 	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'); 
 	for(var i = 0; i < hashes.length; i++) { 
@@ -985,6 +909,6 @@
 	    console.log(hash[1]);
 	} 
 	return vars; 
-    }
+    };
 
 })(this.jQuery);

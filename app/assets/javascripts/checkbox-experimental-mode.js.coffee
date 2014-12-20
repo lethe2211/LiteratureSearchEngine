@@ -10,7 +10,8 @@ ready = ->
                 $('#experimental_mode').show()
                 $('#countdown_timer').countdown 'pause'
                 $('#citation_graph').hide()
-                $('#search_results').hide()                
+                $('#search_results').hide()
+                $('#other_search_results').hide()
         else
                 checkBox = $('#checkbox_experimental_mode')
                 checkBox.prop 'checked', false
