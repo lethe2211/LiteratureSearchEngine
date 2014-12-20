@@ -26,9 +26,13 @@
 	var bottomPadding = 80;
 	var leftPadding = 160;
 
-	var position = {};	     // 各ノードの座標
-	var hovered = null;	// 現在マウスホバーされているノードを表す
-	
+	var position = {};   // 各ノードの座標
+	var hovered = null;  // 現在マウスホバーされているノードを表す
+	var nodeVisualized = {}; // ノードが可視化されているかどうか
+	var edgeVisualized = {}; // エッジが可視化されているかどうか
+
+	var thresholdNumCitation = 100; // 被引用数によって，非検索結果論文ノードの数を削減する
+
 	var that = {
 	    init:function(system){
 		//
@@ -48,6 +52,12 @@
 		// マウスハンドラの初期化
 		// set up some event handlers to allow for node-dragging
 		that.initMouseHandling();
+
+		// プルダウンメニューの初期化
+		$("#num_citations").change(function() {
+		    thresholdNumCitation = parseInt($(this).val());
+		    console.log(thresholdNumCitation);
+		});
 	    },
 	    
 	    // ノードの位置が変わるごとに呼ばれる(ほぼ毎フレームと思ってよい？)
@@ -108,95 +118,109 @@
 		    // pt:   {x:#, y:#}  node position in screen coords
 		    
 		    var type = node.data.type; // ノードタイプ
-		    var num_citations = node.data.bibliography.num_citations;
+		    var numCitations = node.data.bibliography.num_citations;
 		    var rank = node.data.rank; // 検索結果ノードのランキング
 
-		    // ノードの半径を計算
-		    var r = function(node, type, rank) {
-			var r;	// ノード(円で表す)の半径
-			var weightType;	// ノードタイプによる半径の重み
-			var weightCitation = parseInt(num_citations);	// 被引用数による重み
-			var weightRank = parseInt(rank);	// 検索結果ノードのランクによる(逆)重み
-
-			if (type == "search_result") {
-			    weightType = 24;
-			    if (weightCitation < 100) {
-				weightCitation = 0.0;
-			    } else if (weightCitation < 1000) {
-				weightCitation = 4.0;
-			    } else {
-				weightCitation = 8.0;
-			    }
-			    // weightRank = -0.8 * node.data.rank;
-			    // weightRank = 0;
+		    if (type == "search_result") {
+			nodeVisualized[node.name] = true;
+		    }
+		    else {
+			if (numCitations < thresholdNumCitation) {
+			    nodeVisualized[node.name] = false;
 			}
 			else {
-			    weightType = 8;
-			    if (weightCitation < 100) {
-				weightCitation = 0.0;
-			    } else if (weightCitation < 1000) {
-				weightCitation = 4.0;
-			    } else {
-				weightCitation = 8.0;
-			    }			    
-			    weightRank = 0;
-			}
-			r = weightType + weightCitation;
-			node.data.r = r; // プロパティrはノードの半径を表す
-			return r;
-		    }(node, type, rank);
-
-		    // ノードの位置決定
-		    var calculate_node_position = function(node, position) {
-			if (!(node.name in position)) {
-			    var x, y;
-			    if (node.data.bibliography.year) {
-				if (parseInt(node.data.bibliography.year) === 0) x = 0;
-				else x = parseInt(node.data.bibliography.year) - 2000;
-			    }
-			    else x = 0;
-			    y = 120 + Math.floor(Math.random() * 80);
-		    	    position[node.name] = arbor.Point(x, y);
-		    	    node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
-			}
-		    }(node, position);
-
-		    // ノードの円を描画
-		    var draw_circle_of_node = function(node, pt, r) {
-			ctx.fillStyle = node.data.color;
-			ctx.beginPath();
-			ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
-			// console.log(r);
-			ctx.fill();
-		    }(node, pt, r);
-
-		    // ノードの発行年情報を座標軸下に描画
-		    var draw_published_year = function(node) {
-			var year = node.data.bibliography.year;
-			if (!(publishedYears.has(parseInt(year))) && year && parseInt(year) !== 0) {
-			    ctx.fillStyle = "black";
-			    ctx.font = "normal 9px sans-serif";
-			    ctx.fillText(year, pt.x, canvas.height - 20);
-			    publishedYears.add(parseInt(year));
-			}
-		    }(node);
-		    
-		    // 検索結果ノードにランクを描画
-		    var overdraw_search_result_node = function(node, type) {
-			if (type == "search_result") {
-			    ctx.fillStyle = "white";
-			    ctx.font = "normal 20px sans-serif";
-			    
-			    if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
-			    else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 8.0, pt.y + r / 4.0);
-			}
-		    }(node, type);
-
-		    // あるノードがホバーされている時に
-		    if(hovered !== null && hovered.node.name == node.name) {
-			isNodeHovered = true;
+			    nodeVisualized[node.name] = true;
+			}			
 		    }
-		    
+
+		    if (nodeVisualized[node.name]) {
+
+			// ノードの半径を計算
+			var r = function(node, type, rank) {
+			    var r;	// ノード(円で表す)の半径
+			    var weightType;	// ノードタイプによる半径の重み
+			    var weightCitation = parseInt(numCitations);	// 被引用数による重み
+			    var weightRank = parseInt(rank);	// 検索結果ノードのランクによる(逆)重み
+
+			    if (type == "search_result") {
+				weightType = 24;
+				if (weightCitation < 100) {
+				    weightCitation = 0.0;
+				} else if (weightCitation < 1000) {
+				    weightCitation = 4.0;
+				} else {
+				    weightCitation = 8.0;
+				}
+				// weightRank = -0.8 * node.data.rank;
+				// weightRank = 0;
+			    }
+			    else {
+				weightType = 8;
+				if (weightCitation < 100) {
+				    weightCitation = 0.0;
+				} else if (weightCitation < 1000) {
+				    weightCitation = 4.0;
+				} else {
+				    weightCitation = 8.0;
+				}			    
+				weightRank = 0;
+			    }
+			    r = weightType + weightCitation;
+			    node.data.r = r; // プロパティrはノードの半径を表す
+			    return r;
+			}(node, type, rank);
+
+			// ノードの位置決定
+			var calculate_node_position = function(node, position) {
+			    if (!(node.name in position)) {
+				var x, y;
+				if (node.data.bibliography.year) {
+				    if (parseInt(node.data.bibliography.year) === 0) x = 0;
+				    else x = parseInt(node.data.bibliography.year) - 2000;
+				}
+				else x = 0;
+				y = Math.floor(Math.random() * 80); // '120 + 'を消したらノードが下に偏らなくなったけどよくわからない
+		    		position[node.name] = arbor.Point(x, y);
+		    		node.p = position[node.name]; // arbor.Pointは，代入される際に，x = 0, y = 0がcanvas要素の中心に来て，かつすべてのノードが画面内に収まるように座標変換されるらしい
+			    }
+			}(node, position);
+
+			// ノードの円を描画
+			var draw_circle_of_node = function(node, pt, r) {
+			    ctx.fillStyle = node.data.color;
+			    ctx.beginPath();
+			    ctx.arc(pt.x, pt.y, r, 0, 2 * Math.PI, false);
+			    // console.log(r);
+			    ctx.fill();
+			}(node, pt, r);
+
+			// ノードの発行年情報を座標軸下に描画
+			var draw_published_year = function(node) {
+			    var year = node.data.bibliography.year;
+			    if (!(publishedYears.has(parseInt(year))) && year && parseInt(year) !== 0) {
+				ctx.fillStyle = "black";
+				ctx.font = "normal 9px sans-serif";
+				ctx.fillText(year, pt.x, canvas.height - 20);
+				publishedYears.add(parseInt(year));
+			    }
+			}(node);
+			
+			// 検索結果ノードにランクを描画
+			var overdraw_search_result_node = function(node, type) {
+			    if (type == "search_result") {
+				ctx.fillStyle = "white";
+				ctx.font = "normal 20px sans-serif";
+				
+				if (rank <= 9) ctx.fillText(node.data.rank, pt.x - r / 4.0, pt.y + r / 4.0);
+				else ctx.fillText(node.data.rank, pt.x - r / 4.0 - 8.0, pt.y + r / 4.0);
+			    }
+			}(node, type);
+
+			// あるノードがホバーされている時に
+			if(hovered !== null && hovered.node.name == node.name) {
+			    isNodeHovered = true;
+			}
+		    }		    
 		});
 
 		var nearestEdge = null; // 最も近いエッジ
@@ -214,87 +238,58 @@
 		    var weight = edge.data.weight; // エッジの重み
 		    var color = edge.data.color;	  // エッジの色
 		    
-		    if (!color || (""+color).match(/^[ \t]*$/)) color = null;
-
-		    var tail = arbor.Point(0, 0); // 有向枝の末尾座標
-
-		    // ノードの大きさに応じて矢印の長さを変更する
-		    if (edge.source.data.type == "search_result") {
-			tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
+		    if (nodeVisualized[edge.source.name] && nodeVisualized[edge.target.name]) {
+			edgeVisualized[[edge.source.name, edge.target.name]] = true;
 		    }
 		    else {
-			tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
+			edgeVisualized[[edge.source.name, edge.target.name]] = false;
 		    }
 
-		    var head = arbor.Point(0, 0); // 有向枝の先頭座標
+		    if (edgeVisualized[[edge.source.name, edge.target.name]]) {
 
-		    if (edge.target.data.type == "search_result") {
-			head = intersect_line_circle(tail, pt2, edge.target.data.r);
-		    }
-		    else {
-			head = intersect_line_circle(tail, pt2, edge.target.data.r);
-		    }
+			if (!color || (""+color).match(/^[ \t]*$/)) color = null;
 
-		    // console.log("tail: " + tail.x + " " + tail.y);
-		    // console.log("head: " + head.x + " " + head.y);
+			var tail = arbor.Point(0, 0); // 有向枝の末尾座標
 
-		    // // draw a line from head to tail
-		    // // ctx.strokeStyle = "rgba(0,0,0, .333)";
-		    // ctx.strokeStyle = "#cccccc";
-		    // ctx.lineWidth = 1;
-		    // ctx.beginPath();
-		    // ctx.moveTo(tail.x,tail.y);
-		    // ctx.lineTo(head.x, head.y);
-		    // ctx.stroke();
+			// ノードの大きさに応じて矢印の長さを変更する
+			if (edge.source.data.type == "search_result") {
+			    tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
+			}
+			else {
+			    tail = intersect_line_circle(pt2, pt1, edge.source.data.r);
+			}
 
-		    // // そのエッジが有向である場合，矢印の頭を書く
-		    // // draw an arrowhead if this is a -> style edge
-		    // if (edge.data.directed){
-	    	    // 	ctx.save();
-		    // 	// move to the head position of the edge we just drew
-	    	    // 	var wt = !isNaN(weight) ? parseFloat(weight) : 1;
-	    	    // 	var arrowLength = 2 + wt;
-	    	    // 	var arrowWidth = 0 + wt;
-	    	    // 	ctx.fillStyle = (color) ? color : "#cccccc";
-	    	    // 	ctx.translate(head.x, head.y); // 座標変換？
-	    	    // 	ctx.rotate(Math.atan2(head.y - tail.y, head.x - tail.x));
-			
-		    // 	// delete some of the edge that's already there (so the point isn't hidden)
-	    	    // 	ctx.clearRect(-arrowLength/2,-wt/2, arrowLength/2,wt);
-			
-		    // 	// draw the chevron
-	    	    // 	ctx.beginPath();
-	    	    // 	ctx.moveTo(-arrowLength, arrowWidth);
-	    	    // 	ctx.lineTo(0, 0);
-	    	    // 	ctx.lineTo(-arrowLength, -arrowWidth);
-	    	    // 	ctx.lineTo(-arrowLength * 0.8, -0);
-	    	    // 	ctx.closePath();
-	    	    // 	ctx.fill();
-	    	    // 	ctx.restore();
-		    // }
+			var head = arbor.Point(0, 0); // 有向枝の先頭座標
 
-		    drawEdge(ctx, head, tail, edge, color, weight);
-		    // マウスカーソルに最も近いエッジを計算する
+			if (edge.target.data.type == "search_result") {
+			    head = intersect_line_circle(tail, pt2, edge.target.data.r);
+			}
+			else {
+			    head = intersect_line_circle(tail, pt2, edge.target.data.r);
+			}
 
-		    // 点p1，p2からなる線分と，点pとの距離を求める
-		    // 点pが点p1，p2からなる長方形の外にある場合は，計算の対象外とする
-		    var dist_edge = (include_point_rect(_mouseP, pt1, pt2))? distance_point_line(_mouseP, pt1, pt2) : Infinity;
-		    if (dist_edge < dist_edge_threshold && dist_edge < dist_nearestEdge) {
-		    	// console.log("near");
-			nearestEdge = edge;
-			nearestEdge.data.head = head;
-			nearestEdge.data.tail = tail;
-			dist_nearestEdge = dist_edge;
-		    } else {
-		    	// console.log("not near");
-		    }
-		    
+			drawEdge(ctx, head, tail, edge, color, weight);
+			// マウスカーソルに最も近いエッジを計算する
+
+			// 点p1，p2からなる線分と，点pとの距離を求める
+			// 点pが点p1，p2からなる長方形の外にある場合は，計算の対象外とする
+			var dist_edge = (include_point_rect(_mouseP, pt1, pt2))? distance_point_line(_mouseP, pt1, pt2) : Infinity;
+			if (dist_edge < dist_edge_threshold && dist_edge < dist_nearestEdge) {
+		    	    // console.log("near");
+			    nearestEdge = edge;
+			    nearestEdge.data.head = head;
+			    nearestEdge.data.tail = tail;
+			    dist_nearestEdge = dist_edge;
+			} else {
+		    	    // console.log("not near");
+			}
+		    }		    
 		});
 
 		// ノードがホバーされている時の処理
 		if (isNodeHovered) {
 		    var type = hovered.node.data.type;
-		    var num_citations = hovered.node.data.bibliography.num_citations;
+		    var numCitations = hovered.node.data.bibliography.num_citations;
 		    var rank = hovered.node.data.rank;
 		    var pt = particleSystem.toScreen(hovered.point); // ホバーされたノードのある座標
 
@@ -302,7 +297,7 @@
 		    var r = function(node, type, rank) {
 		    	var r;	// ノード(円で表す)の半径
 		    	var weightType;	// ノードタイプによる半径の重み
-		    	var weightCitation = num_citations;
+		    	var weightCitation = numCitations;
 		    	var weightRank = rank;	// 検索結果ノードのランクによる(逆)重み
 
 		    	if (type == "search_result") {
@@ -637,7 +632,7 @@
 			$(canvas).bind('mousemove', handler.dragged);
 			$(window).bind('mouseup', handler.dropped);
 
-			return false
+			return false;
 		    },
 
 		    // ドラッグ

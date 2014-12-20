@@ -7,7 +7,7 @@
   <%= javascript_include_tag 'graphics' %>
   <%= javascript_include_tag 'main' %>
 <% end %>
-experimental mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {} %>
+Experimental Mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {} %>
 <div id="experimental_mode">
   <%= "userid: #{ @userid } " + "interface: #{ @interface }" %>
   status: <span id="status">Retreving search results</span>
@@ -17,6 +17,9 @@ experimental mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {
     <button id="reload_countdown_timer_button" type="button" class="btn btn-warning">Reset</button>
   </div>
 </div>
+<% if @interface == 3 %>
+  Min Citations: <%= select_tag 'num_citations', options_for_select({'10' => 10, '100' => 100, '1000' => 1000, '0' => 0}) %>
+<% end %>
 <%= bootstrap_form_tag url: "/static_pages/result/#{ @userid }/#{ @interface }", method: :get, layout: :inline do |f| %>
   <%= f.text_field :search_string, value: @text_field_val, hide_label: :true %>
   <%= f.submit "検索" %>
