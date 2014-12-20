@@ -50,7 +50,7 @@ module Mscrawler
         sr_url = URI.join(@base_url, href).to_s
         sr_year_conference = item.css('.conference').text.strip!.gsub(/(\r\n|\r|\n|\s{3,})/, '')
         snippet = item.css('.abstract').text.strip! unless item.css('.abstract').empty?
-        rank = (index + 1).to_s
+        rank = (start_num + index).to_s
         msr = Mscrawler::MsacademicSearchResult.new(id, sr_title: sr_title, sr_authors: sr_authors, sr_url: sr_url, sr_year_conference: sr_year_conference, snippet: snippet, rank: rank)
         puts msr.to_h
         msrs.append(msr)

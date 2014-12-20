@@ -1,9 +1,4 @@
-//
-//  main.js
-//
-//  A project template for using arbor.js
-//
-
+// Arbor.jsによるグラフの生成(コードが恐ろしいほど汚いので直す)
 (function($) {
 
     var Renderer = function(canvas){
@@ -729,7 +724,7 @@
 
     };
     
-    $(document).ready(function(){
+    $(document).ready(function() {
 
 	// // アクションがresultでなければ関数を出ることで，ノードを読み込もうとするエラーを消す
 	// // FIXME: できるならアクションごとに読み込むJavaScriptを変えるべき
@@ -750,17 +745,17 @@
 	ctx.font = "normal 24px sans-serif";
 	ctx.fillText("Now Loading...", canvas.width / 2 - 100, canvas.height / 2);
 
-	// var loadingImage = new Image();
-	// loadingImage.src = '/assets/loading.gif';
-	// loadingImage.onload = function () {
-	//     ctx.drawImage(loadingImage, 100, 100);
-	// };
-
 	// Arbor.jsの初期化
 	var sys = arbor.ParticleSystem(0, 0, 0); // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:false}); // use center-gravity to make the graph settle nicely (ymmv)
 
-	graph_url = '../../graph/' + gon.interface + "?search_string=" + gon.query;
+	// FIXME: なぜかgon.start_num，gon.end_numが使えないので，URLからこれらの値を取ってきている
+	var params = getUrlVars();
+	var start_num = (typeof params['start_num'] !== 'undefined') ? params['start_num'] : 1;
+	var end_num = (typeof params['end_num'] !== 'undefined') ? params['end_num'] : 10;
+
+	graph_url = '../../graph/' + gon.interface + "?search_string=" + gon.query + '&start_num=' + start_num + '&end_num=' + end_num;
+
 	// JSONの読み込み
 	$.getJSON(graph_url, function(json){
 	    console.log(graph_url);
@@ -919,15 +914,6 @@
 	}
     };
 
-    // (function($){
-    // 	$.cloneObject = function(source,isDeep) {
-    //         if(isDeep){
-    // 		return $.extend(true,{},source);
-    //         }
-    //         return $.extend({},source);
-    // 	}
-    // })(jQuery);
-
     var multiLineText = function(context, text, width) {
 	var len = text.length; 
 	var strArray = [];
@@ -987,4 +973,18 @@
 	    ctx.fillText(text, x, y + lineHeight * i);
 	});
     };
+
+    // 現在のURLからパラメータのハッシュを生成する
+    function getUrlVars() { 
+	var vars = {}, hash; 
+	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'); 
+	for(var i = 0; i < hashes.length; i++) { 
+            hash = hashes[i].split('='); 
+	    vars[hash[0]] = hash[1];
+	    console.log(hash[0]);
+	    console.log(hash[1]);
+	} 
+	return vars; 
+    }
+
 })(this.jQuery);

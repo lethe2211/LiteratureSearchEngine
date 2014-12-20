@@ -7,14 +7,14 @@ require 'parallel'
 class CitationGraphComposer
   def initialize
     @mm = Mscrawler::MsacademicManager.new
-    @citation_threshold = 10
+    @citation_threshold = -1
   end
 
-  def compose_graph(articles)
+  def compose_graph(articles, start_num: 1, end_num: 10)
     query = articles['data']['query']
     search_results = articles['data']['search_results']
     Rails.logger.debug(search_results)
-    graph = compute_graph(query, search_results)
+    graph = compute_graph(query, search_results, start_num, end_num)
     Rails.logger.debug(graph.to_h['data'])
     return graph.to_h['data']
   end
@@ -57,7 +57,7 @@ class CitationGraphComposer
     return citedbyes
   end
 
-  def compute_graph(query, search_results)
+  def compute_graph(query, search_results, start_num, end_num)
     keyword = "citation_#{ query }"
     graph = SearchResultGraph.new(keyword, use_cache: false)
 
@@ -72,13 +72,18 @@ class CitationGraphComposer
     # 任意の一対の検索結果論文について
     search_results_combination = search_results.combination(2)
     # Parallel.each(search_results_combination.to_a, in_processes: search_results_combination.to_a.length) do |search_result1, search_result2| # search_results_combination.reduce(0) { |sum, i| sum += 1 } ) do |search_result1, search_result2|
-    search_results.combination(2) do |search_result1, search_result2|
+
+    search_results_target = search_results.select { |item| start_num <= item['rank'].to_i && item['rank'].to_i <= end_num } # 検索結果ノードとなる検索結果集合
+    search_results_top = search_results
+      .select { |item| item['rank'].to_i < start_num }
+      .map { |item| item['id'].to_s }
+
+    search_results_target.combination(2) do |search_result1, search_result2|
       id1 = search_result1["id"].to_s
       id2 = search_result2["id"].to_s
       Rails.logger.debug("id1: " + id1)
       Rails.logger.debug("id2: " + id2)
       Rails.logger.debug("")
-
 
       init_paper_node(id1, search_result1, bibliographies, graph)
       init_paper_node(id2, search_result2, bibliographies, graph)
@@ -91,11 +96,11 @@ class CitationGraphComposer
       Rails.logger.debug((citedbyes[id1] & citations[id2]).to_s)
       Rails.logger.debug((citedbyes[id1] & citedbyes[id2]).to_s)
 
-      append_co_citation_node(id1, id2, citations, graph)
+      append_co_citation_node(id1, id2, citations, search_results_top, graph)
 
-      append_citation_and_citedby_node(id1, id2, citations, citedbyes, graph)
+      append_citation_and_citedby_node(id1, id2, citations, citedbyes, search_results_top, graph)
       
-      append_co_citedby_node(id1, id2, citedbyes, graph)
+      append_co_citedby_node(id1, id2, citedbyes, search_results_top, graph)
 
       append_between_search_results_directed_graph_edge(id1, id2, citations, citedbyes, graph)
       append_between_search_results_directed_graph_edge(id2, id1, citations, citedbyes, graph)
@@ -112,7 +117,7 @@ class CitationGraphComposer
   end
 
   # 両方が(共)引用する論文
-  def append_co_citation_node(id1, id2, citations, graph)
+  def append_co_citation_node(id1, id2, citations, search_results_top, graph)
     co_citation = citations[id1] & citations[id2]
     Parallel.each(co_citation, in_threads: co_citation.length) do |cit|
     # (citations[id1] & citations[id2]).each do |cit|
@@ -122,6 +127,10 @@ class CitationGraphComposer
       Rails.logger.debug(bib['data'])
       if bib['data']['num_citations'].to_i > @citation_threshold
         node = NormalGraphNode.new(cit, bib["data"]["num_citations"], bib)
+        if search_results_top.include?(cit)
+          node.color = '#00FF00'
+        end
+
         graph.append_node(node)
 
         edge_id1 = NormalDirectedGraphEdge.new(id1, cit, 10, { 'citation_context' => @mm.get_citation_context(id1, cit) })
@@ -134,7 +143,7 @@ class CitationGraphComposer
     end
   end
 
-  def append_citation_and_citedby_node(id1, id2, citations, citedbyes, graph)
+  def append_citation_and_citedby_node(id1, id2, citations, citedbyes, search_results_top, graph)
     citation_and_citedby = citedbyes[id1] & citations[id2]
     # (citedbyes[id1] & citations[id2]).each do |cit|
     Parallel.each(citation_and_citedby, in_threads: citation_and_citedby.length) do |cit|
@@ -144,6 +153,10 @@ class CitationGraphComposer
       Rails.logger.debug(bib['data'])
       if bib['data']['num_citations'].to_i > @citation_threshold
         node = NormalGraphNode.new(cit, bib["data"]["num_citations"], bib)
+        if search_results_top.include?(cit)
+          node.color = '#00FF00'
+        end
+
         graph.append_node(node)
 
         edge_id1 = NormalDirectedGraphEdge.new(cit, id1, 10, { 'citation_context' => @mm.get_citation_context(cit, id1) })
@@ -156,7 +169,7 @@ class CitationGraphComposer
     end 
   end
 
-  def append_co_citedby_node(id1, id2, citedbyes, graph)
+  def append_co_citedby_node(id1, id2, citedbyes, search_results_top, graph)
     co_citedby = citedbyes[id1] & citedbyes[id2]
     Rails.logger.debug(co_citedby.to_s)
     # (citedbyes[id1] & citedbyes[id2]).each do |cit|
@@ -167,6 +180,10 @@ class CitationGraphComposer
       Rails.logger.debug(bib['data'])
       if bib['data']['num_citations'].to_i > @citation_threshold
         node = NormalGraphNode.new(cit, bib["data"]["num_citations"], bib)
+        if search_results_top.include?(cit)
+          node.color = '#00FF00'
+        end
+
         graph.append_node(node)
 
         citation_context_cit_id1 = @mm.get_citation_context(cit, id1)

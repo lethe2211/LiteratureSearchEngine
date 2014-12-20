@@ -2,9 +2,11 @@
 require 'open3'
 require 'json'
 require 'oj'
+require 'uri'
 
 class StaticPagesController < ApplicationController
   def search
+    gon.clear
     (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous" # ユーザID
     gon.userid = @userid
     @interface = params[:interface].to_i # インタフェースの番号
@@ -17,12 +19,16 @@ class StaticPagesController < ApplicationController
   end
 
   def result
+    gon.clear
     (not params[:userid].nil?) ? @userid = params[:userid] : @userid = "anonymous"
     gon.userid = @userid
     @interface = params[:interface].to_i
     gon.interface = @interface
     gon.action = "result"
-
+    @start_num = params.key?(:start_num) ? params[:start_num].to_i : 1
+    @end_num = params.key?(:end_num) ? params[:end_num].to_i : 10
+    # gon.watch.start_num = @start_num
+    # gon.watch.end_num = @end_num
     @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
 
     # クエリの正規化
@@ -31,6 +37,9 @@ class StaticPagesController < ApplicationController
     
     # 検索結果の取得と整形
     @articles = crawl(@query)
+
+    # 閲覧する検索結果を変えるためのリンクのURLを求める
+    @links_to_other_search_results = links_to_other_search_results
 
     # ログ取得
     rl = ResearchLogger.new
@@ -45,7 +54,16 @@ class StaticPagesController < ApplicationController
   # グラフを記述したJSONをJavaScript側に送る
   def graph
     @interface = params[:interface].to_i
-    
+    # start_num = params.key?(:start_num) ? params[:start_num].to_i : 1
+    # end_num = params.key?(:end_num) ? params[:end_num].to_i : 10
+    start_num = params[:start_num].to_i if params.key?(:start_num)
+    end_num = params[:end_num].to_i  if params.key?(:end_num)
+    # parameters = URI::parse(request.url).query
+    # array = URI.decode_www_form(parameters)
+    # q = Hash[*array.flatten]
+    # start_num = q['start_num'].to_i
+    # end_num = q['end_num'].to_i
+
     # クエリの正規化
     # @query = StringUtil.space_to_plus(params[:search_string])
     @query = params[:search_string]
@@ -63,7 +81,7 @@ class StaticPagesController < ApplicationController
       render :json => argc.compose_graph(@articles) # グラフを記述したJSONを呼び出す
     when 3
       cgc = CitationGraphComposer.new
-      render :json => cgc.compose_graph(@articles)
+      render :json => cgc.compose_graph(@articles, start_num: start_num, end_num: end_num)
     end
 
   end
@@ -87,6 +105,25 @@ class StaticPagesController < ApplicationController
   # クエリを受け取り，検索結果を返す
   def crawl(query)
     mm = Mscrawler::MsacademicManager.new
-    return mm.crawl(query, end_num: 10)
+    search_results = mm.crawl(query, end_num: 100)
+    @max_num = search_results['data']['num']
+    return search_results
+  end
+
+  def links_to_other_search_results
+    current_url = request.url
+    links = []
+    10.times do |i|
+      uri = URI::parse(current_url)
+      array = URI.decode_www_form(uri.query)
+      q = Hash[*array.flatten]
+      q['start_num'] = 10 * i + 1
+      q['end_num'] = 10 * i + 10
+      q.delete('utf8')
+      q.delete('commit')
+      uri.query = URI.encode_www_form(q)
+      links.push(uri.to_s)
+    end
+    return links
   end
 end

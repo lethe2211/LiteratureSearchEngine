@@ -28,22 +28,29 @@ Experimental Mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {
   <canvas id="citation_graph" width="800" height="600"></canvas>
   <div id="search_results">
     <% @articles["data"]["search_results"].each_with_index do |search_result, index| %>
-      <div class="search_result_row">
-	<div class="rank">
-	  <%= index + 1 %>
+      <% if (@start_num <= index + 1 && index + 1 <= @end_num) %>
+	<div class="search_result_row">
+	  <div class="rank">
+	    <%= index + 1 %>
+	  </div>
+	  <div class="relevance">
+	    <button type="button" class="btn btn-success btn-sm relevant">Relevant</button>
+	    <button type="button" class="btn btn-warning btn-sm partially_relevant">Partially Relevant</button>
+	    <button type="button" class="btn btn-danger btn-sm irrelevant">Irrelevant</button>
+	    <button type="button" class="btn btn-default btn-sm undo">Undo</button>
+	  </div>
+	  <div class="search_result">
+	    <div class="search_result_title" ><%= link_to "#{ search_result['sr_title'] }", "#{ search_result['sr_url'] }", :target => "_blank" %> </div>
+	    <div class="search_result_url" ><%= "#{search_result['sr_url']}" %></div>
+	    <div class="search_result_summary" ><%= "#{search_result['snippet']}" %></div>
+	  </div>
 	</div>
-	<div class="relevance">
-	  <button type="button" class="btn btn-success btn-sm relevant">Relevant</button>
-	  <button type="button" class="btn btn-warning btn-sm partially_relevant">Partially Relevant</button>
-	  <button type="button" class="btn btn-danger btn-sm irrelevant">Irrelevant</button>
-	  <button type="button" class="btn btn-default btn-sm undo">Undo</button>
-	</div>
-	<div class="search_result">
-	  <div class="search_result_title" ><%= link_to "#{ search_result['sr_title'] }", "#{ search_result['sr_url'] }", :target => "_blank" %> </div>
-	  <div class="search_result_url" ><%= "#{search_result['sr_url']}" %></div>
-	  <div class="search_result_summary" ><%= "#{search_result['snippet']}" %></div>
-	</div>
-      </div>
+      <% end %>
+    <% end %>
+  </div>
+  <div id='other_search_results'>
+    <% @links_to_other_search_results.each_with_index do |l, i| %>
+      <%= link_to (i+1).to_s, l %>
     <% end %>
   </div>
 <% end %>
