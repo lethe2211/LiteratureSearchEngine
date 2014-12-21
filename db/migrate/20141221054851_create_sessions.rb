@@ -1,8 +1,9 @@
 class CreateSessions < ActiveRecord::Migration
   def change
     create_table :sessions do |t|
-      t.references :task, index: true
-      t.string :query
+      t.references :query, index: true
+      t.integer :start_num
+      t.integer :end_num
 
       t.timestamps
     end

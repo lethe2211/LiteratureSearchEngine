@@ -1,3 +1,3 @@
 class Session < ActiveRecord::Base
-  belongs_to :task
+  belongs_to :query
 end

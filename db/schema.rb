@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141213043124) do
+ActiveRecord::Schema.define(version: 20141221120039) do
 
   create_table "accesses", force: true do |t|
     t.integer  "session_id"
@@ -20,22 +20,16 @@ ActiveRecord::Schema.define(version: 20141213043124) do
     t.integer  "literature_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.decimal  "elapsed_time"
   end
 
   add_index "accesses", ["literature_id"], name: "index_accesses_on_literature_id"
   add_index "accesses", ["session_id"], name: "index_accesses_on_session_id"
 
-  create_table "articles", force: true do |t|
-    t.string   "title"
-    t.string   "url"
-    t.integer  "cluster_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "events", force: true do |t|
     t.integer  "task_id"
     t.string   "event_type"
+    t.decimal  "elapsed_time"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -57,7 +51,17 @@ ActiveRecord::Schema.define(version: 20141213043124) do
     t.string   "relevance"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "type"
   end
+
+  create_table "queries", force: true do |t|
+    t.integer  "task_id"
+    t.string   "query"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "queries", ["task_id"], name: "index_queries_on_task_id"
 
   create_table "relevances", force: true do |t|
     t.integer  "session_id"
@@ -72,13 +76,14 @@ ActiveRecord::Schema.define(version: 20141213043124) do
   add_index "relevances", ["session_id"], name: "index_relevances_on_session_id"
 
   create_table "sessions", force: true do |t|
-    t.integer  "task_id"
-    t.string   "query"
+    t.integer  "query_id"
+    t.integer  "start_num"
+    t.integer  "end_num"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "sessions", ["task_id"], name: "index_sessions_on_task_id"
+  add_index "sessions", ["query_id"], name: "index_sessions_on_query_id"
 
   create_table "tasks", force: true do |t|
     t.string   "userid"

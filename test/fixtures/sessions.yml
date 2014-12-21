@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  task_id: 
-  query: MyString
+  query_id: 
+  start_num: 1
+  end_num: 1
 
 two:
-  task_id: 
-  query: MyString
+  query_id: 
+  start_num: 1
+  end_num: 1

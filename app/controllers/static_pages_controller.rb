@@ -12,10 +12,11 @@ class StaticPagesController < ApplicationController
     @interface = params[:interface].to_i # インタフェースの番号
     gon.interface = @interface
     gon.action = "search"
+    @experiment_seconds = 3600
 
     rl = ResearchLogger.new
     rl.start_task(@userid, @interface)
-    rl.add_event(@userid, @interface, 'search')
+    rl.add_event(@userid, @interface, 'search', @experiment_seconds - cookies[:remaining_seconds].to_i)
   end
 
   def result
@@ -29,12 +30,13 @@ class StaticPagesController < ApplicationController
     @end_num = params.key?(:end_num) ? params[:end_num].to_i : 10
     # gon.watch.start_num = @start_num
     # gon.watch.end_num = @end_num
+    @experiment_seconds = 3600
     @text_field_val = params[:search_string] if params[:search_string] # フォームに入力された文字
 
     # クエリの正規化
-    @query = params[:search_string]
+    @query = params[:search_string].strip
     gon.query = @query
-    
+
     # 検索結果の取得と整形
     @articles = crawl(@query)
 
@@ -46,9 +48,10 @@ class StaticPagesController < ApplicationController
     rl.write_initial_log(@userid, @interface, @query, @articles)
 
     rl.start_task(@userid, @interface)
-    rl.add_session(@userid, @interface, @query)
-    rl.add_access(@userid, @interface, @query, 'result')
-    rl.initialize_relevances(@userid, @interface, @query, @articles)
+    rl.add_query(@userid, @interface, @query)
+    rl.add_session(@userid, @interface, @query, @start_num, @end_num)
+    rl.add_access(@userid, @interface, @query, @start_num, @end_num, 'result', @experiment_seconds - cookies[:remaining_seconds].to_i)
+    rl.initialize_relevances(@userid, @interface, @query, @start_num, @end_num, @articles)
   end
 
   # グラフを記述したJSONをJavaScript側に送る
@@ -66,7 +69,7 @@ class StaticPagesController < ApplicationController
 
     # クエリの正規化
     # @query = StringUtil.space_to_plus(params[:search_string])
-    @query = params[:search_string]
+    @query = params[:search_string].strip
     
     # 検索結果の取得と整形
     @articles = crawl(@query)
@@ -110,15 +113,17 @@ class StaticPagesController < ApplicationController
     return search_results
   end
 
+  # 他の検索結果へのリンクの集合を返す
   def links_to_other_search_results
     current_url = request.url
     links = []
     10.times do |i|
+      break if @max_num < 10 * i + 1
       uri = URI::parse(current_url)
       array = URI.decode_www_form(uri.query)
       q = Hash[*array.flatten]
       q['start_num'] = 10 * i + 1
-      q['end_num'] = 10 * i + 10
+      q['end_num'] = [10 * i + 10, @max_num].min
       q.delete('utf8')
       q.delete('commit')
       uri.query = URI.encode_www_form(q)

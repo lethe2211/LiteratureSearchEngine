@@ -13,11 +13,10 @@
 //= require jquery
 //= require jquery_ujs
 //= require jquery.plugin
-//= require turbolinks
 //= require jquery.countdown
 //= require cookie
 //= require log
 //= require read-paper-log
-//= require checkbox-experimental-mode
 //= require countdown-timer
+//= require checkbox-experimental-mode
 //= require static_pages

@@ -2,10 +2,8 @@
 
 one:
   task_id: 
-  event_type: 
-  elapsed_time: 9.99
+  query: MyString
 
 two:
   task_id: 
-  event_type: 
-  elapsed_time: 9.99
+  query: MyString

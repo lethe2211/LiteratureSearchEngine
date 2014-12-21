@@ -1,13 +1,29 @@
 // ボタンが押されたかどうかに応じて，ログを書き換える
 
-$(document).ready(function() {
+var ready = function() {
 
     var url = '../../../logs/update_relevance/' + gon.userid + '/' + gon.interface;
 
+    // FIXME: なぜかgon.start_num，gon.end_numが使えないので，URLからこれらの値を取ってきている
+    // 現在のURLからパラメータのハッシュを生成する
+    var getUrlVars = function() { 
+	var vars = {}, hash; 
+	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'); 
+	for(var i = 0; i < hashes.length; i++) { 
+            hash = hashes[i].split('='); 
+	    vars[hash[0]] = hash[1];
+	} 
+	return vars; 
+    };
+    var params = getUrlVars();
+    var start_num = (typeof params['start_num'] !== 'undefined') ? parseInt(params['start_num']) : 1;
+    var end_num = (typeof params['end_num'] !== 'undefined') ? parseInt(params['end_num']) : 10;
+    console.log(start_num);
+    console.log(end_num);
     // 「適合」ボタン
     $(".relevant").click(function() {
-
-	var rank = $(".relevant").index(this) + 1;
+	console.log('relevant!');
+	var rank = $(".relevant").index(this);
 	var $search_result_row = $(this).parents('.search_result_row');
 
 	var iteration = $(this).data('iteration') || 1;
@@ -21,7 +37,7 @@ $(document).ready(function() {
 	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「適合」にする
-	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'relevant' }, function(json) {
+	    $.get(url, { search_string: gon.query, start_num: start_num, end_num: end_num, rank: start_num + rank, relevance: 'relevant' }, function(json) {
 		console.log(url);
 	    });
 
@@ -42,7 +58,7 @@ $(document).ready(function() {
     // 「部分的に適合」ボタン
     $(".partially_relevant").click(function() {
 
-	var rank = $(".partially_relevant").index(this) + 1;
+	var rank = $(".partially_relevant").index(this);
 	var $search_result_row = $(this).parents('.search_result_row');
 
 	var iteration = $(this).data('iteration') || 1;
@@ -56,7 +72,7 @@ $(document).ready(function() {
 	    if (siblingsIrrelevant.attr("disabled")) siblingsIrrelevant.attr("disabled", false);	    
 
 	    // ログを書き換えて「非適合」にする
-	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'partially_relevant' }, function(json) {
+	    $.get(url, { search_string: gon.query, start_num: start_num, end_num: end_num, rank: start_num + rank, relevance: 'partially_relevant' }, function(json) {
 		console.log(url);
 	    });
 
@@ -77,7 +93,7 @@ $(document).ready(function() {
     // 「非適合」ボタン
     $(".irrelevant").click(function() {
 
-	var rank = $(".irrelevant").index(this) + 1;
+	var rank = $(".irrelevant").index(this);
 	var $search_result_row = $(this).parents('.search_result_row');
 
 	var iteration = $(this).data('iteration') || 1;
@@ -91,7 +107,7 @@ $(document).ready(function() {
 	    if (siblingsRelevant.attr("disabled")) siblingsRelevant.attr("disabled", false);
 	    
 	    // ログを書き換えて「非適合」にする
-	    $.get(url, { search_string: gon.query, rank: rank, relevance: 'irrelevant' }, function(json) {
+	    $.get(url, { search_string: gon.query, start_num: start_num, end_num: end_num, rank: start_num + rank, relevance: 'irrelevant' }, function(json) {
 		console.log(url);
 	    });
 
@@ -112,20 +128,22 @@ $(document).ready(function() {
     // 「元に戻す」ボタン
     $(".undo").click(function() {
 
-	var rank = $(".undo").index(this) + 1;
+	var rank = $(".undo").index(this);
 	var siblings = $(this).siblings();
 
 	siblings.data('iteration', 1);
 	
-	$.get(url, { search_string: gon.query, rank: rank, relevance: 'none' }, function(json) {
+	$.get(url, { search_string: gon.query, start_num: start_num, end_num: end_num, rank: start_num + rank, relevance: 'none' }, function(json) {
 	    console.log(url);
 	});
 
 	siblings.attr("disabled", false);
 
     });
+}
 
-});
+$(document).ready(ready);
+$(document).on('page:load', ready);
 
 
 

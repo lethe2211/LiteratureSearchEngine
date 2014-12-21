@@ -668,6 +668,17 @@
 	var sys = arbor.ParticleSystem(0, 0, 0); // create the system with sensible repulsion/stiffness/friction
 	sys.parameters({gravity:false}); // use center-gravity to make the graph settle nicely (ymmv)
 
+	// 現在のURLからパラメータのハッシュを生成する
+	var getUrlVars = function() { 
+	    var vars = {}, hash; 
+	    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'); 
+	    for(var i = 0; i < hashes.length; i++) { 
+		hash = hashes[i].split('='); 
+		vars[hash[0]] = hash[1];
+	    } 
+	    return vars; 
+	};
+
 	// FIXME: なぜかgon.start_num，gon.end_numが使えないので，URLからこれらの値を取ってきている
 	var params = getUrlVars();
 	var start_num = (typeof params['start_num'] !== 'undefined') ? params['start_num'] : 1;
@@ -690,11 +701,12 @@
 		    $('#citation_graph').show();
 		    $('#search_results').show();
 		    $('#other_search_results').show();
+
 		    $('#countdown_timer').countdown('resume');
 		    $.get(
-			'../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface,
-			{},
-			function(json) {console.log('../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface);}
+		    	'../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface,
+		    	{ elapsed_time: calculateElapsedTime() },
+		    	function(json) {console.log('../../../logs/resume_countdown/' + gon.userid + '/' + gon.interface);}
 		    );
 		} else {
 		    $('.relevance').hide();
@@ -704,7 +716,7 @@
 		var url = '../../../logs/page_loaded/' + gon.userid + '/' + gon.interface;
 		$.get(
 		    url, 
-		    {search_string: gon.query},
+		    { search_string: gon.query, start_num: start_num, end_num: end_num, elapsed_time: calculateElapsedTime() },
 		    function(json) {console.log(url);}
 		);
 	    })
@@ -719,7 +731,12 @@
 		$('#status').text('Graph Loading Failed...');
 
 		// TODO: グラフのロードが失敗した時のログ
-		
+		var url = '../../../logs/graph_loaded_failed/' + gon.userid + '/' + gon.interface;
+		$.get(
+		    url, 
+		    { search_string: gon.query, start_num: start_num, end_num: end_num, elapsed_time: calculateElapsedTime() },
+		    function(json) {console.log(url);}
+		);
 	    });
 
     });
@@ -898,17 +915,13 @@
 	});
     };
 
-    // 現在のURLからパラメータのハッシュを生成する
-    var getUrlVars = function() { 
-	var vars = {}, hash; 
-	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'); 
-	for(var i = 0; i < hashes.length; i++) { 
-            hash = hashes[i].split('='); 
-	    vars[hash[0]] = hash[1];
-	    console.log(hash[0]);
-	    console.log(hash[1]);
-	} 
-	return vars; 
+    // 経過時間を計算する
+    var calculateElapsedTime = function() {
+	var experimentSeconds = 3600;
+	var periods = $('#countdown_timer').countdown('getTimes');
+        var remainingSeconds = $.countdown.periodsToSeconds(periods);
+        var elapsedTime = experimentSeconds - remainingSeconds;
+        return elapsedTime;
     };
 
 })(this.jQuery);
