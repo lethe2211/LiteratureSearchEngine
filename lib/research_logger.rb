@@ -89,7 +89,7 @@ class ResearchLogger
 
     record = { session_id: session_id, access_type: access_type, elapsed_time: elapsed_time }
     options.each do |key, value|
-      record[key] = value       # TODO: rankの扱い
+      record[key] = value
     end
     access = Access.new(record)
     access.save
@@ -118,7 +118,6 @@ class ResearchLogger
   end
 
   # フィードバックに応じてログを書き換える
-  # TODO: rankの値を書き換えておく
   def update_relevance(userid, interfaceid, q, start_num, end_num, rank, relev, options: {})
     task = Task.where(userid: userid, interfaceid: interfaceid).last
     task_id = task.id

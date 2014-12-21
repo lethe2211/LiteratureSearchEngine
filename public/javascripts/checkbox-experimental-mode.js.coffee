@@ -8,9 +8,9 @@ ready = ->
                 checkBox = $('#checkbox_experimental_mode')
                 checkBox.prop 'checked', true
                 $('#experimental_mode').show()
-                $('#countdown_timer').countdown 'pause'
                 $('#citation_graph').hide()
-                $('#search_results').hide()                
+                $('#search_results').hide()
+                $('#other_search_results').hide()
         else
                 checkBox = $('#checkbox_experimental_mode')
                 checkBox.prop 'checked', false
@@ -24,7 +24,8 @@ ready = ->
                         $('.relevance').show()
                 else
                         $('#experimental_mode').hide()
-                        $('#countdown_timer').countdown 'pause'
+                        exports.pause()
+                        # $('#countdown_timer').countdown 'pause'
                         $('.relevance').hide()
 
         $(window).on 'beforeunload', ->
