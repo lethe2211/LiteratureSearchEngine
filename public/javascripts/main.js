@@ -730,13 +730,14 @@
 		ctx.fillText("Graph Loading Failed...", 150, 150);
 		$('#status').text('Graph Loading Failed...');
 
-		// TODO: グラフのロードが失敗した時のログ
-		var url = '../../../logs/graph_loaded_failed/' + gon.userid + '/' + gon.interface;
+		var url = '../../../logs/graph_load_failed/' + gon.userid + '/' + gon.interface;
 		$.get(
 		    url, 
 		    { search_string: gon.query, start_num: start_num, end_num: end_num, elapsed_time: calculateElapsedTime() },
 		    function(json) {console.log(url);}
 		);
+
+		alert('Graph load Failed \nPlease retry...');
 	    });
 
     });
