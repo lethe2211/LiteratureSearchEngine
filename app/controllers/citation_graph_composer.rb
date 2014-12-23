@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-require 'citation_controller'
+# require 'citation_controller'
 require 'parallel'
+# require_relative '../../lib/normal_graph_node.rb'
 
 # 引用グラフを生成するためのクラス
 class CitationGraphComposer
@@ -58,8 +59,11 @@ class CitationGraphComposer
   end
 
   def compute_graph(query, search_results, start_num, end_num)
-    keyword = "citation_#{ query }"
-    graph = SearchResultGraph.new(keyword, use_cache: false)
+    keyword = "citation_#{ query }_#{ start_num }_#{ end_num }"
+    graph = SearchResultGraph.new(keyword, use_cache: true)
+    if (not graph.isNone)
+      return graph
+    end
 
     bibliographies = extract_bibliographies(search_results)
     citations = extract_citations(search_results)

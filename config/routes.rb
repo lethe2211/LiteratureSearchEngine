@@ -12,6 +12,7 @@ Search::Application.routes.draw do
   get 'logs/page_loaded/:userid/:interface' => 'logs#page_loaded'
   get 'logs/read_paper/:userid/:interface' => 'logs#read_paper'
   get 'logs/update_relevance/:userid/:interface' => 'logs#update_relevance'
+  get 'logs/graph_load_failed/:userid/:interface' => 'logs#graph_load_failed'
 
   get 'logs/load_countdown/:userid/:interface' => 'logs#load_countdown'
   get 'logs/reload_countdown/:userid/:interface' => 'logs#reload_countdown'

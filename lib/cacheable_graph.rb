@@ -39,6 +39,10 @@ class CacheableGraph < Graph
     end
   end
 
+  def isNone
+    return @graph[:nodes] == {}
+  end
+
   def set_cache
     @json_cache.set(@keyword, to_h)
   end
