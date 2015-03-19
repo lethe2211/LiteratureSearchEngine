@@ -7,7 +7,7 @@
   <%= javascript_include_tag 'graphics' %>
   <%= javascript_include_tag 'main' %>
 <% end %>
-Experimental Mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {} %>
+<!-- Experimental Mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {} %> -->
 <div id="experimental_mode">
   <%= "userid: #{ @userid } " + "interface: #{ @interface }" %>
   status: <span id="status">Retreving search results</span>
@@ -22,7 +22,7 @@ Experimental Mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {
 <% end %>
 <%= bootstrap_form_tag url: "/static_pages/result/#{ @userid }/#{ @interface }", method: :get, layout: :inline do |f| %>
   <%= f.text_field :search_string, value: @text_field_val, hide_label: :true %>
-  <%= f.submit "検索" %>
+  <%= f.submit "検索", :id => 'search_button' %>
 <% end %>
 <% if @articles %>
   <canvas id="citation_graph" width="800" height="600"></canvas>

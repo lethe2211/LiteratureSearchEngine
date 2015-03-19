@@ -11,6 +11,8 @@ ready = ->
                 $('#citation_graph').hide()
                 $('#search_results').hide()
                 $('#other_search_results').hide()
+                if gon.action == 'result'
+                        $('#search_button').attr('disabled', true);
         else
                 checkBox = $('#checkbox_experimental_mode')
                 checkBox.prop 'checked', false

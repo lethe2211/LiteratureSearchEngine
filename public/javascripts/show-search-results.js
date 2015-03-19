@@ -3,14 +3,22 @@
   var getUrlVars, ready;
 
   ready = function() {
-    var end_num, exports, isExperimentalMode, json, params, start_num, url;
+    var calculateElapsedTime, end_num, exports, isExperimentalMode, json, params, start_num, url;
     exports = this;
     params = getUrlVars();
     start_num = params['start_num'] != null ? parseInt(params['start_num']) : 1;
     end_num = params['end_num'] != null ? parseInt(params['end_num']) : 10;
+    calculateElapsedTime = function() {
+      var elapsedTime, periods, remainingSeconds;
+      periods = $('#countdown_timer').countdown('getTimes');
+      remainingSeconds = $.countdown.periodsToSeconds(periods);
+      elapsedTime = exports.experimentSeconds - remainingSeconds;
+      return elapsedTime;
+    };
     isExperimentalMode = Cookie.getCookie('is_experimental_mode');
     if (isExperimentalMode === 'true') {
       alert('Ready to search');
+      $('#search_button').attr('disabled', false);
       $('#search_results').show();
       $('#other_search_results').show();
       exports.resume();
@@ -22,7 +30,8 @@
     return $.get(url, {
       search_string: gon.query,
       start_num: start_num,
-      end_num: end_num
+      end_num: end_num,
+      elapsed_time: calculateElapsedTime()
     }, json = function() {
       return console.log(url);
     });

@@ -8,7 +8,7 @@ Experimental Mode: <%= check_box_tag "checkbox_experimental_mode", true, true, {
 </div>
 <%= bootstrap_form_tag url: "/static_pages/result/#{ @userid }/#{ @interface }", method: :get, layout: :inline do |f| %>
   <%= f.text_field :search_string, hide_label: :true %>
-  <%= f.submit "検索" %>
+  <%= f.submit "検索", :id => 'search_button' %>
 <% end %>
 
 <canvas id="citation_graph" width="0" height="0"></canvas>

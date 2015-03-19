@@ -60,7 +60,7 @@ class CitationGraphComposer
 
   def compute_graph(query, search_results, start_num, end_num)
     keyword = "citation_#{ query }_#{ start_num }_#{ end_num }"
-    graph = SearchResultGraph.new(keyword, use_cache: true)
+    graph = SearchResultGraph.new(keyword, use_cache: false)
     if (not graph.isNone)
       return graph
     end

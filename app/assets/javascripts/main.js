@@ -698,6 +698,7 @@
 		isExperimentalMode = Cookie.getCookie('is_experimental_mode');
 		if (isExperimentalMode === 'true') {
 		    alert('Ready to search'); 		// ユーザへの通知
+		    $('#search_button').attr('disabled', false);
 		    $('#citation_graph').show();
 		    $('#search_results').show();
 		    $('#other_search_results').show();
@@ -738,6 +739,8 @@
 		);
 
 		alert('Graph load Failed \nPlease retry...');
+		$('#search_button').attr('disabled', false);
+
 	    });
 
     });

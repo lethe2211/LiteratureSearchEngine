@@ -6,11 +6,17 @@ ready = ->
         start_num = if params['start_num']? then parseInt(params['start_num']) else 1
         end_num = if params['end_num']? then parseInt(params['end_num']) else 10
         
+        calculateElapsedTime = ->
+                periods = $('#countdown_timer').countdown('getTimes')
+                remainingSeconds = $.countdown.periodsToSeconds(periods)
+                elapsedTime = exports.experimentSeconds - remainingSeconds
+                return elapsedTime
 
         # 実験モード
         isExperimentalMode = Cookie.getCookie 'is_experimental_mode'
         if isExperimentalMode == 'true'
                 alert 'Ready to search' 		# ユーザへの通知
+                $('#search_button').attr('disabled', false);
                 $('#search_results').show()
                 $('#other_search_results').show()
                 exports.resume()
@@ -20,7 +26,7 @@ ready = ->
                 $('.relevance').hide()
         $('#status').text('Search completed')
         url = '../../../logs/page_loaded/' + gon.userid + '/' + gon.interface;
-        $.get url, { search_string: gon.query, start_num: start_num, end_num: end_num }, json = -> console.log(url)
+        $.get url, { search_string: gon.query, start_num: start_num, end_num: end_num, elapsed_time: calculateElapsedTime() }, json = -> console.log(url)
 
 getUrlVars = -> 
         vars = {}
