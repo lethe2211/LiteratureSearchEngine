@@ -1,0 +1,266 @@
+id|task_id|literature_id|relevance
+1|1|1774344|relevant
+2|1|2518044|relevant
+3|1|3523526|relevant
+4|1|4326951|relevant
+5|1|4508382|relevant
+6|1|4683762|relevant
+7|1|4733238|relevant
+8|1|4960704|relevant
+9|1|5022615|relevant
+10|1|5281720|relevant
+11|1|5379654|relevant
+12|1|5524540|relevant
+13|1|6052669|relevant
+14|1|6894445|relevant
+15|1|10822081|relevant
+16|1|13276205|relevant
+17|1|13669092|relevant
+18|1|39227235|relevant
+19|1|39248639|relevant
+20|1|39265006|relevant
+21|1|39280510|relevant
+22|1|39320717|relevant
+23|1|47773808|relevant
+24|1|50910282|relevant
+25|1|56921910|relevant
+26|1|58576892|relevant
+27|1|61406254|relevant
+28|1|61463258|relevant
+29|1|56907|partially relevant
+30|1|917144|partially relevant
+31|1|917146|partially relevant
+32|1|1242474|partially relevant
+33|1|2379571|partially relevant
+34|1|4237045|partially relevant
+35|1|4316692|partially relevant
+36|1|4321419|partially relevant
+37|1|4455807|partially relevant
+38|1|4468642|partially relevant
+39|1|4580346|partially relevant
+40|1|4830492|partially relevant
+41|1|5239856|partially relevant
+42|1|5301079|partially relevant
+43|1|5438883|partially relevant
+44|1|5582349|partially relevant
+45|1|6030627|partially relevant
+46|1|6037923|partially relevant
+47|1|6044142|partially relevant
+48|1|6048630|partially relevant
+49|1|6208392|partially relevant
+50|1|6384212|partially relevant
+51|1|6627803|partially relevant
+52|1|12304773|partially relevant
+53|1|13270408|partially relevant
+54|1|13276569|partially relevant
+55|1|13278008|partially relevant
+56|1|13296602|partially relevant
+57|1|39294023|partially relevant
+58|1|48480116|partially relevant
+59|1|50739063|partially relevant
+60|1|50827555|partially relevant
+61|1|50950033|partially relevant
+62|1|50951819|partially relevant
+63|1|56905515|partially relevant
+64|1|56995053|partially relevant
+65|1|58572094|partially relevant
+66|1|70684|irrelevant
+67|1|86685|irrelevant
+68|1|217573|irrelevant
+69|1|1819288|irrelevant
+70|1|2184922|irrelevant
+71|1|2474507|irrelevant
+72|1|3427377|irrelevant
+73|1|4242840|irrelevant
+74|1|4252599|irrelevant
+75|1|4296369|irrelevant
+76|1|4296442|irrelevant
+77|1|4317010|irrelevant
+78|1|4703395|irrelevant
+79|1|6223325|irrelevant
+80|1|13253780|irrelevant
+81|1|39264440|irrelevant
+82|1|43550001|irrelevant
+83|1|50767815|irrelevant
+84|1|50944217|irrelevant
+85|1|57221490|irrelevant
+86|1|57544008|irrelevant
+87|1|58068660|irrelevant
+88|2|304435|relevant
+89|2|458951|relevant
+90|2|548419|relevant
+91|2|583699|relevant
+92|2|654630|relevant
+93|2|719386|relevant
+94|2|1726814|relevant
+95|2|1766597|relevant
+96|2|1774344|relevant
+97|2|1889807|relevant
+98|2|2390292|relevant
+99|2|2422025|relevant
+100|2|2836162|relevant
+101|2|4272101|relevant
+102|2|4306687|relevant
+103|2|4733283|relevant
+104|2|5014128|relevant
+105|2|5268884|relevant
+106|2|6559052|relevant
+107|2|12866337|relevant
+108|2|13289685|relevant
+109|2|13296519|relevant
+110|2|13312575|relevant
+111|2|39324197|relevant
+112|2|50993680|relevant
+113|2|52616145|relevant
+114|2|56921761|relevant
+115|2|56994553|relevant
+116|2|49728|partially relevant
+117|2|322602|partially relevant
+118|2|455948|partially relevant
+119|2|458802|partially relevant
+120|2|743587|partially relevant
+121|2|1247714|partially relevant
+122|2|1701943|partially relevant
+123|2|1818354|partially relevant
+124|2|2164997|partially relevant
+125|2|2333761|partially relevant
+126|2|2760686|partially relevant
+127|2|4284511|partially relevant
+128|2|4284589|partially relevant
+129|2|4344459|partially relevant
+130|2|4397581|partially relevant
+131|2|4468642|partially relevant
+132|2|5662184|partially relevant
+133|2|5831655|partially relevant
+134|2|12806288|partially relevant
+135|2|12977079|partially relevant
+136|2|13996279|partially relevant
+137|2|14036926|partially relevant
+138|2|39226255|partially relevant
+139|2|39260310|partially relevant
+140|2|39270246|partially relevant
+141|2|39309121|partially relevant
+142|2|43550001|partially relevant
+143|2|47685106|partially relevant
+144|2|48219986|partially relevant
+145|2|48795376|partially relevant
+146|2|50290388|partially relevant
+147|2|50943958|partially relevant
+148|2|50944313|partially relevant
+149|2|51089068|partially relevant
+150|2|51127559|partially relevant
+151|2|58576527|partially relevant
+152|2|52264|irrelevant
+153|2|70684|irrelevant
+154|2|385007|irrelevant
+155|2|1811577|irrelevant
+156|2|2191780|irrelevant
+157|2|4112209|irrelevant
+158|2|4259051|irrelevant
+159|2|4316801|irrelevant
+160|2|4510821|irrelevant
+161|2|5477727|irrelevant
+162|2|6045389|irrelevant
+163|2|6494508|irrelevant
+164|2|12796564|irrelevant
+165|2|13276205|irrelevant
+166|2|39259902|irrelevant
+167|2|39261841|irrelevant
+168|2|47831141|irrelevant
+169|2|50643215|irrelevant
+170|2|57699547|irrelevant
+171|3|1886555|relevant
+172|3|2305254|relevant
+173|3|4251135|relevant
+174|3|4297849|relevant
+175|3|4299794|relevant
+176|3|4414783|relevant
+177|3|4710285|relevant
+178|3|4783443|relevant
+179|3|4783446|relevant
+180|3|6029962|relevant
+181|3|6030385|relevant
+182|3|6030423|relevant
+183|3|6031037|relevant
+184|3|12140245|relevant
+185|3|12274384|relevant
+186|3|13307454|relevant
+187|3|13761465|relevant
+188|3|28454618|relevant
+189|3|39219914|relevant
+190|3|39246145|relevant
+191|3|39248154|relevant
+192|3|56965204|relevant
+193|3|472994|partially relevant
+194|3|893785|partially relevant
+195|3|987496|partially relevant
+196|3|2427524|partially relevant
+197|3|2718620|partially relevant
+198|3|3899865|partially relevant
+199|3|4257978|partially relevant
+200|3|4306043|partially relevant
+201|3|4707005|partially relevant
+202|3|4729949|partially relevant
+203|3|4966408|partially relevant
+204|3|5046123|partially relevant
+205|3|5421796|partially relevant
+206|3|6072072|partially relevant
+207|3|6208392|partially relevant
+208|3|6308683|partially relevant
+209|3|13990895|partially relevant
+210|3|14087249|partially relevant
+211|3|32006811|partially relevant
+212|3|35867225|partially relevant
+213|3|39326590|partially relevant
+214|3|48835326|partially relevant
+215|3|51007397|partially relevant
+216|3|51118903|partially relevant
+217|3|51135869|partially relevant
+218|3|56905450|partially relevant
+219|3|56912305|partially relevant
+220|3|56921658|partially relevant
+221|3|56965423|partially relevant
+222|3|330580|irrelevant
+223|3|465852|irrelevant
+224|3|1237204|irrelevant
+225|3|1273205|irrelevant
+226|3|1314723|irrelevant
+227|3|1348993|irrelevant
+228|3|1502406|irrelevant
+229|3|1677178|irrelevant
+230|3|1795700|irrelevant
+231|3|2094032|irrelevant
+232|3|2127794|irrelevant
+233|3|2381531|irrelevant
+234|3|4349994|irrelevant
+235|3|5665818|irrelevant
+236|3|6189894|irrelevant
+237|3|6579301|irrelevant
+238|3|10594704|irrelevant
+239|3|10780303|irrelevant
+240|3|11433367|irrelevant
+241|3|11665992|irrelevant
+242|3|11812441|irrelevant
+243|3|11881227|irrelevant
+244|3|23891995|irrelevant
+245|3|26349537|irrelevant
+246|3|27186007|irrelevant
+247|3|27657583|irrelevant
+248|3|27696805|irrelevant
+249|3|29082853|irrelevant
+250|3|29277006|irrelevant
+251|3|29724789|irrelevant
+252|3|35689655|irrelevant
+253|3|39261413|irrelevant
+254|3|40736794|irrelevant
+255|3|41166492|irrelevant
+256|3|44366041|irrelevant
+257|3|44590753|irrelevant
+258|3|46353696|irrelevant
+259|3|49021156|irrelevant
+260|3|51192967|irrelevant
+261|3|55737531|irrelevant
+262|3|57404051|irrelevant
+263|3|57410009|irrelevant
+264|3|57625991|irrelevant
+265|3|57678676|irrelevant

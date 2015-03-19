@@ -1,0 +1,246 @@
+345|5|news bias|3899865
+345|5|news bias|6208392
+365|5|comparison　article|28454618
+373|5|newspaper method|14087249
+373|5|newspaper method|32006811
+385|5|category article|51135869
+40|6|Named Entity news analysis|5438883
+40|6|Named Entity news analysis|4468642
+45|6|Named Entity news analysis agree disagree|39294063
+55|6|Named Entity news analysis  clustering|4321419
+55|6|Named Entity news analysis  clustering|4455807
+55|6|Named Entity news analysis  clustering|39294023
+55|6|Named Entity news analysis  clustering|56995053
+60|6|News analysis clustering opinion|5524540
+63|6|News analysis clustering positive negative|4245104
+66|6|News analysis opinion|5031571
+76|6|News opinion mining Named entity pros cons|50739063
+92|6|opinion news mining|50827543
+142|7|cause and effect text mining|12636926
+142|7|cause and effect text mining|4185232
+142|7|cause and effect text mining|39259902
+144|7|event structure mining cause and effect|6947249
+144|7|event structure mining cause and effect|12636926
+144|7|event structure mining cause and effect|1653107
+144|7|event structure mining cause and effect|50899838
+145|7|Dependency parsing cause and effect|13332334
+146|7|Dependency parsing cause and effect text mining|39199602
+149|7|Dependency parsing  mining news analysis|4560864
+150|7|SVO structure named entity news|50767815
+152|7|SVO named entity news association mining|581548
+152|7|SVO named entity news association mining|2457350
+153|7|SVO named entity cause and effect|12890938
+155|7|cause mining news named entity|4415937
+155|7|cause mining news named entity|902785
+157|7|SVO structuring|6489925
+158|7|SVO structuring news article text mining|48816225
+158|7|SVO structuring news article text mining|1775213
+158|7|SVO structuring news article text mining|2461400
+158|7|SVO structuring news article text mining|2509705
+159|7|news relation maining|50961720
+160|7|news  article relation maining|61406254
+160|7|news  article relation maining|2326490
+160|7|news  article relation maining|50290388
+162|7|news  article relation mining cause and effect|13494044
+192|8|search related event|1840312
+202|8|search related news article|43550001
+204|8|search related news article|39226255
+204|8|search related news article|893971
+204|8|search related news article|13493986
+204|8|search related news article|4237045
+206|8|search related news article|56918319
+209|8|extract named entity news article|13276569
+209|8|extract named entity news article|39245992
+209|8|extract named entity news article|6030569
+209|8|extract named entity news article|12304773
+211|8|extract named entity news article|917144
+211|8|extract named entity news article|1774344
+211|8|extract named entity news article|2286179
+211|8|extract named entity news article|13324370
+213|8|causal mining news article|56921761
+213|8|causal mining news article|51191
+213|8|causal mining news article|626543
+215|8|causal news article|4510821
+215|8|causal news article|57699058
+215|8|causal news article|6045389
+217|8|causal news article|39799205
+217|8|causal news article|4706349
+220|8|cause effect news article|53177354
+221|9|privacy movement information|50740049
+221|9|privacy movement information|13320929
+221|9|privacy movement information|50776912
+222|9|privacy movement information|4299738
+222|9|privacy movement information|6952399
+222|9|privacy movement information|47933709
+222|9|privacy movement information|5135096
+222|9|privacy movement information|11977576
+223|9|privacy movement information|6034633
+223|9|privacy movement information|4684150
+223|9|privacy movement information|2177708
+224|9|privacy movement information|6030423
+224|9|privacy movement information|39246145
+224|9|privacy movement information|4299758
+224|9|privacy movement information|13984596
+225|9|privacy movement information|2431994
+226|9|privacy mobility information|50697556
+229|9|privacy mobility|1830364
+229|9|privacy mobility|102695
+230|9|privacy mobility|4981453
+231|9|privacy user movement|4707002
+231|9|privacy user movement|4729949
+231|9|privacy user movement|1866678
+232|9|privacy user movement|51082137
+232|9|privacy user movement|39266147
+232|9|privacy user movement|39219914
+248|10|News named entity|5438883
+249|10|News named entity contents|5022615
+251|10|News named entity sentimental|50910282
+252|10|News named entity polarity|6627803
+254|10|News article named entity polarity|4683762
+256|10|News article Analysis named entity polarity|39294023
+256|10|News article Analysis named entity polarity|4507227
+256|10|News article Analysis named entity polarity|1774344
+257|10|News article Analysis named entity polarity|13264550
+258|10|News article Analysis named entity polarity|57515799
+258|10|News article Analysis named entity polarity|47773808
+236|11|gps anonymity|13764301
+237|11|Anonymization moving object|6034629
+237|11|Anonymization moving object|58575669
+237|11|Anonymization moving object|4783447
+237|11|Anonymization moving object|4990167
+238|11|Anonymization moving object|4299758
+238|11|Anonymization moving object|4710288
+239|11|Anonymization moving object precise|2436976
+241|11|moving object gradient|2418265
+245|11|Anonymizing moving object  precise|6074712
+246|11|Anonymizing moving object  precise|4710207
+246|11|Anonymizing moving object  precise|4537461
+247|11|Anonymizing moving object  precise|47933709
+391|12|news article|376378
+391|12|news article|4296369
+392|12|news article phrases|4298436
+402|12|news article　sentence causation|12845140
+402|12|news article　sentence causation|37364101
+402|12|news article　sentence causation|11102813
+405|12|causation mining sentence|2385406
+405|12|causation mining sentence|626796
+406|12|causation extract causation|14231675
+416|12|causation japanese sentence|2181922
+289|13|named entity|10048393
+289|13|named entity|2029278
+300|13|article named entity|13277783
+300|13|article named entity|12304773
+302|13|named entity bias|13278008
+302|13|named entity bias|13302392
+307|13|named entity text|2446480
+307|13|named entity text|13277783
+314|13|named entity polarity|50910282
+316|13|text polarity|39256862
+319|13|named entity text class|2446627
+321|14|Causal relationship mining|2190680
+323|14|Causal relationship mining news article event|56921761
+325|14|Causal relationship news article event named entity|50827555
+325|14|Causal relationship news article event named entity|50865660
+325|14|Causal relationship news article event named entity|14365480
+330|14|relationship news article event named entity|1774344
+341|15|privacy Location information|3324618
+341|15|privacy Location information|573923
+342|15|privacy route information|1242285
+343|15|privacy route information　database|6134489
+344|15|privacy route information　database|39329801
+344|15|privacy route information　database|884904
+344|15|privacy route information　database|5444478
+349|15|route information database privacy|2189987
+349|15|route information database privacy|2188623
+358|15|location information database privacy|4272138
+358|15|location information database privacy|2465211
+358|15|location information database privacy|1837882
+366|15|location information database privacy|10534591
+415|16|casual relation|50678685
+417|16|casual relation mining|12741918
+419|16|mining association|2010
+421|16|mining association news|50424352
+421|16|mining association news|1833108
+423|16|casual relation news|13312575
+426|16|casual relation article|56915147
+427|16|casual relation conjunction|50682046
+496|17|"polarity"  named entity|50910282
+508|17|news article|1774344
+512|17|news article|79737
+514|17|news article|1862395
+519|17|news article named entity|2399236
+519|17|news article named entity|649125
+526|17|news article named entity|4507227
+532|17|named entity polarity|50739063
+535|17|named entity polarity|5050849
+546|17|news article visualizatin|2436593
+551|17|news article person organization|13494044
+563|17|news article person organization|2461410
+566|17|news article topic model|611145
+576|17|news article topic named entity|56995053
+453|18|mobility information privacy|44813878
+453|18|mobility information privacy|6036836
+453|18|mobility information privacy|50560417
+457|18|privacy mobility information|2169868
+457|18|privacy mobility information|55392566
+457|18|privacy mobility information|2611899
+457|18|privacy mobility information|50697556
+457|18|privacy mobility information|6559401
+458|18|k-annonimity mobility information|6489596
+458|18|k-annonimity mobility information|4707003
+458|18|k-annonimity mobility information|2305254
+458|18|k-annonimity mobility information|13292186
+458|18|k-annonimity mobility information|39219914
+458|18|k-annonimity mobility information|4414783
+458|18|k-annonimity mobility information|14136563
+458|18|k-annonimity mobility information|13307454
+458|18|k-annonimity mobility information|50789142
+530|19|causality mining Subject–verb–object|5014128
+530|19|causality mining Subject–verb–object|50893410
+539|19|causal relationship mining|812974
+539|19|causal relationship mining|1895862
+539|19|causal relationship mining|4133902
+549|19|causal relationship mining news article|6699032
+549|19|causal relationship mining news article|39266572
+549|19|causal relationship mining news article|626794
+553|19|causality mining news article effect|50961851
+553|19|causality mining news article effect|13494044
+553|19|causality mining news article effect|50961720
+554|19|causality mining news article effect|5561030
+554|19|causality mining news article effect|39284960
+555|19|causality mining news article effect|56921761
+559|19|causality mining Subject–verb–object|5014128
+559|19|causality mining Subject–verb–object|50893410
+573|19|causal relationship mining  proper noun|50308479
+600|20|named entity news article|4237045
+604|20|Polarity named entity news article|4683762
+604|20|Polarity named entity news article|12304773
+608|20|content analysis named entity news article|4245207
+612|20|content analysis news article|40877059
+612|20|content analysis news article|44664569
+612|20|content analysis news article|57141330
+621|20|positive negative analysis news article|4960704
+621|20|positive negative analysis news article|6384212
+621|20|positive negative analysis news article|5379654
+621|20|positive negative analysis news article|5524540
+626|20|sentiment analysis news article|4508382
+626|20|sentiment analysis news article|6894445
+626|20|sentiment analysis news article|61463258
+626|20|sentiment analysis news article|4830492
+545|21|location privacy k anonymous|4414783
+570|21|location privacy Gradient k anonymous|6489596
+570|21|location privacy Gradient k anonymous|39248154
+583|21|Route specific gps k anonymous|39219914
+583|21|Route specific gps k anonymous|4414511
+587|21|Route specific gps k anonymous|6876862
+586|22|k-anonymity transport|2305254
+588|22|k-anonymity location move|4707005
+588|22|k-anonymity location move|39293995
+596|22|privacy preserving cloaking|13762701
+607|22|privacy preserving data mining GPS|6063547
+610|22|trajectory privacy gradientmining GPS|4783443
+610|22|trajectory privacy gradientmining GPS|3621663
+610|22|trajectory privacy gradientmining GPS|4710285
+614|22|trajectory privacy mining|4297849
+623|22|k-anonymity trajectory GPS|6876862
+624|22|estimation trajectory gradient adversary|4434386
