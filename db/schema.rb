@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150105054154) do
+ActiveRecord::Schema.define(version: 20141221120039) do
 
   create_table "accesses", force: true do |t|
     t.integer  "session_id"
@@ -26,6 +26,14 @@ ActiveRecord::Schema.define(version: 20150105054154) do
   add_index "accesses", ["literature_id"], name: "index_accesses_on_literature_id"
   add_index "accesses", ["session_id"], name: "index_accesses_on_session_id"
 
+  create_table "articles", force: true do |t|
+    t.string   "title"
+    t.string   "url"
+    t.integer  "cluster_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "events", force: true do |t|
     t.integer  "task_id"
     t.string   "event_type"
@@ -35,17 +43,6 @@ ActiveRecord::Schema.define(version: 20150105054154) do
   end
 
   add_index "events", ["task_id"], name: "index_events_on_task_id"
-
-  create_table "ground_truths", force: true do |t|
-    t.integer  "task_id"
-    t.integer  "literature_id"
-    t.string   "relevance"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "ground_truths", ["literature_id"], name: "index_ground_truths_on_literature_id"
-  add_index "ground_truths", ["task_id"], name: "index_ground_truths_on_task_id"
 
   create_table "literatures", force: true do |t|
     t.string   "title"
@@ -62,7 +59,6 @@ ActiveRecord::Schema.define(version: 20150105054154) do
     t.string   "relevance"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "type"
   end
 
   create_table "queries", force: true do |t|
